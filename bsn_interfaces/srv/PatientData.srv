@@ -1,0 +1,5 @@
+# This service requests a vital sign, e.g., "temperature, SpO2, blood oxygenation, heart beat rate"
+# and returns a datapoint, e.g., 37°C, from the signal.
+string vital_sign
+---
+float64 datapoint
