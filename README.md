@@ -65,6 +65,11 @@ Changes to source files can be done locally and reflected inside the container i
 docker run -it --rm -v $(pwd):/ros_ws bsn2:latest
 ```
 
+If MacOS:
+```sh
+docker run -it --platform linux/amd64 bsn2:latest
+```
+
 ### Rebuilding the Workspace
 After modifying the code, rebuild using:
 
