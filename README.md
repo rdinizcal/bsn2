@@ -13,7 +13,6 @@ This guide explains how to install, build, and run BSN2 using Docker for a strea
 
 Before proceeding, ensure you have the following installed on your system:
 
-- [ROS2 Jazzy](https://docs.ros.org/en/jazzy/Installation.html)
 - [Docker](https://docs.docker.com/get-docker/)
 
 ## Installation & Setup
