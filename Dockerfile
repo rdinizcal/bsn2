@@ -13,8 +13,7 @@ RUN apt update && apt install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Build the workspace
-RUN source /opt/ros/jazzy/setup.bash && \
-    colcon build
+RUN /bin/bash -c "source /opt/ros/jazzy/setup.bash && colcon build --symlink-install"
 
 # Source the workspace when starting the container
 ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/jazzy/setup.bash && source /ros_ws/install/setup.bash && bash"]
