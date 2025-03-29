@@ -21,7 +21,6 @@ Before proceeding, ensure you have the following installed on your system:
 ### 1. Clone the Repository
 
 ```sh
-# Clone the repository
 git clone git@github.com:rdinizcal/bsn2.git
 cd bsn2
 ```
@@ -29,7 +28,6 @@ cd bsn2
 ### 2. Build the Docker Image
 
 ```sh
-# Build the Docker image
 docker build -t bsn2:latest .
 ```
 
@@ -50,8 +48,10 @@ Inside the running container, source the environment and run ROS 2 nodes:
 ```sh
 source /opt/ros/jazzy/setup.bash
 source /ros_ws/install/setup.bash
+```
 
-# Run nodes (in different terminals)
+Run nodes (in different terminals)
+```
 ros2 run patient patient
 ros2 run sensor thermometer
 ```
