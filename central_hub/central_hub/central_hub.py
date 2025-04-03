@@ -18,18 +18,18 @@ class CentralHub(Node):
         self.data_window = deque(maxlen=self.window_size)  
 
     def receive_datapoint(self, msg):
-        self.get_logger().info('++Received Datapoint++')
-        self.get_logger().info(f'data from: {msg.sensor_type} {msg.sensor_datapoint}')
+        self.get_logger().info(f'data received from: {msg.sensor_type} {msg.sensor_datapoint}')
         self.latest_temp = msg
         
         self.data_window.append(msg.sensor_datapoint)
+
     
-    def fuse_data(self, data:int):
+    def fuse_data(self):
         if len(self.data_window) < 5 :
             self.get_logger().info('Await for more results')
             return None
         avg_risk = sum(self.data_window) / len(self.data_window)
-        # Implement MVA
+        
         if 35 <= avg_risk < 36:
             risk_level = 'moderate'
         elif 36 <= avg_risk <= 38:
@@ -42,15 +42,12 @@ class CentralHub(Node):
         self.get_logger().info(f'Fused Data: {avg_risk}°C - Risk Level: {risk_level}')
         return risk_level
     
-    def emit_alert(self, data:int):
-        self.get_logger().info('++Emit Alert++')
+    def emit_alert(self):
         risk = self.fuse_data()
         if risk == 'high':
             self.get_logger().warning('ALERT: High Temperature Detected!')
         elif risk == 'moderate':
             self.get_logger().info('Warning: Abnormal temperature detected.')
-        else:
-            self.get_logger().info('no Data')
 
 def main(args=None):
     rclpy.init(args=args)

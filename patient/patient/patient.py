@@ -51,7 +51,7 @@ class Patient(Node):
 
     def get_data(self, request, response):
         response.datapoint = float(self.curr_datapoint)
-        self.get_logger().info('++Incoming request++\nRequest: (vital_sign: %s)\nResponse: (datapoint: %.4f)' % (request.vital_sign,response.datapoint))
+        self.get_logger().info('Request: (vital_sign: %s)\nResponse: (datapoint: %.4f)' % (request.vital_sign,response.datapoint))
         return response
 
 def main(args=None):

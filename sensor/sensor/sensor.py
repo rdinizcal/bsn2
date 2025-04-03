@@ -19,11 +19,10 @@ class Sensor(Node):
         self.publisher_ = self.create_publisher(SensorData, 'sensor_data/thermometer', 10)
 
     def collect(self):
-        self.get_logger().info('++Collect++')
         self.req.vital_sign = "temperature" 
         
         response = self.cli.call(self.req)
-        self.get_logger().info('new data collected: [%s]' % response.datapoint)
+        self.get_logger().info('++Collect++\n new data collected: [%s]' % response.datapoint)
         
         return response.datapoint
     
@@ -32,11 +31,10 @@ class Sensor(Node):
         return datapoint
     
     def transfer(self, datapoint:float):
-        self.get_logger().info('++Transfer++')
         msg = SensorData()
         msg.sensor_datapoint = datapoint
         self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.sensor_datapoint)
+        self.get_logger().info('++Transfer++\n Publishing: "%s"' % msg.sensor_datapoint)
 
 def main(args=None):
     rclpy.init(args=args)
