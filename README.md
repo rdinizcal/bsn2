@@ -83,7 +83,18 @@ To exit and remove the container, use:
 ```sh
 exit  # or Ctrl+D
 ```
-
+### Using devcontainer in vscode
+1. download docker extension
+2. click on reopen in container
+3. if setup.sh was not executed, run in ros_ws directory:
+```sh
+   bash src/.devcontainer/setup.sh
+```
+4. run the launch file:
+```sh
+source /ros_ws/install/setup.bash
+ros2 launch central_hub central_hub_launch.py
+```
 ## Contributing
 To collaborate on BSN2 development:
 
