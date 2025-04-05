@@ -50,6 +50,7 @@ source /ros_ws/install/setup.bash
 ```
 
 Run nodes (in different terminals)
+
 ```
 ros2 run patient patient
 ros2 run sensor thermometer
@@ -58,6 +59,7 @@ ros2 run sensor thermometer
 ## Development Workflow
 
 ### Modifying Code
+
 Changes to source files can be done locally and reflected inside the container if you mount the workspace as a volume:
 
 ```sh
@@ -65,11 +67,13 @@ docker run -it --rm -v $(pwd):/ros_ws bsn2:latest
 ```
 
 If MacOS:
+
 ```sh
 docker run -it --platform linux/amd64 bsn2:latest
 ```
 
 ### Rebuilding the Workspace
+
 After modifying the code, rebuild using:
 
 ```sh
@@ -78,24 +82,32 @@ source /ros_ws/install/setup.bash
 ```
 
 ### Stopping the Container
+
 To exit and remove the container, use:
 
 ```sh
 exit  # or Ctrl+D
 ```
+
 ### Using devcontainer in vscode
+
 1. download docker extension
 2. click on reopen in container
 3. if setup.sh was not executed, run in ros_ws directory:
+
 ```sh
-   bash src/.devcontainer/setup.sh
+bash src/.devcontainer/setup.sh
 ```
+
 4. run the launch file:
+
 ```sh
 source /ros_ws/install/setup.bash
 ros2 launch central_hub central_hub_launch.py
 ```
+
 ## Contributing
+
 To collaborate on BSN2 development:
 
 1. Fork the repository.
@@ -104,5 +116,5 @@ To collaborate on BSN2 development:
 4. Open a pull request.
 
 ## License
-BSN2 is licensed under [TBD - specify license].
 
+BSN2 is licensed under [TBD - specify license].
