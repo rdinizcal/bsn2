@@ -34,6 +34,6 @@
     "DISPLAY=${env:DISPLAY}"
   ],
   // ... other devcontainer.json configurations
-  "postCreateCommand": "/bin/bash -c 'chmod +x /ros_ws/src/.devcontainer/setup.sh && /ros_ws/src/.devcontainer/setup.sh'",
+  "postCreateCommand": "/bin/bash -c 'sudo chmod +x /ros_ws/src/.devcontainer/setup.sh && /ros_ws/src/.devcontainer/setup.sh'",
   "onCreateCommand": "/bin/bash -c 'echo \"source /opt/ros/jazzy/setup.bash && source /ros_ws/install/setup.bash\" >> /home/DockerUser/.bashrc'"
 }
