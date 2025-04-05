@@ -93,7 +93,7 @@ exit  # or Ctrl+D
 
 1. download docker extension
 2. click on reopen in container
-3. if setup.sh was not executed, run in ros_ws directory:
+3. if setup.sh was not executed and make sure it is in LF, run in ros_ws directory:
 
 ```sh
 bash src/.devcontainer/setup.sh
