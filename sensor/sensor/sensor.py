@@ -1,60 +1,39 @@
 import rclpy
 from rclpy.node import Node
+from abc import ABC, abstractmethod
 
-from std_msgs.msg import String
 from bsn_interfaces.srv import PatientData
 from bsn_interfaces.msg import SensorData
 
 import threading
 
-class Sensor(Node):
+class AbstractSensor(Node, ABC):
 
-    def __init__(self):
-        super().__init__('sensor')
+    def __init__(self, node_name: str, topic_name: str):
+        super().__init__(node_name)
         self.cli = self.create_client(PatientData, 'get_sensor_reading')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.req = PatientData.Request()
 
-        self.publisher_ = self.create_publisher(SensorData, 'sensor_data/thermometer', 10)
+        self.publisher_ = self.create_publisher(SensorData, topic_name, 10)
+
+    @abstractmethod
+    def get_vital_sign(self) -> str:
+        pass
 
     def collect(self):
-        self.req.vital_sign = "temperature" 
-        
+        self.req.vital_sign = self.get_vital_sign()
         response = self.cli.call(self.req)
-        self.get_logger().info('++Collect++\n new data collected: [%s]' % response.datapoint)
-        
+        self.get_logger().info(f'++Collect++\n new data collected: [{response.datapoint}]')
         return response.datapoint
-    
-    def process(self, datapoint:float):
+
+    def process(self, datapoint: float):
         self.get_logger().info('++Process++')
         return datapoint
-    
-    def transfer(self, datapoint:float):
+
+    def transfer(self, datapoint: float):
         msg = SensorData()
         msg.sensor_datapoint = datapoint
         self.publisher_.publish(msg)
-        self.get_logger().info('++Transfer++\n Publishing: "%s"' % msg.sensor_datapoint)
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    sensor = Sensor()
-
-    # Run spin in a thread, make thread daemon so we don't have to join it to exit
-    thread = threading.Thread(target=rclpy.spin, args=(sensor, ), daemon=True)
-    thread.start()
-    rate = sensor.create_rate(1) # 1 Hz
-
-    while rclpy.ok():
-        datapoint = sensor.collect()
-        datapoint = sensor.process(datapoint=datapoint)
-        sensor.transfer(datapoint=datapoint)
-        rate.sleep()
-
-    sensor.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
+        self.get_logger().info(f'++Transfer++\n Publishing: "{msg.sensor_datapoint}"')
