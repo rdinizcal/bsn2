@@ -20,7 +20,12 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'thermometer = sensor.sensor:main'
+            'thermometer = sensor.thermometer:main',
+            'SPO2 = sensor.SPO2:main',
+            'heart_rate = sensor.heart_rate:main',
+            'ABPS = sensor.ABPS:main',
+            'ABPD = sensor.ABPD:main',
+            'glucose = sensor.gluscose:main',
         ],
     },
 )

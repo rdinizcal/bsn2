@@ -3,19 +3,19 @@ import rclpy
 from sensor import Sensor
 import threading
 
-class ThermometerSensor(Sensor):
+class SPO2Sensor(Sensor):
 
     def __init__(self):
-        super().__init__('thermometer_sensor', 'thermometer')
+        super().__init__('abpd_sensor', 'abpd')
 
     def get_vital_sign(self) -> str:
-        return 'temperature'
+        return 'abpd'
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    sensor = ThermometerSensor()
+    sensor = SPO2Sensor()
 
     # Run spin in a thread, make thread daemon so we don't have to join it to exit
     thread = threading.Thread(target=rclpy.spin, args=(sensor, ), daemon=True)

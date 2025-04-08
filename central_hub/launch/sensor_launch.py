@@ -23,6 +23,12 @@ def generate_launch_description():
         ),
         launch_ros.actions.Node(
             package='sensor',
+            executable='heart_rate',
+            name='heart_rate_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
             executable='ABPS',
             name='ABPS_node',
             output='screen'
@@ -31,7 +37,13 @@ def generate_launch_description():
             package='sensor',
             executable='ABPD',
             name='ABPD_node',
-            output='Glucose'
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
+            executable='glucose',
+            name='glucose_node',
+            output='screen'
         ),
 
     ])
