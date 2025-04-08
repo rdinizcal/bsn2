@@ -1,6 +1,6 @@
 import rclpy
 
-from sensor import Sensor
+from sensor.sensor import Sensor
 import threading
 
 class SPO2Sensor(Sensor):

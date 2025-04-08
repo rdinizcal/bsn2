@@ -17,8 +17,8 @@ def generate_launch_description():
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='SPO2',
-            name='SPO2_node',
+            executable='oximeter',
+            name='oximeter_node',
             output='screen'
         ),
         launch_ros.actions.Node(
@@ -30,7 +30,7 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='sensor',
             executable='ABPS',
-            name='ABPS_node',
+            name='abps_node',
             output='screen'
         ),
         launch_ros.actions.Node(

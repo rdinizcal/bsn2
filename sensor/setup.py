@@ -21,11 +21,11 @@ setup(
     entry_points={
         'console_scripts': [
             'thermometer = sensor.thermometer:main',
-            'SPO2 = sensor.SPO2:main',
-            'heart_rate = sensor.heart_rate:main',
-            'ABPS = sensor.ABPS:main',
-            'ABPD = sensor.ABPD:main',
-            'glucose = sensor.gluscose:main',
+            'oximeter = sensor.oximeter:main',
+            'heart_rate = sensor.ecg:main',
+            'ABPS = sensor.abps:main',
+            'ABPD = sensor.abpd:main',
+            'glucose = sensor.glucose:main',
         ],
     },
 )
