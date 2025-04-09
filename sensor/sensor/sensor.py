@@ -11,6 +11,7 @@ class Sensor(Node, ABC):
         self.cli = self.create_client(PatientData, 'get_sensor_reading')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
+        self.sensor = sensor
         self.req = PatientData.Request()
         self.publisher_ = self.create_publisher(SensorData, 'sensor_data/' + sensor, 10)
 
@@ -29,6 +30,7 @@ class Sensor(Node, ABC):
 
     def transfer(self, datapoint: float):
         msg = SensorData()
+        msg.sensor_type = self.sensor
         msg.sensor_datapoint = datapoint
         self.publisher_.publish(msg)
         self.get_logger().info(f'++Transfer++\n Publishing: "{msg.sensor_datapoint}"')

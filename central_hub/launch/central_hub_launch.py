@@ -16,10 +16,41 @@ def generate_launch_description():
             output='screen'
         ),
         launch_ros.actions.Node(
+            package='sensor',
+            executable='oximeter',
+            name='oximeter_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
+            executable='heart_rate',
+            name='heart_rate_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
+            executable='ABPS',
+            name='abps_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
+            executable='ABPD',
+            name='ABPD_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
+            package='sensor',
+            executable='glucose',
+            name='glucose_node',
+            output='screen'
+        ),
+        launch_ros.actions.Node(
             package='central_hub',
             executable='emergency_detection',
             name='central_hub_node',
             output='screen'
         ),
+
     ])
 

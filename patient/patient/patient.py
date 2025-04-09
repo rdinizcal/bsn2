@@ -48,7 +48,7 @@ class Patient(Node):
 
             range_min, range_max = state_ranges[curr_state]
             self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
-            self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
+            #self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
 
 
     def get_data(self, request, response):
