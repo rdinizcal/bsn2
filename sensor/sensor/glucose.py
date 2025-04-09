@@ -3,7 +3,7 @@ import rclpy
 from sensor.sensor import Sensor
 import threading
 
-class SPO2Sensor(Sensor):
+class GlucoseSensor(Sensor):
 
     def __init__(self):
         super().__init__('glucosemeter_sensor', 'glucosemeter')
@@ -15,7 +15,7 @@ class SPO2Sensor(Sensor):
 def main(args=None):
     rclpy.init(args=args)
 
-    sensor = SPO2Sensor()
+    sensor = GlucoseSensor()
 
     # Run spin in a thread, make thread daemon so we don't have to join it to exit
     thread = threading.Thread(target=rclpy.spin, args=(sensor, ), daemon=True)

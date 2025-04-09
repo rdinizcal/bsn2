@@ -3,19 +3,19 @@ import rclpy
 from sensor.sensor import Sensor
 import threading
 
-class SPO2Sensor(Sensor):
+class ECGSensor(Sensor):
 
     def __init__(self):
         super().__init__('ecg_sensor', 'ecg')
 
-    def get_vital_sign(self) -> str:
+    def get_vital_sign(self) -> str:  
         return 'heart_rate'
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    sensor = SPO2Sensor()
+    sensor = ECGSensor()
 
     # Run spin in a thread, make thread daemon so we don't have to join it to exit
     thread = threading.Thread(target=rclpy.spin, args=(sensor, ), daemon=True)

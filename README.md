@@ -103,7 +103,7 @@ bash src/.devcontainer/setup.sh
 
 ```sh
 source /ros_ws/install/setup.bash
-ros2 launch central_hub central_hub_launch.py
+ros2 launch central_hub emergency_detection_launch.py
 ```
 
 ## Contributing
