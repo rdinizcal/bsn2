@@ -1,11 +1,9 @@
+import threading
+import random
 import rclpy
 from rclpy.node import Node
-
-from std_msgs.msg import String
 from bsn_interfaces.srv import PatientData
 
-import threading
-import random 
 
 
 class Patient(Node):
@@ -20,38 +18,47 @@ class Patient(Node):
                 [0.01,0.15,0.84]
                 ]
         self.states = {
-                0: [35,37],
-                1: [37,39],
-                2: [39,41]
-            }
-        self.curr_state=1
-
-        self.curr_datapoint=0
+            'temperature': {0: [35, 37], 1: [37, 39], 2: [39, 41]},
+            'abps':        {0: [90, 110], 1: [111, 130], 2: [131, 150]},
+            'abpd':        {0: [60, 75],  1: [76, 85],   2: [86, 95]},
+            'heart_rate':  {0: [60, 80],  1: [81, 100],  2: [101, 120]},
+            'glucose':     {0: [70, 100], 1: [101, 125], 2: [126, 160]},
+            'oxigenation': {0: [95, 97],  1: [92, 94],   2: [88, 91]}
+        }
+        self.vital_states = {key: 1 for key in self.states}
+        self.vital_datapoints = {key: 0.0 for key in self.states}
 
     def gen_data(self):
-        # transition
-        x = random.random()
-        prev_state = self.curr_state
-        prob_array = self.transition_matrix[self.curr_state]
-        if x <= prob_array[0]:
-            self.curr_state = 0
-        elif x <= prob_array[0] + prob_array[1]:
-            self.curr_state = 1
-        else:
-            self.curr_state = 2
-        
-        if self.curr_state != prev_state:
-            self.get_logger().info('State transition: %d -> %d' % (prev_state, self.curr_state))
+        for vital_sign, state_ranges in self.states.items():
+            x = random.random()
+            prev_state = self.vital_states[vital_sign]
+            probs = self.transition_matrix[prev_state]
 
-        # generate data based on current state
-        self.curr_datapoint = random.uniform(self.states[self.curr_state][0],self.states[self.curr_state][1])
-        self.get_logger().info('Generated %.2f°C' % self.curr_datapoint)
+            if x <= probs[0]:
+                self.vital_states[vital_sign] = 0
+            elif x <= probs[0] + probs[1]:
+                self.vital_states[vital_sign] = 1
+            else:
+                self.vital_states[vital_sign] = 2
 
-        return
+            curr_state = self.vital_states[vital_sign]
+
+            if curr_state != prev_state:
+                self.get_logger().info(f'State transition for {vital_sign}: {prev_state} -> {curr_state}')
+
+            range_min, range_max = state_ranges[curr_state]
+            self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
+            #self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
+
 
     def get_data(self, request, response):
-        response.datapoint = float(self.curr_datapoint)
-        self.get_logger().info('Request: (vital_sign: %s)\nResponse: (datapoint: %.4f)' % (request.vital_sign,response.datapoint))
+        vital = request.vital_sign.lower()
+        if vital not in self.vital_datapoints:
+            self.get_logger().warn(f"Requested unknown vital sign: {vital}")
+            response.datapoint = -1.0
+        else:
+            response.datapoint = float(self.vital_datapoints[vital])
+            self.get_logger().info(f'Request: ({vital}) -> {response.datapoint:.4f}')
         return response
 
 def main(args=None):
