@@ -3,7 +3,6 @@ import rclpy
 import threading
 from bsn_interfaces.srv import PatientData
 from bsn_interfaces.msg import SensorData
-import rclpy.parameter
 
 class Sensor(Node):
 
@@ -56,7 +55,7 @@ def main(args=None):
     # Get node name from CLI remapping (set in the launch file)
     
     
-    sensor_node = Sensor(node_name='sensor_node')  # pass the resolved name
+    sensor_node = Sensor(node_name='sensor_node') 
     
     thread = threading.Thread(target=rclpy.spin, args=(sensor_node, ), daemon=True)
     thread.start()
