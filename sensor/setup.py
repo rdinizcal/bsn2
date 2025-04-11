@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'sensor = sensor.sensor:main',
             'thermometer = sensor.thermometer:main',
             'oximeter = sensor.oximeter:main',
             'heart_rate = sensor.ecg:main',

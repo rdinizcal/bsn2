@@ -2,48 +2,57 @@ import launch
 import launch_ros.actions
 
 def generate_launch_description():
+
     return launch.LaunchDescription([
         launch_ros.actions.Node(
             package='patient',
             executable='patient',
             name='patient_node',
+            emulate_tty=True,
             output='screen'
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='thermometer',
+            executable='sensor', 
             name='thermometer_node',
-            output='screen'
+            output='screen',
+            emulate_tty=True,
+            parameters=[{'sensor': 'thermometer', 'vital_sign': 'temperature', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='oximeter',
+            executable='sensor',
             name='oximeter_node',
-            output='screen'
+            output='screen',
+            parameters=[{'sensor': 'oximeter', 'vital_sign': 'oxigenation', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='heart_rate',
-            name='heart_rate_node',
-            output='screen'
+            executable='sensor',
+            name='ecg_node',
+            output='screen',
+            parameters=[{'sensor': 'ecg', 'vital_sign': 'heart_rate', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='ABPS',
+            executable='sensor',
             name='abps_node',
-            output='screen'
+            output='screen',
+            parameters=[{'sensor': 'abps', 'vital_sign': 'abps', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='ABPD',
-            name='ABPD_node',
-            output='screen'
+            executable='sensor',
+            name='abpd_node',
+            output='screen',
+            parameters=[{'sensor': 'abpd', 'vital_sign': 'abpd', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='sensor',
-            executable='glucose',
-            name='glucose_node',
-            output='screen'
+            executable='sensor',
+            name='glucosemeter_node',
+            output='screen',
+            parameters=[{'sensor': 'glucosemeter', 'vital_sign': 'glucose', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='central_hub',
@@ -53,4 +62,3 @@ def generate_launch_description():
         ),
 
     ])
-
