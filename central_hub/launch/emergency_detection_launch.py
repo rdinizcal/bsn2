@@ -32,6 +32,7 @@ def generate_launch_description():
             executable='sensor',
             name='oximeter_node',
             output='screen',
+            emulate_tty=True,
             parameters=[{'sensor': 'oximeter', 'vital_sign': 'oxigenation', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
@@ -39,6 +40,7 @@ def generate_launch_description():
             executable='sensor',
             name='ecg_node',
             output='screen',
+            emulate_tty=True,
             parameters=[{'sensor': 'ecg', 'vital_sign': 'heart_rate', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
@@ -46,6 +48,7 @@ def generate_launch_description():
             executable='sensor',
             name='abps_node',
             output='screen',
+            emulate_tty=True,
             parameters=[{'sensor': 'abps', 'vital_sign': 'abps', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
@@ -53,6 +56,7 @@ def generate_launch_description():
             executable='sensor',
             name='abpd_node',
             output='screen',
+            emulate_tty=True,
             parameters=[{'sensor': 'abpd', 'vital_sign': 'abpd', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
@@ -60,12 +64,14 @@ def generate_launch_description():
             executable='sensor',
             name='glucosemeter_node',
             output='screen',
+            emulate_tty=True,
             parameters=[{'sensor': 'glucosemeter', 'vital_sign': 'glucose', 'frequency': '1.0'}]
         ),
         launch_ros.actions.Node(
             package='central_hub',
             executable='emergency_detection',
             name='central_hub_node',
+            emulate_tty=True,
             output='screen'
         ),
 

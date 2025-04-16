@@ -12,13 +12,12 @@ class Patient(Node):
         super().__init__('patient')
 
         # Declare global frequency
-        self.declare_parameter('frequency', 1.0)
+        self.declare_parameter("frequency", 1.0)
         self.frequency = self.get_parameter('frequency').value
         
         # Declare vital sign list
         self.declare_parameter('vitalSigns', ['temperature', 'abps', 'abpd', 'heart_rate', 'glucose', 'oxigenation'])
         self.vital_signs = self.get_parameter('vitalSigns').value
-        
         self.change_rates = {}
         self.offsets = {}
         self.transition_matrix_states = {}
@@ -35,7 +34,7 @@ class Patient(Node):
             self.risk_ranges[vital] = self._set_up_sensor_risk_ranges(vital)
 
 
-        self.vital_states = {key: 1 for key in self.vital_signs}
+        self.vital_states = {key: 2 for key in self.vital_signs}
         self.vital_datapoints = {key: 0.0 for key in self.vital_signs}
         '''
          
@@ -62,13 +61,12 @@ class Patient(Node):
         for i in range(5):
             self.declare_parameter(f'{vital}_State{i}', [0.0, 0.0, 0.0, 0.0, 0.0])
             state_dict[i] = self.get_parameter(f'{vital}_State{i}').value
-            self.get_logger().debug(f'{vital}_State{i}: {state_dict[i]}')  # Log the parameter value
             if sum(state_dict[i]) == 0.0:
                 self.get_logger().warn(f'State {i} for {vital} is all zeros and will be ignored.')
                 state_dict[i] = None  # Mark the state as invalid
-            elif sum(state_dict[i]) != 1.0:
-                self.get_logger().warn(f'State {i} for {vital} does not add up to 100%')
-        state_dict = {}
+            elif sum(state_dict[i]) > 1.0:
+                self.get_logger().warn(f'State {i} for {vital} does is higher than 1')
+        self.get_logger().warn(f'{vital} transition matrix: {state_dict}')
         return state_dict
     
     def _set_up_sensor_risk_ranges(self, vital: str):
@@ -78,42 +76,49 @@ class Patient(Node):
             param_name = f'{vital}_{labels[i]}'
             self.declare_parameter(param_name, [-1.0, -1.0])
             risks[i] = self.get_parameter(param_name).value
+        self.get_logger().debug(f'risks for {vital} is {risks}')
         return risks
 
     def gen_data(self):
         for vital_sign in self.vital_signs:
-            x = random.random()
             prev_state = self.vital_states[vital_sign]
             self.get_logger().debug(f"transition matrix: {self.transition_matrix_states[vital_sign]}, prev_state: {prev_state}")
             probs = self.transition_matrix_states[vital_sign][prev_state]
-            if probs is None:
-                self.get_logger().warn(f"Previous state {prev_state} for {vital_sign} is invalid. Skipping.")
-                continue
             
-            if x <= probs[0]:
-                self.vital_states[vital_sign] = 0
-            elif x <= sum(probs[:2]):
-                self.vital_states[vital_sign] = 1
-            elif x <= sum(probs[:3]):
-                self.vital_states[vital_sign] = 2
-            elif x <= sum(probs[:4]):
-                self.vital_states[vital_sign] = 3
-            else:
-                self.vital_states[vital_sign] = 4
-
-            curr_state = self.vital_states[vital_sign]
-
-            if curr_state != prev_state and self.risk_ranges[curr_state][0] != -1.0:
+            if probs is None:
+                continue      
+                    
+            curr_state = self._determine_possible_next_state(probs, vital_sign)
+            
+            if -1.0 in self.risk_ranges[vital_sign][curr_state]:
+                continue
+            elif curr_state != prev_state:
                 self.get_logger().info(f'State transition for {vital_sign}: {prev_state} -> {curr_state}')
+            
+            self._calculate_datapoint(vital_sign, curr_state)
+            
+    def _determine_possible_next_state(self, probs, vital_sign: str):
+        x = random.random()
+        if x <= probs[0]:
+            self.vital_states[vital_sign] = 0
+        elif x <= sum(probs[:2]):
+            self.vital_states[vital_sign] = 1
+        elif x <= sum(probs[:3]):
+            self.vital_states[vital_sign] = 2
+        elif x <= sum(probs[:4]):
+            self.vital_states[vital_sign] = 3
+        else:
+            self.vital_states[vital_sign] = 4
+        return self.vital_states[vital_sign]
 
-            range_min, range_max = self.risk_ranges[curr_state]
-            if range_min != -1.0 and range_max != -1.0 and range_min <= range_max:
-                self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
-                #self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
-            else:
-                self.get_logger().warn(f"Invalid risk range for {vital_sign} state {curr_state}: [{range_min}, {range_max}]")
-                self.vital_datapoints[vital_sign] = -1.0
-
+    def _calculate_datapoint(self, vital_sign: str, curr_state: int):
+        range_min, range_max = self.risk_ranges[vital_sign][curr_state]
+        if range_min != -1.0 and range_max != -1.0 and range_min <= range_max:
+            self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
+            self.get_logger().debug(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
+        else:
+            self.get_logger().fatal(f"Invalid risk range for {vital_sign} state {curr_state}: [{range_min}, {range_max}]")
+            self.vital_datapoints[vital_sign] = -1.0        
 
     def get_data(self, request, response):
         vital = request.vital_sign.lower()
@@ -124,6 +129,11 @@ class Patient(Node):
             response.datapoint = float(self.vital_datapoints[vital])
             self.get_logger().info(f'Request: ({vital}) -> {response.datapoint:.4f}')
         return response
+    def spin_patient(self):
+        rate = self.create_rate(self.frequency)
+        while rclpy.ok():
+            self.gen_data()
+            rate.sleep()
 
 def main(args=None):
     rclpy.init(args=args)
@@ -134,14 +144,11 @@ def main(args=None):
     thread = threading.Thread(target=rclpy.spin, args=(patient, ), daemon=True)
     thread.start()
 
-    rate = patient.create_rate(5) # 1 Hz
-
-    while rclpy.ok():
-        patient.gen_data()
-        rate.sleep()
-
-    sensor.destroy_node()
-    rclpy.shutdown()
+    try:
+        patient.spin_patient()
+    finally:
+        patient.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
