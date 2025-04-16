@@ -21,7 +21,7 @@ class Patient(Node):
         
         self.change_rates = {}
         self.offsets = {}
-        self.states = {}
+        self.transition_matrix_states = {}
         self.risk_ranges = {}
 
         for vital in self.vital_signs:
@@ -31,7 +31,7 @@ class Patient(Node):
 
             self.change_rates[vital] = self.get_parameter(f'{vital}_Change').value
             self.offsets[vital] = self.get_parameter(f'{vital}_Offset').value
-            self.states[vital] = self._gen_sensor_state_matrix(vital)
+            self.transition_matrix_states[vital] = self._gen_sensor_state_matrix(vital)
             self.risk_ranges[vital] = self._set_up_sensor_risk_ranges(vital)
 
 
@@ -62,38 +62,57 @@ class Patient(Node):
         for i in range(5):
             self.declare_parameter(f'{vital}_State{i}', [0.0, 0.0, 0.0, 0.0, 0.0])
             state_dict[i] = self.get_parameter(f'{vital}_State{i}').value
+            self.get_logger().debug(f'{vital}_State{i}: {state_dict[i]}')  # Log the parameter value
+            if sum(state_dict[i]) == 0.0:
+                self.get_logger().warn(f'State {i} for {vital} is all zeros and will be ignored.')
+                state_dict[i] = None  # Mark the state as invalid
+            elif sum(state_dict[i]) != 1.0:
+                self.get_logger().warn(f'State {i} for {vital} does not add up to 100%')
         state_dict = {}
         return state_dict
     
     def _set_up_sensor_risk_ranges(self, vital: str):
         risks = {}
-        for label in ['LowRisk', 'MidRisk0', 'MidRisk1', 'HighRisk0', 'HighRisk1']:
-            param_name = f'{vital}_{label}'
+        labels = ['LowRisk', 'MidRisk0', 'MidRisk1', 'HighRisk0', 'HighRisk1']
+        for i in range(len(labels)):
+            param_name = f'{vital}_{labels[i]}'
             self.declare_parameter(param_name, [-1.0, -1.0])
-            risks[label] = self.get_parameter(param_name).value
+            risks[i] = self.get_parameter(param_name).value
         return risks
 
     def gen_data(self):
-        for vital_sign, state_ranges in self.states.items():
+        for vital_sign in self.vital_signs:
             x = random.random()
             prev_state = self.vital_states[vital_sign]
-            probs = self.transition_matrix[prev_state]
-
+            self.get_logger().debug(f"transition matrix: {self.transition_matrix_states[vital_sign]}, prev_state: {prev_state}")
+            probs = self.transition_matrix_states[vital_sign][prev_state]
+            if probs is None:
+                self.get_logger().warn(f"Previous state {prev_state} for {vital_sign} is invalid. Skipping.")
+                continue
+            
             if x <= probs[0]:
                 self.vital_states[vital_sign] = 0
-            elif x <= probs[0] + probs[1]:
+            elif x <= sum(probs[:2]):
                 self.vital_states[vital_sign] = 1
-            else:
+            elif x <= sum(probs[:3]):
                 self.vital_states[vital_sign] = 2
+            elif x <= sum(probs[:4]):
+                self.vital_states[vital_sign] = 3
+            else:
+                self.vital_states[vital_sign] = 4
 
             curr_state = self.vital_states[vital_sign]
 
-            if curr_state != prev_state:
+            if curr_state != prev_state and self.risk_ranges[curr_state][0] != -1.0:
                 self.get_logger().info(f'State transition for {vital_sign}: {prev_state} -> {curr_state}')
 
-            range_min, range_max = state_ranges[curr_state]
-            self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
-            #self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
+            range_min, range_max = self.risk_ranges[curr_state]
+            if range_min != -1.0 and range_max != -1.0 and range_min <= range_max:
+                self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
+                #self.get_logger().info(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
+            else:
+                self.get_logger().warn(f"Invalid risk range for {vital_sign} state {curr_state}: [{range_min}, {range_max}]")
+                self.vital_datapoints[vital_sign] = -1.0
 
 
     def get_data(self, request, response):
