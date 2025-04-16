@@ -10,8 +10,35 @@ class Patient(Node):
 
     def __init__(self):
         super().__init__('patient')
-        self.srv = self.create_service(PatientData, 'get_sensor_reading', self.get_data)
 
+        # Declare global frequency
+        self.declare_parameter('frequency', 1.0)
+        self.frequency = self.get_parameter('frequency').value
+        
+        # Declare vital sign list
+        self.declare_parameter('vitalSigns', ['temperature', 'abps', 'abpd', 'heart_rate', 'glucose', 'oxigenation'])
+        self.vital_signs = self.get_parameter('vitalSigns').value
+        
+        self.change_rates = {}
+        self.offsets = {}
+        self.states = {}
+        self.risk_ranges = {}
+
+        for vital in self.vital_signs:
+            # Declare change rate and offset
+            self.declare_parameter(f'{vital}_Change', 1.0)
+            self.declare_parameter(f'{vital}_Offset', 0.0)
+
+            self.change_rates[vital] = self.get_parameter(f'{vital}_Change').value
+            self.offsets[vital] = self.get_parameter(f'{vital}_Offset').value
+            self.states[vital] = self._gen_sensor_state_matrix(vital)
+            self.risk_ranges[vital] = self._set_up_sensor_risk_ranges(vital)
+
+
+        self.vital_states = {key: 1 for key in self.vital_signs}
+        self.vital_datapoints = {key: 0.0 for key in self.vital_signs}
+        '''
+         
         self.transition_matrix = [
                 [0.84,0.15,0.01],
                 [0.02,0.95,0.03],
@@ -27,6 +54,24 @@ class Patient(Node):
         }
         self.vital_states = {key: 1 for key in self.states}
         self.vital_datapoints = {key: 0.0 for key in self.states}
+        
+        '''
+        self.srv = self.create_service(PatientData, 'get_sensor_reading', self.get_data)
+    def _gen_sensor_state_matrix(self, vital: str):
+        state_dict = {}
+        for i in range(5):
+            self.declare_parameter(f'{vital}_State{i}', [0.0, 0.0, 0.0, 0.0, 0.0])
+            state_dict[i] = self.get_parameter(f'{vital}_State{i}').value
+        state_dict = {}
+        return state_dict
+    
+    def _set_up_sensor_risk_ranges(self, vital: str):
+        risks = {}
+        for label in ['LowRisk', 'MidRisk0', 'MidRisk1', 'HighRisk0', 'HighRisk1']:
+            param_name = f'{vital}_{label}'
+            self.declare_parameter(param_name, [-1.0, -1.0])
+            risks[label] = self.get_parameter(param_name).value
+        return risks
 
     def gen_data(self):
         for vital_sign, state_ranges in self.states.items():
