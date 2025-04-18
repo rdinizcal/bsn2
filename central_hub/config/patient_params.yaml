@@ -61,7 +61,7 @@ patient_node:
 
     abpd_HighRisk0: [-1.0, -1.0]
     abpd_MidRisk0: [-1.0, -1.0]
-    abpd_LowRisk: [0.0, 80.0]
+    abpd_LowRisk: [0.0, 79.99]
     abpd_MidRisk1: [80.0, 90.0]
     abpd_HighRisk1: [90.0, 300.0]
 
@@ -74,7 +74,7 @@ patient_node:
     abps_HighRisk0: [-1.0, -1.0]
     abps_MidRisk0: [-1.0, -1.0]
     abps_LowRisk: [0.0, 120.0]
-    abps_MidRisk1: [120.0, 140.0]
+    abps_MidRisk1: [120.0, 139.99]
     abps_HighRisk1: [140.0, 300.0]
 
     glucose_State0: [0.2, 0.4, 0.22, 0.15, 0.03]

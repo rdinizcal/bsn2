@@ -36,56 +36,54 @@ class CentralHub(Node):
     def handle_risks(self, signal: str, avg: float):
         # Each field: signal (15), value (15), risk (20)
         if signal == 'thermometer':
-            if 35 <= avg < 36:
-                risk = 'moderate'
-            elif 36 <= avg <= 38:
-                risk = 'normal'
-            elif 38 < avg <= 40:
-                risk = 'moderate'
-            else:
+            if avg < 32.0 or avg > 50.0:
                 risk = 'high'
+            elif 36.0 <= avg <= 37.99:
+                risk = 'normal'
+            else:
+                risk = 'moderate'
             return risk, f"| {signal:<15} | {avg:>7.2f} °C      | Risk: {risk:<21} |\n"
 
         elif signal == 'abpd':
-            if avg < 60 or avg > 120:
+            if avg > 90:
                 risk = 'high'
-            elif 60 <= avg <= 70 or 90 <= avg <= 120:
+            elif 80 <= avg < 90:
                 risk = 'moderate'
             else:
                 risk = 'normal'
             return risk, f"| {signal:<15} | {avg:>7.2f} mmHg    | Risk: {risk:<21} |\n"
 
         elif signal == 'abps':
-            if avg < 90 or avg > 180:
+            if avg >= 140:
                 risk = 'high'
-            elif 90 <= avg <= 100 or 140 <= avg <= 180:
+            elif 120 <= avg < 140:
                 risk = 'moderate'
             else:
                 risk = 'normal'
             return risk, f"| {signal:<15} | {avg:>7.2f} mmHg    | Risk: {risk:<21} |\n"
 
         elif signal == 'ecg':
-            if avg < 50 or avg > 120:
+            if avg > 115 or avg < 70:
                 risk = 'high'
-            elif 50 <= avg <= 60 or 100 <= avg <= 120:
-                risk = 'moderate'
-            else:
+            elif 85 <= avg <= 97:
                 risk = 'normal'
+            else:
+                risk = 'moderate'
             return risk, f"| {signal:<15} | {avg:>7.2f} bpm     | Risk: {risk:<21} |\n"
 
         elif signal == 'glucosemeter':
-            if avg < 70 or avg > 200:
+            if avg < 40 or avg >= 120:
                 risk = 'high'
-            elif 70 <= avg <= 80 or 140 <= avg <= 200:
-                risk = 'moderate'
-            else:
+            elif 55 <= avg < 96:
                 risk = 'normal'
+            else:
+                risk = 'moderate'
             return risk, f"| {signal:<15} | {avg:>7.2f} mg/dL   | Risk: {risk:<21} |\n"
 
-        elif signal == 'oximeter':
-            if avg < 90:
+        elif signal == 'oximeter': 
+            if avg <= 55:
                 risk = 'high'
-            elif 90 <= avg <= 94:
+            elif 55 < avg <= 65:
                 risk = 'moderate'
             else:
                 risk = 'normal'
