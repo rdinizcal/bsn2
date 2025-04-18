@@ -19,43 +19,33 @@ class Patient(Node):
         self.declare_parameter('vitalSigns', ['temperature', 'abps', 'abpd', 'heart_rate', 'glucose', 'oxigenation'])
         self.vital_signs = self.get_parameter('vitalSigns').value
         self.change_rates = {}
+        self.vital_Frequencies = {}
         self.offsets = {}
         self.transition_matrix_states = {}
         self.risk_ranges = {}
-
+        
+        change_frequency = 10
+        self.PERIOD = 1.0 / change_frequency
+        
         for vital in self.vital_signs:
             # Declare change rate and offset
-            self.declare_parameter(f'{vital}_Change', 1.0)
+            self.declare_parameter(f'{vital}_Change', 0.1)
             self.declare_parameter(f'{vital}_Offset', 0.0)
-
-            self.change_rates[vital] = self.get_parameter(f'{vital}_Change').value
+            
+            self.vital_Frequencies[vital] = 0
+            self.change_rates[vital] = 1 / self.get_parameter(f'{vital}_Change').value
             self.offsets[vital] = self.get_parameter(f'{vital}_Offset').value
+            
             self.transition_matrix_states[vital] = self._gen_sensor_state_matrix(vital)
             self.risk_ranges[vital] = self._set_up_sensor_risk_ranges(vital)
 
 
         self.vital_states = {key: 2 for key in self.vital_signs}
         self.vital_datapoints = {key: 0.0 for key in self.vital_signs}
-        '''
-         
-        self.transition_matrix = [
-                [0.84,0.15,0.01],
-                [0.02,0.95,0.03],
-                [0.01,0.15,0.84]
-                ]
-        self.states = {
-            'temperature': {0: [35, 37], 1: [37, 39], 2: [39, 41]},
-            'abps':        {0: [90, 110], 1: [111, 130], 2: [131, 150]},
-            'abpd':        {0: [60, 75],  1: [76, 85],   2: [86, 95]},
-            'heart_rate':  {0: [60, 80],  1: [81, 100],  2: [101, 120]},
-            'glucose':     {0: [70, 100], 1: [101, 125], 2: [126, 160]},
-            'oxigenation': {0: [95, 97],  1: [92, 94],   2: [88, 91]}
-        }
-        self.vital_states = {key: 1 for key in self.states}
-        self.vital_datapoints = {key: 0.0 for key in self.states}
         
-        '''
+        
         self.srv = self.create_service(PatientData, 'get_sensor_reading', self.get_data)
+        
     def _gen_sensor_state_matrix(self, vital: str):
         state_dict = {}
         for i in range(5):
@@ -71,7 +61,7 @@ class Patient(Node):
     
     def _set_up_sensor_risk_ranges(self, vital: str):
         risks = {}
-        labels = ['LowRisk', 'MidRisk0', 'MidRisk1', 'HighRisk0', 'HighRisk1']
+        labels = ['HighRisk0', 'MidRisk0', 'LowRisk', 'MidRisk1', 'HighRisk1']
         for i in range(len(labels)):
             param_name = f'{vital}_{labels[i]}'
             self.declare_parameter(param_name, [-1.0, -1.0])
@@ -81,22 +71,31 @@ class Patient(Node):
 
     def gen_data(self):
         for vital_sign in self.vital_signs:
-            prev_state = self.vital_states[vital_sign]
-            self.get_logger().debug(f"transition matrix: {self.transition_matrix_states[vital_sign]}, prev_state: {prev_state}")
-            probs = self.transition_matrix_states[vital_sign][prev_state]
-            
-            if probs is None:
-                continue      
+            self.vital_Frequencies[vital_sign] += self.PERIOD
+            curr_state = self.vital_states[vital_sign]
+            # Check if the accumulated time exceeds the change rate + offset
+            self.get_logger().debug(f"vital_Frequencies: {self.vital_Frequencies[vital_sign]}, change_rates: {self.change_rates[vital_sign]}, offsets: {self.offsets[vital_sign]}")
+            if self.vital_Frequencies[vital_sign] >= (self.change_rates[vital_sign] + self.offsets[vital_sign]):
+                self.get_logger().debug(f"transition matrix: {self.transition_matrix_states[vital_sign]}, curr_state: {curr_state}")
+                probs = self.transition_matrix_states[vital_sign][curr_state]
+
+                if probs is None:
+                    continue      
+
+                next_state = self._determine_possible_next_state(probs, vital_sign)
+                
+                if -1.0 in self.risk_ranges[vital_sign][next_state]:
+                    continue
+                elif next_state != curr_state:
+                    self.get_logger().info(f'State transition for {vital_sign}: {curr_state} -> {next_state}')
                     
-            curr_state = self._determine_possible_next_state(probs, vital_sign)
-            
-            if -1.0 in self.risk_ranges[vital_sign][curr_state]:
-                continue
-            elif curr_state != prev_state:
-                self.get_logger().info(f'State transition for {vital_sign}: {prev_state} -> {curr_state}')
-            
-            self._calculate_datapoint(vital_sign, curr_state)
-            
+                # Calculate the datapoint for the next state
+                self._calculate_datapoint(vital_sign, next_state)
+                # Reset the accumulated time to the offset value
+                self.vital_Frequencies[vital_sign] = self.offsets[vital_sign]
+            else:
+                self._calculate_datapoint(vital_sign, curr_state)
+
     def _determine_possible_next_state(self, probs, vital_sign: str):
         x = random.random()
         if x <= probs[0]:
@@ -129,6 +128,8 @@ class Patient(Node):
             response.datapoint = float(self.vital_datapoints[vital])
             self.get_logger().info(f'Request: ({vital}) -> {response.datapoint:.4f}')
         return response
+    
+    
     def spin_patient(self):
         rate = self.create_rate(self.frequency)
         while rclpy.ok():
