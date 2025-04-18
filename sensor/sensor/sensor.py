@@ -1,4 +1,5 @@
 from rclpy.node import Node
+from collections import deque
 import rclpy
 import threading
 from bsn_interfaces.srv import PatientData
@@ -24,6 +25,9 @@ class Sensor(Node):
 
         self.req = PatientData.Request()
         self.publisher_ = self.create_publisher(SensorData, f'sensor_data/{self.sensor}', 10)
+        
+        self.window_size = 5
+        self.data_window = deque(maxlen=self.window_size)
 
     def collect(self):
         self.req.vital_sign = self.vital_sign
@@ -32,7 +36,17 @@ class Sensor(Node):
         return response.datapoint
 
     def process(self, datapoint: float):
-        return datapoint
+        # Add the new datapoint to the deque
+        self.data_window.append(datapoint)
+
+        # Calculate the moving average
+        if len(self.data_window) == self.window_size:
+            moving_avg = sum(self.data_window) / self.window_size
+            self.get_logger().info(f'Moving average for {self.sensor}: {moving_avg}')
+            return moving_avg
+        else:
+            self.get_logger().info(f'Insufficient data for moving average. Current window size: {len(self.data_window)}')
+            return -1.0  # Return -1 to indicate insufficient data
 
     def transfer(self, datapoint: float):
         msg = SensorData()

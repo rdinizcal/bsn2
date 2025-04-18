@@ -1,6 +1,5 @@
 import rclpy
 import threading
-from collections import deque
 from rclpy.node import Node
 from bsn_interfaces.msg import SensorData
 
@@ -15,23 +14,23 @@ class CentralHub(Node):
         self.sub_glucosemeter = self.create_subscription(SensorData, 'sensor_data/glucosemeter', self.receive_datapoint, 10)
         self.sub_oximeter = self.create_subscription(SensorData, 'sensor_data/oximeter', self.receive_datapoint, 10)
         self.sub_thermometer = self.create_subscription(SensorData, 'sensor_data/thermometer', self.receive_datapoint, 10)
-        
-        self.window_size = 5
-        self.latest_temp = None
-        self.data_windows = {
-            'abpd': deque(maxlen=self.window_size),
-            'abps': deque(maxlen=self.window_size),
-            'ecg': deque(maxlen=self.window_size),
-            'glucosemeter': deque(maxlen=self.window_size),
-            'oximeter': deque(maxlen=self.window_size),
-            'thermometer': deque(maxlen=self.window_size),
+        self.NOT_USED = ''
+        self.latest_data = {
+            'abpd': self.NOT_USED,
+            'abps': self.NOT_USED,
+            'ecg': self.NOT_USED,
+            'glucosemeter': self.NOT_USED,
+            'oximeter': self.NOT_USED,
+            'thermometer': self.NOT_USED,
         }
 
     def receive_datapoint(self, msg):
         if msg.sensor_type == '':
             self.get_logger().debug(f'null value received: {msg.sensor_type} with {msg.sensor_datapoint}')
         else:
-            self.data_windows[msg.sensor_type].append(msg.sensor_datapoint)
+            # Update the latest data for the corresponding sensor type
+            self.latest_data[msg.sensor_type] = msg.sensor_datapoint
+            self.get_logger().info(f'Received data from {msg.sensor_type}: {msg.sensor_datapoint}')
         
     def handle_risks(self, signal: str, avg: float):
         # Each field: signal (15), value (15), risk (20)
@@ -112,18 +111,18 @@ class CentralHub(Node):
         log_message += header + "\n"
         log_message += border + "\n"
 
-
-        
-        for signal, window in self.data_windows.items():
-            if len(window) < self.window_size:
-                
+        # Iterate over the latest data to process received data
+        for signal, value in self.latest_data.items():
+            if value == self.NOT_USED:
+                continue
+            if value == -1:  # Insufficient data for moving average
                 log_message += f"| {signal:<15} | waiting data      |                           |\n"
                 continue
             else:
-                avg = sum(window) / self.window_size
-                risk, log = self.handle_risks(signal, avg)
+                risk, log = self.handle_risks(signal, value)
                 log_message += log
                 risk_levels[signal] = risk
+
         log_message += "+-----------------+-----------------+-----------------------------+"
         self.get_logger().info(log_message)
         return risk_levels
