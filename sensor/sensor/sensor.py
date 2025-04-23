@@ -32,6 +32,9 @@ class Sensor(Node):
     def collect(self):
         self.req.vital_sign = self.vital_sign
         response = self.cli.call(self.req)
+        if response is None:
+            self.get_logger().error('Service call failed. No response received.')
+            return -1.0  # Return a default value or handle the error appropriately
         self.get_logger().info(f'++Collect++\n new data from {self.req.vital_sign} collected: [{response.datapoint}]')
         return response.datapoint
 

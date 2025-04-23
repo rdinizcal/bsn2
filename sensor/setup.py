@@ -17,10 +17,17 @@ setup(
     maintainer_email='ricardo.caldas@gssi.it',
     description='TODO: Package description',
     license='TODO: License declaration',
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-bdd'],
+        extras_require={
+        'test': [
+            'pytest',
+            'pytest-bdd'
+        ],
+    },
     entry_points={
         'console_scripts': [
             'sensor = sensor.sensor:main',
         ],
+        
     },
 )

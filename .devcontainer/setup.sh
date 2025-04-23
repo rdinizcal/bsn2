@@ -19,4 +19,12 @@ colcon build --symlink-install
 
 source /ros_ws/install/setup.bash
 
+echo "setting up behave"
+sudo apt install pipx
+pipx ensurepath
+pipx install behave
+pipx inject behave PyYAML, numpy
+
+sudo apt install python3-pytest-bdd
+
 echo "Setup Complete!"
