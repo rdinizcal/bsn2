@@ -32,12 +32,24 @@ def get_message_attributes(topic_name):
     message_class = getattr(module, class_name)
 
     # Retrieve attributes
+    attributes = []
     if hasattr(message_class, '__slots__'):
-        return message_class.__slots__
+        attributes = list(message_class.__slots__)
     elif hasattr(message_class, '__dataclass_fields__'):
-        return message_class.__dataclass_fields__.keys()
-    else:
-        return []
+        attributes = list(message_class.__dataclass_fields__.keys())
+
+    # Handle nested fields like 'header' and remove invalid fields
+    expanded_attributes = []
+    for attr in attributes:
+        if attr == 'header':
+            expanded_attributes.extend(['_header_stamp_sec', '_header_stamp_nanosec', '_header_frame_id'])
+        elif attr != '_check_fields':  # Exclude invalid or unnecessary fields
+            expanded_attributes.append(attr)
+
+    # Ensure header-related fields are at the front of the list
+    return ['_header_stamp_sec', '_header_stamp_nanosec', '_header_frame_id'] + [
+        attr for attr in expanded_attributes if attr not in ['_header', '_check_fields']
+    ]
 
 def capture_csv_data(topic, line_limit=10):
     """

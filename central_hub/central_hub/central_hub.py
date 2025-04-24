@@ -2,7 +2,8 @@ import rclpy
 import threading
 from rclpy.node import Node
 from bsn_interfaces.msg import SensorData
-
+from bsn_interfaces.msg import TargetSystemData
+from std_msgs.msg import Header
 
 class CentralHub(Node):
 
@@ -15,13 +16,16 @@ class CentralHub(Node):
         self.sub_oximeter = self.create_subscription(SensorData, 'sensor_data/oximeter', self.receive_datapoint, 10)
         self.sub_thermometer = self.create_subscription(SensorData, 'sensor_data/thermometer', self.receive_datapoint, 10)
         self.NOT_USED = ''
+        
+        self.target_system_publisher = self.create_publisher(TargetSystemData, 'target_system_data', 10)
+        
         self.latest_data = {
-            'abpd': self.NOT_USED,
-            'abps': self.NOT_USED,
-            'ecg': self.NOT_USED,
-            'glucosemeter': self.NOT_USED,
-            'oximeter': self.NOT_USED,
-            'thermometer': self.NOT_USED,
+            'abpd': -1.0,
+            'abps': -1.0,
+            'ecg': -1.0,
+            'glucosemeter': -1.0,
+            'oximeter': -1.0,
+            'thermometer': -1.0,
         }
 
     def receive_datapoint(self, msg):
@@ -124,15 +128,58 @@ class CentralHub(Node):
         log_message += "+-----------------+-----------------+-----------------------------+"
         self.get_logger().info(log_message)
         return risk_levels
+    
+    def detect(self):
+        # Create a TargetSystemData message
+        msg = TargetSystemData()
+
+        # Add header
+        header = Header()
+        header.stamp = self.get_clock().now().to_msg()
+        header.frame_id = 'central_hub'
+        msg.header = header
+
+        # Get risk levels from fuse_data()
+        risks = self.fuse_data()
+        
+        self.emit_alert(risks)
+        # Populate the message fields
+        msg.trm_data = self.latest_data.get('thermometer', -1.0)
+        msg.ecg_data = self.latest_data.get('ecg', -1.0)
+        msg.oxi_data = self.latest_data.get('oximeter', -1.0)
+        msg.abps_data = self.latest_data.get('abps', -1.0)
+        msg.abpd_data = self.latest_data.get('abpd', -1.0)
+        msg.glc_data = self.latest_data.get('glucosemeter', -1.0)
+
+        msg.trm_risk = 1.0 if risks.get('thermometer') == 'high' else (0.5 if risks.get('thermometer') == 'moderate' else 0.0)
+        msg.ecg_risk = 1.0 if risks.get('ecg') == 'high' else (0.5 if risks.get('ecg') == 'moderate' else 0.0)
+        msg.oxi_risk = 1.0 if risks.get('oximeter') == 'high' else (0.5 if risks.get('oximeter') == 'moderate' else 0.0)
+        msg.abps_risk = 1.0 if risks.get('abps') == 'high' else (0.5 if risks.get('abps') == 'moderate' else 0.0)
+        msg.abpd_risk = 1.0 if risks.get('abpd') == 'high' else (0.5 if risks.get('abpd') == 'moderate' else 0.0)
+        msg.glc_risk = 1.0 if risks.get('glucosemeter') == 'high' else (0.5 if risks.get('glucosemeter') == 'moderate' else 0.0)
+
+        # Placeholder values for battery levels and patient status
+        msg.trm_batt = 100.0
+        msg.ecg_batt = 100.0
+        msg.oxi_batt = 100.0
+        msg.abps_batt = 100.0
+        msg.abpd_batt = 100.0
+        msg.glc_batt = 100.0
+        msg.patient_status = 0.0  # Placeholder for patient status
+
+        # Publish the message
+        self.target_system_publisher.publish(msg)
+        self.get_logger().info(f'Published TargetSystemData')    
+    
 
     
-    def emit_alert(self):
-        risks = self.fuse_data()
+    def emit_alert(self,risks):
         for signal, level in risks.items():
             if level == 'high':
                 self.get_logger().fatal(f'[Emergency Detection]\n ALERT: High risk in {signal} detected!\n')
             elif level == 'moderate':
                 self.get_logger().warning(f'[Emergency Detection]\n Warning: Abnormal {signal} levels.\n')
+     
 
 
 def main(args=None):
@@ -146,8 +193,7 @@ def main(args=None):
     rate = emergency_detector.create_rate(2) # 1 Hz
 
     while rclpy.ok():
-        emergency_detector.fuse_data()
-        emergency_detector.emit_alert()
+        emergency_detector.detect()
         rate.sleep()
 
     sensor.destroy_node()
