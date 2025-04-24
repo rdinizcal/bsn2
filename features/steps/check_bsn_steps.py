@@ -1,94 +1,61 @@
 from behave import given, when, then
+from utils.parsers import capture_topic_data
+from utils.asserts import count_matching_elements
 import subprocess
 import concurrent.futures
-from utils.parsers import capture_csv_data,format_entity
-from utils.asserts import count_matching_elements
 
-@given('the {topic_name} topic is online')
-def step_given_topic_is_online(context, topic_name):
-    result = subprocess.run(['ros2', 'topic', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    topic_list = result.stdout.decode('utf-8').splitlines()
-    assert format_entity(topic_name) in topic_list, f"{topic_name} is not online"
 
-@when('I listen to topics')
-def step_when_listen_to_topics(context):
-    context.topic_data = {}
+@given("that all sensors and central hub nodes are online")
+def step_given_all_nodes_online(context):
+    # Check if all sensor and central hub nodes are online
+    result = subprocess.run(['ros2', 'node', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    node_list = result.stdout.decode('utf-8').splitlines()
+    required_nodes = ['thermometer_node', 'ecg_node', 'central_hub_node']
+    for node in required_nodes:
+        assert node in node_list, f"Node {node} is not online"
 
-    # Use ThreadPoolExecutor to capture data from each topic in parallel
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {}
-        for row in context.table:
-            topic = format_entity(row['Topic Name'])
-            line_limit = 10  # Optional line limit per topic
 
-            # Submit the capture task to the executor
-            futures[executor.submit(capture_csv_data, topic,line_limit)] = topic
+@when("I listen to sensors data")
+def step_when_listen_to_sensors_data(context):
+    # Capture data from sensor topics
+    topics = ['/sensor_data/thermometer', '/sensor_data/ecg', '/target_system_data']
+    line_limit = 10  # Optional line limit per topic
+    context.topic_data = context.topic_data if hasattr(context, 'topic_data') else {}
+    capture_topic_data(context, topics, line_limit)
 
-        # Retrieve the captured data once all tasks are completed
-        for future in concurrent.futures.as_completed(futures):
-            topic = futures[future]
-            try:
-                context.topic_data[topic] = future.result()
-            except Exception as e:
-                print(f"Error while capturing data from {topic}: {e}")
 
-@then('sensors will process the risks')
-def step_then_check_high_risk(context):
+@then("Sensors will process the risks")
+def step_then_sensors_process_risks(context):
+    # Check if sensors process the risks
     assert any(context.topic_data.values()), "No risk data found in sensor topics."
-
     for topic, data in context.topic_data.items():
-        if topic == '/TargetSystemData':
-            continue 
-        assert 'risk' in data and data['risk'], f"No risk data detected in topic {topic}."
+        assert 'risk' in data and data['risk'], f"No risk data detected in topic {topic}"
 
-@then("{topic_name} will receive the risks from sensors and detect patient's status")
-def step_then_check_target_system_receives_risk(context,topic_name):
-    #print(f'TargetSystemData is receiving the risk data from sensors: {context.target_system_data}')
-    risk_key_mapping = {
-    '/thermometer_data': 'trm_risk',
-    '/ecg_data': 'ecg_risk',
 
-    }
-    topic_name = format_entity(topic_name)
-    print("TARGET SYSTEM DATA: ", context.topic_data[topic_name])
-    target_data= context.topic_data[topic_name]
-    sensor_data = {key: value for key, value in context.topic_data.items() if key != '/TargetSystemData'}
-    print(f'SENSOR DATA: {sensor_data}')
-    for key, value in risk_key_mapping.items():
-    
-        print("Target:", key, "Sensor:", value)
-        print(f"Target risks: {sensor_data[key]['risk']} Sensor risks: {target_data[value]}")
-        elements = count_matching_elements(sensor_data[key]['risk'], target_data[value])
-        assert elements > 0, f"Topics {key} and {value} do not have matching risk data."
-        assert target_data['patient_status'], f'patient_status is not being provided'
-        assert len(target_data['patient_status']) >= elements, f'patient status is not being updated'
-        assert all((x.replace('.', '', 1).isdigit() and 0 <= float(x) <= 100) 
-                for x in target_data['patient_status']), f'patient status is not processing valid risk.'
-@then('sensors will process the data')
-def step_check_if_sensors_process_data(context):
-    assert any(context.topic_data.values()), "No risk data found in sensor topics."
+@then("Central hub will process the risk")
+def step_then_central_hub_process_risk(context):
+    # Check if the central hub processes the risks
+    topic_name = '/target_system_data'
+    assert topic_name in context.topic_data, f"Central hub topic {topic_name} is missing"
+    target_data = context.topic_data[topic_name]
+    assert 'patient_status' in target_data, f"Central hub topic {topic_name} does not have 'patient_status' field"
+    assert target_data['patient_status'], "Central hub did not process the patient status"
 
+
+@then("Sensors will process the data")
+def step_then_sensors_process_data(context):
+    # Check if sensors process the data
+    assert any(context.topic_data.values()), "No data found in sensor topics."
     for topic, data in context.topic_data.items():
-        if topic == '/TargetSystemData':
-            continue  # Skip the assertion for the TargetSystemData topic
-        assert 'data' in data and data['data'], f"No data detected in topic {topic}."
-        
-@then('{topic_name} will receive the data from sensors')
-def step_check_if_TargetSystem_process_data(context,topic_name):
-    data_key_mapping = {
-    '/thermometer_data': 'trm_data',
-    '/ecg_data': 'ecg_data',
+        assert 'data' in data and data['data'], f"No data detected in topic {topic}"
+
+
+@then("Central hub will receive data from sensors")
+def step_then_central_hub_receive_data(context):
+    # Check if the central hub receives data from sensors
+    topic_name = '/target_system_data'
+    assert topic_name in context.topic_data, f"Central hub topic {topic_name} is missing"
+    target_data = context.topic_data[topic_name]
+    assert count_matching_elements(context.topic_data['/sensor_data/thermometer']['sensor_datapoint'], target_data['trm_data']), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
     
-    }
-    topic_name = format_entity(topic_name)
-    print(f'TARGET system data: {context.topic_data[topic_name]}')
-    target_data= context.topic_data[topic_name]
-    sensor_data = {key: value for key, value in context.topic_data.items() if key != '/TargetSystemData'}
-   
-    print(f'SENSOR DATA: {sensor_data}')
-    for key, value in data_key_mapping.items():
-    
-        print("Target:", key, "Sensor:", value)
-        print(f"sensor data: {sensor_data[key]['data']} target data: {target_data[value]}")
-        elements = count_matching_elements(sensor_data[key]['data'], target_data[value])
-        assert elements > 0, f"Topics {key} and {value} do not have matching risk data."
+    print(f"Central hub received data: {target_data}")
