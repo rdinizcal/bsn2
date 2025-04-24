@@ -68,6 +68,20 @@ class Patient(Node):
             risks[i] = self.get_parameter(param_name).value
         self.get_logger().debug(f'risks for {vital} is {risks}')
         return risks
+    
+    def _should_change_state(self, vital_sign):
+        """Check if it's time to change state for a given vital sign based on change rate and offset.
+        
+        Args:
+            vital_sign (str): The vital sign to check
+            
+        Returns:
+            bool: True if state should change, False otherwise
+        """
+        accumulated_time = self.vital_Frequencies[vital_sign]
+        change_threshold = self.change_rates[vital_sign] + self.offsets[vital_sign]
+        
+        return accumulated_time >= change_threshold
 
     def gen_data(self):
         for vital_sign in self.vital_signs:
@@ -75,7 +89,8 @@ class Patient(Node):
             curr_state = self.vital_states[vital_sign]
             # Check if the accumulated time exceeds the change rate + offset
             self.get_logger().debug(f"vital_Frequencies: {self.vital_Frequencies[vital_sign]}, change_rates: {self.change_rates[vital_sign]}, offsets: {self.offsets[vital_sign]}")
-            if self.vital_Frequencies[vital_sign] >= (self.change_rates[vital_sign] + self.offsets[vital_sign]):
+            
+            if self._should_change_state(vital_sign):
                 self.get_logger().debug(f"transition matrix: {self.transition_matrix_states[vital_sign]}, curr_state: {curr_state}")
                 probs = self.transition_matrix_states[vital_sign][curr_state]
 
@@ -112,6 +127,7 @@ class Patient(Node):
 
     def _calculate_datapoint(self, vital_sign: str, curr_state: int):
         range_min, range_max = self.risk_ranges[vital_sign][curr_state]
+        
         if range_min != -1.0 and range_max != -1.0 and range_min <= range_max:
             self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
             self.get_logger().debug(f'Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}')
@@ -126,7 +142,7 @@ class Patient(Node):
             response.datapoint = -1.0
         else:
             response.datapoint = float(self.vital_datapoints[vital])
-            self.get_logger().info(f'Request: ({vital}) -> {response.datapoint:.4f}')
+            self.get_logger().debug(f'Request: ({vital}) -> {response.datapoint:.4f}')
         return response
     
     
