@@ -1,5 +1,6 @@
 import subprocess
 import importlib
+import concurrent.futures
 
 def format_entity(raw_string):
     # Check if any words in the string start with an uppercase letter
@@ -93,6 +94,30 @@ def capture_csv_data(topic, line_limit=10):
         process.wait()  # Ensure the process exits properly
 
     return output
+
+def capture_topic_data(context, topics, line_limit=10):
+    """
+    Captures data from multiple ROS 2 topics using a ThreadPoolExecutor.
+
+    Args:
+        context: Behave context object to store topic data.
+        topics (list): A list of ROS 2 topic names to capture data from.
+        line_limit (int): Optional line limit for the data capture.
+
+    Returns:
+        None: Updates context.topic_data with the captured data for each topic.
+    """
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {}
+        for topic in topics:
+            futures[executor.submit(capture_csv_data, topic, line_limit)] = topic
+
+        for future in concurrent.futures.as_completed(futures):
+            topic = futures[future]
+            try:
+                context.topic_data[topic] = future.result()
+            except Exception as e:
+                print(f"Error while capturing data from {topic}: {e}")
 
 def get_rosnode_info_ros2(lines):
     node_info = {

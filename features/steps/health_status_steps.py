@@ -1,7 +1,8 @@
 from behave import given, when, then
-from utils.parsers import capture_csv_data, format_entity
+from utils.parsers import capture_topic_data
+from utils.asserts import count_matching_elements
 import subprocess
-import concurrent.futures
+
 
 
 @given("that nodes thermometer and central hub are online")
@@ -17,28 +18,23 @@ def step_given_nodes_online(context):
 @when("I listen to thermometer")
 def step_when_listen_to_thermometer(context):
     # Capture data from the thermometer topic
-    topic = '/sensor_data/thermometer'
+    topics = ['/sensor_data/thermometer', '/target_system_data']
     line_limit = 10  # Optional line limit per topic
     context.topic_data = context.topic_data if hasattr(context, 'topic_data') else {}
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(capture_csv_data, topic, line_limit)
-        try:
-            context.topic_data[topic] = future.result()
-        except Exception as e:
-            print(f"Error while capturing data from {topic}: {e}")
+    capture_topic_data(context, topics, line_limit)
 
 
 @then("g4t1 will detect new patient health status")
 def step_then_detect_health_status(context):
     # Check if the TargetSystemData topic is receiving the health status
-    topic_name = '/TargetSystemData'
+    topic_name = '/target_system_data'
     assert topic_name in context.topic_data, f"Target system topic {topic_name} is missing"
     target_data = context.topic_data[topic_name]
 
     # Validate that the thermometer data flows to the target system
     assert 'trm_data' in target_data, f"Target system topic {topic_name} does not have 'trm_data' field"
-    assert any(sensor_value == target_value for sensor_value in context.topic_data['/sensor_data/thermometer']['sensor_datapoint']
-               for target_value in target_data['trm_data']), (
+    assert count_matching_elements(context.topic_data['/sensor_data/thermometer']['sensor_datapoint'],
+               target_data['trm_data']), (
         f"Mismatch: No matching values found between Sensor data ({context.topic_data['/sensor_data/thermometer']['sensor_datapoint']}) "
         f"and TargetSystemData trm_data ({target_data['trm_data']})"
     )
