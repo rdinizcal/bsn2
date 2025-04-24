@@ -10,7 +10,7 @@ def step_given_nodes_online(context):
     # Check if the thermometer and central hub nodes are online
     result = subprocess.run(['ros2', 'node', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     node_list = result.stdout.decode('utf-8').splitlines()
-    required_nodes = ['thermometer_node', 'central_hub_node']
+    required_nodes = ['/thermometer_node', '/central_hub_node']
     for node in required_nodes:
         assert node in node_list, f"Node {node} is not online"
 

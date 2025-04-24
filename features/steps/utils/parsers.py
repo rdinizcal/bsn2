@@ -15,6 +15,56 @@ def format_entity(raw_string):
     # Add a forward slash at the beginning
     return f'/{formatted_string}'
 
+def activate_node(node_name, package_name, executable_name):
+    """
+    Activates a ROS 2 node by running it.
+
+    Args:
+        node_name (str): The name of the node to activate.
+        package_name (str): The ROS 2 package containing the node.
+        executable_name (str): The executable name of the node.
+
+    Returns:
+        subprocess.Popen: The process object for the activated node.
+    """
+    try:
+        process = subprocess.Popen(
+            ['ros2', 'run', package_name, executable_name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        print(f"Node {node_name} activated.")
+        return process
+    except Exception as e:
+        print(f"Failed to activate node {node_name}: {e}")
+        return None
+
+def deactivate_node(node_name):
+    """
+    Deactivates a ROS 2 node by killing it.
+
+    Args:
+        node_name (str): The name of the node to deactivate.
+
+    Returns:
+        bool: True if the node was successfully deactivated, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ['ros2', 'node', 'kill', '--node-name', node_name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        if result.returncode == 0:
+            print(f"Node {node_name} deactivated.")
+            return True
+        else:
+            print(f"Failed to deactivate node {node_name}.")
+            return False
+    except Exception as e:
+        print(f"Error while deactivating node {node_name}: {e}")
+        return False
+
 def get_message_attributes(topic_name):
     """Dynamically get the attributes of a ROS2 message type."""
     # Convert 'format_data/msg/Data' to 'format_data.msg.Data'
@@ -56,16 +106,16 @@ def capture_csv_data(topic, line_limit=10):
     """
     Capture CSV data from a ROS2 topic and organize it into a dictionary with keys based on message keys.
     """
-    # Step 1: Get the message attributes for dynamic keys
+    
     message_keys = get_message_attributes(topic)
     output = {key[1:]: [] for key in message_keys}
     
 
-    # Step 2: Start the subprocess to capture CSV data
+    
     process = subprocess.Popen(
         ['ros2', 'topic', 'echo', '--csv', topic],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,  
+        stderr=subprocess.PIPE,  
         text=True
     )
 

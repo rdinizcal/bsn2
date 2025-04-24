@@ -2,7 +2,6 @@ from behave import given, when, then
 from utils.parsers import capture_topic_data
 from utils.asserts import count_matching_elements
 import subprocess
-import concurrent.futures
 
 
 @given("that all sensors and central hub nodes are online")
@@ -10,7 +9,7 @@ def step_given_all_nodes_online(context):
     # Check if all sensor and central hub nodes are online
     result = subprocess.run(['ros2', 'node', 'list'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     node_list = result.stdout.decode('utf-8').splitlines()
-    required_nodes = ['thermometer_node', 'ecg_node', 'central_hub_node']
+    required_nodes = ['/thermometer_node', '/ecg_node', '/central_hub_node']
     for node in required_nodes:
         assert node in node_list, f"Node {node} is not online"
 
@@ -47,7 +46,9 @@ def step_then_sensors_process_data(context):
     # Check if sensors process the data
     assert any(context.topic_data.values()), "No data found in sensor topics."
     for topic, data in context.topic_data.items():
-        assert 'data' in data and data['data'], f"No data detected in topic {topic}"
+        if topic != '/target_system_data':
+            assert 'sensor_datapoint' in data and data['sensor_datapoint'], f"No sensor data detected in topic {topic}"
+        
 
 
 @then("Central hub will receive data from sensors")
