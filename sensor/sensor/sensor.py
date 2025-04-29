@@ -57,9 +57,9 @@ class Sensor(Node):
         
         header = Header()
         header.stamp = self.get_clock().now().to_msg()
-        header.frame_id = self.sensor  
+        header.frame_id = self.sensor
         
-        msg.header = header           
+        msg.header = header
         msg.sensor_type = self.sensor
         msg.sensor_datapoint = datapoint
         self.publisher_.publish(msg)
@@ -77,10 +77,8 @@ def main(args=None):
     rclpy.init(args=args)
 
     # Get node name from CLI remapping (set in the launch file)
-    
-    
-    sensor_node = Sensor(node_name='sensor_node') 
-    
+    sensor_node = Sensor(node_name='sensor_node')
+
     thread = threading.Thread(target=rclpy.spin, args=(sensor_node, ), daemon=True)
     thread.start()
 

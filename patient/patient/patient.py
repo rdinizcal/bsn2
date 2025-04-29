@@ -1,9 +1,8 @@
 import threading
 import random
 import rclpy
-from rclpy.node import Node
 from bsn_interfaces.srv import PatientData
-
+from rclpy.node import Node
 
 
 class Patient(Node):
@@ -27,7 +26,7 @@ class Patient(Node):
         change_frequency = 10
         self.PERIOD = 1.0 / change_frequency
         
-        for vital in self.vital_signs:
+        for vital in self.vital_signs: # type: ignore
             # Declare change rate and offset
             self.declare_parameter(f'{vital}_Change', 0.1)
             self.declare_parameter(f'{vital}_Offset', 0.0)
