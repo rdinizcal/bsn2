@@ -66,6 +66,64 @@ class Sensor(Node):
                 f"Insufficient data for moving average. Current window size: {len(self.data_window)}"
             )
             return -1.0  # Return -1 to indicate insufficient data
+    def assess_risk(self, avg: float):
+        """Calculate risk level based on sensor type and value"""
+        if self.sensor == "thermometer":
+            if avg < 32.0 or avg > 50.0:
+                return "high"
+            elif 36.0 <= avg <= 37.99:
+                return "normal"
+            else:
+                return "moderate"
+                
+        elif self.sensor == "abpd":
+            if avg > 90:
+                return "high"
+            elif 80 <= avg < 90:
+                return "moderate"
+            else:
+                return "normal"
+                
+        elif self.sensor == "abps":
+            if avg >= 140:
+                return "high"
+            elif 120 <= avg < 140:
+                return "moderate"
+            else:
+                return "normal"
+                
+        elif self.sensor == "ecg":
+            if avg > 115 or avg < 70:
+                return "high"
+            elif 85 <= avg <= 97:
+                return "normal"
+            else:
+                return "moderate"
+                
+        elif self.sensor == "glucosemeter":
+            if avg < 40 or avg >= 120:
+                return "high"
+            elif 55 <= avg < 96:
+                return "normal"
+            else:
+                return "moderate"
+                
+        elif self.sensor == "oximeter":
+            if avg <= 55:
+                return "high"
+            elif 55 < avg <= 65:
+                return "moderate"
+            else:
+                return "normal"
+                
+        else:
+            if avg < 30 or avg > 180:
+                return "high"
+            elif 30 <= avg <= 50 or 130 <= avg <= 180:
+                return "moderate"
+            else:
+                return "normal"
+
 
     def transfer(self, datapoint: float):
         msg = SensorData()
@@ -77,6 +135,10 @@ class Sensor(Node):
         msg.header = header
         msg.sensor_type = self.sensor
         msg.sensor_datapoint = datapoint
+        if datapoint >= 0:
+            msg.risk_level = self.assess_risk(datapoint)
+        else:
+            msg.risk_level = "unknown"
         self.publisher_.publish(msg)
         self.get_logger().info(f'++Transfer++\n Publishing: "{msg.sensor_datapoint}"')
 

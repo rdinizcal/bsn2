@@ -3,3 +3,4 @@ std_msgs/Header header
 string sensor_id
 string sensor_type
 float64 sensor_datapoint
+string risk_level

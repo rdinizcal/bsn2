@@ -42,6 +42,15 @@ class CentralHub(Node):
             "oximeter": -1.0,
             "thermometer": -1.0,
         }
+        
+        self.latest_risks = {
+            "abpd": "unknown",
+            "abps": "unknown",
+            "ecg": "unknown",
+            "glucosemeter": "unknown",
+            "oximeter": "unknown",
+            "thermometer": "unknown",
+        }
 
     def receive_datapoint(self, msg):
         if msg.sensor_type == "":
@@ -49,79 +58,15 @@ class CentralHub(Node):
                 f"null value received: {msg.sensor_type} with {msg.sensor_datapoint}"
             )
         else:
-            # Update the latest data for the corresponding sensor type
+            # Update the latest data and risk for the corresponding sensor type
             self.latest_data[msg.sensor_type] = msg.sensor_datapoint
+            self.latest_risks[msg.sensor_type] = msg.risk_level
             self.get_logger().info(
-                f"Received data from {msg.sensor_type}: {msg.sensor_datapoint}"
+                f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
 
-    def handle_risks(self, signal: str, avg: float):
-        # Each field: signal (15), value (15), risk (20)
-        if signal == "thermometer":
-            if avg < 32.0 or avg > 50.0:
-                risk = "high"
-            elif 36.0 <= avg <= 37.99:
-                risk = "normal"
-            else:
-                risk = "moderate"
-            return risk, f"| {signal:<15} | {avg:>7.2f} °C      | Risk: {risk:<21} |\n"
-
-        elif signal == "abpd":
-            if avg > 90:
-                risk = "high"
-            elif 80 <= avg < 90:
-                risk = "moderate"
-            else:
-                risk = "normal"
-            return risk, f"| {signal:<15} | {avg:>7.2f} mmHg    | Risk: {risk:<21} |\n"
-
-        elif signal == "abps":
-            if avg >= 140:
-                risk = "high"
-            elif 120 <= avg < 140:
-                risk = "moderate"
-            else:
-                risk = "normal"
-            return risk, f"| {signal:<15} | {avg:>7.2f} mmHg    | Risk: {risk:<21} |\n"
-
-        elif signal == "ecg":
-            if avg > 115 or avg < 70:
-                risk = "high"
-            elif 85 <= avg <= 97:
-                risk = "normal"
-            else:
-                risk = "moderate"
-            return risk, f"| {signal:<15} | {avg:>7.2f} bpm     | Risk: {risk:<21} |\n"
-
-        elif signal == "glucosemeter":
-            if avg < 40 or avg >= 120:
-                risk = "high"
-            elif 55 <= avg < 96:
-                risk = "normal"
-            else:
-                risk = "moderate"
-            return risk, f"| {signal:<15} | {avg:>7.2f} mg/dL   | Risk: {risk:<21} |\n"
-
-        elif signal == "oximeter":
-            if avg <= 55:
-                risk = "high"
-            elif 55 < avg <= 65:
-                risk = "moderate"
-            else:
-                risk = "normal"
-            return risk, f"| {signal:<15} | {avg:>7.2f}% SpO2   | Risk: {risk:<21} |\n"
-
-        else:
-            if avg < 30 or avg > 180:
-                risk = "high"
-            elif 30 <= avg <= 50 or 130 <= avg <= 180:
-                risk = "moderate"
-            else:
-                risk = "normal"
-            return risk, f"| {signal:<15} | {avg:>7.2f}         | Risk: {risk:<21} |\n"
-
-    def fuse_data(self):
-        risk_levels = {}
+    def format_log_message(self):
+        """Format sensor data into a readable table"""
         log_message = " \n"
         border = "+-----------------+-----------------+-----------------------------+"
         header = "| {0:<15} | {1:<15} | {2:<27} |".format(
@@ -140,15 +85,25 @@ class CentralHub(Node):
                 log_message += f"| {signal:<15} | waiting data      |                           |\n"
                 continue
             else:
-                risk, log = self.handle_risks(signal, value)
-                log_message += log
-                risk_levels[signal] = risk
+                risk = self.latest_risks[signal]
+                unit = ""
+                if signal == "thermometer":
+                    unit = "°C"
+                elif signal in ["abpd", "abps"]:
+                    unit = "mmHg"
+                elif signal == "ecg":
+                    unit = "bpm"
+                elif signal == "glucosemeter":
+                    unit = "mg/dL"
+                elif signal == "oximeter":
+                    unit = "% SpO2"
+                
+                log_message += f"| {signal:<15} | {value:>7.2f} {unit:<7} | Risk: {risk:<21} |\n"
 
         log_message += (
             "+-----------------+-----------------+-----------------------------+"
         )
-        self.get_logger().info(log_message)
-        return risk_levels
+        return log_message
 
     def detect(self):
         # Create a TargetSystemData message
@@ -160,10 +115,13 @@ class CentralHub(Node):
         header.frame_id = "central_hub"
         msg.header = header
 
-        # Get risk levels from fuse_data()
-        risks = self.fuse_data()
-
-        self.emit_alert(risks)
+        # Display formatted log message
+        log_message = self.format_log_message()
+        self.get_logger().info(log_message)
+        
+        # Emit alerts for high/moderate risks
+        self.emit_alert()
+        
         # Populate the message fields
         msg.trm_data = self.latest_data.get("thermometer", -1.0)
         msg.ecg_data = self.latest_data.get("ecg", -1.0)
@@ -172,36 +130,13 @@ class CentralHub(Node):
         msg.abpd_data = self.latest_data.get("abpd", -1.0)
         msg.glc_data = self.latest_data.get("glucosemeter", -1.0)
 
-        msg.trm_risk = (
-            1.0
-            if risks.get("thermometer") == "high"
-            else (0.5 if risks.get("thermometer") == "moderate" else 0.0)
-        )
-        msg.ecg_risk = (
-            1.0
-            if risks.get("ecg") == "high"
-            else (0.5 if risks.get("ecg") == "moderate" else 0.0)
-        )
-        msg.oxi_risk = (
-            1.0
-            if risks.get("oximeter") == "high"
-            else (0.5 if risks.get("oximeter") == "moderate" else 0.0)
-        )
-        msg.abps_risk = (
-            1.0
-            if risks.get("abps") == "high"
-            else (0.5 if risks.get("abps") == "moderate" else 0.0)
-        )
-        msg.abpd_risk = (
-            1.0
-            if risks.get("abpd") == "high"
-            else (0.5 if risks.get("abpd") == "moderate" else 0.0)
-        )
-        msg.glc_risk = (
-            1.0
-            if risks.get("glucosemeter") == "high"
-            else (0.5 if risks.get("glucosemeter") == "moderate" else 0.0)
-        )
+        # Convert string risk levels to numeric values
+        msg.trm_risk = self.risk_to_numeric("thermometer")
+        msg.ecg_risk = self.risk_to_numeric("ecg") 
+        msg.oxi_risk = self.risk_to_numeric("oximeter")
+        msg.abps_risk = self.risk_to_numeric("abps")
+        msg.abpd_risk = self.risk_to_numeric("abpd")
+        msg.glc_risk = self.risk_to_numeric("glucosemeter")
 
         # Placeholder values for battery levels and patient status
         msg.trm_batt = 100.0
@@ -214,10 +149,21 @@ class CentralHub(Node):
 
         # Publish the message
         self.target_system_publisher.publish(msg)
-        self.get_logger().info(f"Published TargetSystemData")
+        self.get_logger().info("Published TargetSystemData")
+    
+    def risk_to_numeric(self, sensor_type):
+        """Convert string risk level to numeric value"""
+        risk = self.latest_risks.get(sensor_type, "unknown")
+        if risk == "high":
+            return 1.0
+        elif risk == "moderate":
+            return 0.5
+        else:  # normal or unknown
+            return 0.0
 
-    def emit_alert(self, risks):
-        for signal, level in risks.items():
+    def emit_alert(self):
+        """Emit alerts based on received risk levels"""
+        for signal, level in self.latest_risks.items():
             if level == "high":
                 self.get_logger().fatal(
                     f"[Emergency Detection]\n ALERT: High risk in {signal} detected!\n"
@@ -238,14 +184,15 @@ def main(args=None):
         target=rclpy.spin, args=(emergency_detector,), daemon=True
     )
     thread.start()
-    rate = emergency_detector.create_rate(2)  # 1 Hz
+    rate = emergency_detector.create_rate(2)  # 2 Hz
 
-    while rclpy.ok():
-        emergency_detector.detect()
-        rate.sleep()
-
-    sensor.destroy_node()
-    rclpy.shutdown()
+    try:
+        while rclpy.ok():
+            emergency_detector.detect()
+            rate.sleep()
+    finally:
+        emergency_detector.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":
