@@ -5,14 +5,16 @@ from rclpy.executors import SingleThreadedExecutor
 from patient.patient import Patient
 from bsn_interfaces.srv import PatientData
 
+
 @pytest.fixture
 def patient_node_spin():
     rclpy.init()
     executor = SingleThreadedExecutor()
     node = Patient()
     executor.add_node(node)
-    
+
     import threading
+
     thread = threading.Thread(target=executor.spin, daemon=True)
     thread.start()
 
@@ -22,9 +24,10 @@ def patient_node_spin():
     node.destroy_node()
     rclpy.shutdown()
 
+
 def test_service_response(patient_node_spin):
-    client_node = Node('test_client')
-    client = client_node.create_client(PatientData, 'get_sensor_reading')
+    client_node = Node("test_client")
+    client = client_node.create_client(PatientData, "get_sensor_reading")
 
     assert client.wait_for_service(timeout_sec=3.0), "Service not available."
 
