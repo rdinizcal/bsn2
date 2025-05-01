@@ -4,6 +4,7 @@ import rclpy
 import threading
 from bsn_interfaces.srv import PatientData
 from bsn_interfaces.msg import SensorData
+from std_msgs.msg import Header
 
 class Sensor(Node):
 
@@ -32,6 +33,9 @@ class Sensor(Node):
     def collect(self):
         self.req.vital_sign = self.vital_sign
         response = self.cli.call(self.req)
+        if response is None:
+            self.get_logger().error('Service call failed. No response received.')
+            return -1.0  # Return -1 to indicate failure
         self.get_logger().info(f'++Collect++\n new data from {self.req.vital_sign} collected: [{response.datapoint}]')
         return response.datapoint
 
@@ -50,6 +54,12 @@ class Sensor(Node):
 
     def transfer(self, datapoint: float):
         msg = SensorData()
+        
+        header = Header()
+        header.stamp = self.get_clock().now().to_msg()
+        header.frame_id = self.sensor  
+        
+        msg.header = header           
         msg.sensor_type = self.sensor
         msg.sensor_datapoint = datapoint
         self.publisher_.publish(msg)
