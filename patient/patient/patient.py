@@ -7,8 +7,8 @@ from rclpy.node import Node
 
 class Patient(Node):
 
-    def __init__(self):
-        super().__init__("patient")
+    def __init__(self, parameters=None):
+        super().__init__("patient", parameter_overrides=parameters or [])
 
         # Declare global frequency
         self.declare_parameter("frequency", 1.0)

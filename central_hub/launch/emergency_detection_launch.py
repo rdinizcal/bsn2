@@ -6,7 +6,7 @@ import os
 
 def generate_launch_description():
     config = os.path.join(
-        get_package_share_directory("central_hub"), "config", "patient_params.yaml"
+        get_package_share_directory("patient"), "config", "patient_params.yaml"
     )
 
     return launch.LaunchDescription(
