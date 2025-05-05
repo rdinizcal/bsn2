@@ -36,6 +36,7 @@ class TestPatientBehavior:
     patient_node: Patient  # Type annotation for the patient_node attribute
     
     def test_initial_states(self):
+        assert self.patient_node.vital_signs is not None, "vital_signs is not initialized"
         for vital in self.patient_node.vital_signs:
             assert self.patient_node.vital_states[vital] == 2
 
@@ -61,6 +62,30 @@ class TestPatientBehavior:
         
         # Restore original range for other tests
         self.patient_node.risk_ranges[vital][2] = original_range
+    def test_invalid_state_handling(self):
+        """Test handling of invalid states in transition matrix."""
+        vital = self.patient_node.vital_signs[0]
+
+        # Save original state
+        original_state = self.patient_node.vital_states[vital]
+        original_matrix = self.patient_node.transition_matrix_states[vital][original_state]
+
+        try:
+            # Set an invalid state (all zeros)
+            self.patient_node.transition_matrix_states[vital][original_state] = None
+
+            # Set frequency high enough to trigger state change
+            self.patient_node.vital_Frequencies[vital] = self.patient_node.change_rates[vital] + 1.0
+
+            # Call gen_data which should maintain current state due to invalid matrix
+            self.patient_node.gen_data()
+
+            # State should remain unchanged
+            assert self.patient_node.vital_states[vital] == original_state, "State should not change when transition matrix is invalid"
+
+        finally:
+            # Restore original matrix
+            self.patient_node.transition_matrix_states[vital][original_state] = original_matrix
     
     def test_should_change_state_logic(self):
         """Test logic for determining when to change state."""
@@ -247,6 +272,47 @@ class TestPatientBehavior:
         
         # Check response
         assert response.datapoint == -1.0, "Invalid vital sign should return -1.0"
+    
+    def test_offset_delays_initial_transition(self):
+        """Test that offsets correctly delay initial state transitions."""
+        vital = self.patient_node.vital_signs[0]
+
+        # Save original values
+        original_frequency = self.patient_node.vital_Frequencies[vital]
+        original_offset = self.patient_node.offsets[vital]
+
+        try:
+            # Set a high offset
+            high_offset = 5.0
+            self.patient_node.offsets[vital] = high_offset
+
+            # Reset frequency
+            self.patient_node.vital_Frequencies[vital] = 0.0
+
+            # Set state for testing
+            initial_state = 2
+            self.patient_node.vital_states[vital] = initial_state
+
+            # Call gen_data multiple times, counting how many calls before state change
+            calls_before_change = 0
+            max_calls = 50  # Prevent infinite loop
+
+            while calls_before_change < max_calls:
+                self.patient_node.gen_data()
+                calls_before_change += 1
+
+                # Check if state changed
+                if self.patient_node.vital_states[vital] != initial_state:
+                    break
+                
+            # Higher offset should require more calls to change state
+            expected_min_calls = int(high_offset / self.patient_node.PERIOD)
+            assert calls_before_change >= expected_min_calls, f"State changed too soon: expected at least {expected_min_calls} calls, got {calls_before_change}"
+
+        finally:
+            # Restore original values
+            self.patient_node.vital_Frequencies[vital] = original_frequency
+            self.patient_node.offsets[vital] = original_offset
     
     def test_frequency_parameter(self):
         """Test frequency parameter is correctly set."""
