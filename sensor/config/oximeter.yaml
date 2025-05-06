@@ -1,0 +1,17 @@
+oximeter_node:
+  ros__parameters:
+    sensor: "oximeter"
+    vital_sign: "oxigenation"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats
+    HighRisk0: "-1.0,-1.0"  # Not used in original code
+    MidRisk0: "-1.0,-1.0"   # Not used in original code
+    LowRisk: "65.0,100.0"
+    MidRisk1: "55.0,65.0"
+    HighRisk1: "0.0,55.0"
+    
+    # Percentage-based risk scores
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"

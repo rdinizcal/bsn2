@@ -5,8 +5,28 @@ import os
 
 
 def generate_launch_description():
-    config = os.path.join(
+    config_patient = os.path.join(
         get_package_share_directory("patient"), "config", "patient_params.yaml"
+    )
+    
+    # Get sensor configuration files
+    config_thermometer = os.path.join(
+        get_package_share_directory("sensor"), "config", "thermometer.yaml"
+    )
+    config_oximeter = os.path.join(
+        get_package_share_directory("sensor"), "config", "oximeter.yaml"
+    )
+    config_ecg = os.path.join(
+        get_package_share_directory("sensor"), "config", "ecg.yaml"
+    )
+    config_abps = os.path.join(
+        get_package_share_directory("sensor"), "config", "abps.yaml"
+    )
+    config_abpd = os.path.join(
+        get_package_share_directory("sensor"), "config", "abpd.yaml"
+    )
+    config_glucosemeter = os.path.join(
+        get_package_share_directory("sensor"), "config", "glucosemeter.yaml"
     )
 
     return launch.LaunchDescription(
@@ -17,7 +37,7 @@ def generate_launch_description():
                 name="patient_node",
                 emulate_tty=True,
                 output="screen",
-                parameters=[config],
+                parameters=[config_patient],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -25,13 +45,7 @@ def generate_launch_description():
                 name="thermometer_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {
-                        "sensor": "thermometer",
-                        "vital_sign": "temperature",
-                        "frequency": "1.0",
-                    }
-                ],
+                parameters=[config_thermometer],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -39,13 +53,7 @@ def generate_launch_description():
                 name="oximeter_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {
-                        "sensor": "oximeter",
-                        "vital_sign": "oxigenation",
-                        "frequency": "1.0",
-                    }
-                ],
+                parameters=[config_oximeter],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -53,9 +61,7 @@ def generate_launch_description():
                 name="ecg_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {"sensor": "ecg", "vital_sign": "heart_rate", "frequency": "1.0"}
-                ],
+                parameters=[config_ecg],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -63,9 +69,7 @@ def generate_launch_description():
                 name="abps_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {"sensor": "abps", "vital_sign": "abps", "frequency": "1.0"}
-                ],
+                parameters=[config_abps],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -73,9 +77,7 @@ def generate_launch_description():
                 name="abpd_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {"sensor": "abpd", "vital_sign": "abpd", "frequency": "1.0"}
-                ],
+                parameters=[config_abpd],
             ),
             launch_ros.actions.Node(
                 package="sensor",
@@ -83,13 +85,7 @@ def generate_launch_description():
                 name="glucosemeter_node",
                 output="screen",
                 emulate_tty=True,
-                parameters=[
-                    {
-                        "sensor": "glucosemeter",
-                        "vital_sign": "glucose",
-                        "frequency": "1.0",
-                    }
-                ],
+                parameters=[config_glucosemeter],
             ),
             launch_ros.actions.Node(
                 package="central_hub",

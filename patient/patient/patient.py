@@ -26,7 +26,7 @@ class Patient(Node):
         self.transition_matrix_states = {}
         self.risk_ranges = {}
 
-        change_frequency = 10
+        change_frequency = 5
         self.PERIOD = 1.0 / change_frequency
 
         for vital in self.vital_signs:  # type: ignore
@@ -68,7 +68,7 @@ class Patient(Node):
             param_name = f"{vital}_{labels[i]}"
             self.declare_parameter(param_name, [-1.0, -1.0])
             risks[i] = self.get_parameter(param_name).value
-        self.get_logger().debug(f"risks for {vital} is {risks}")
+        
         return risks
 
     def _should_change_state(self, vital_sign):
@@ -82,7 +82,9 @@ class Patient(Node):
         """
         accumulated_time = self.vital_Frequencies[vital_sign]
         change_threshold = self.change_rates[vital_sign] + self.offsets[vital_sign]
-
+        self.get_logger().debug(
+            f"Accumulated time for {vital_sign}: {accumulated_time}, change threshold: {change_threshold}"
+        )
         return accumulated_time >= change_threshold
 
     def gen_data(self):
@@ -90,9 +92,9 @@ class Patient(Node):
             self.vital_Frequencies[vital_sign] += self.PERIOD
             curr_state = self.vital_states[vital_sign]
             # Check if the accumulated time exceeds the change rate + offset
-            self.get_logger().debug(
-                f"vital_Frequencies: {self.vital_Frequencies[vital_sign]}, change_rates: {self.change_rates[vital_sign]}, offsets: {self.offsets[vital_sign]}"
-            )
+            #self.get_logger().debug(
+            #    f"vital_Frequencies: {self.vital_Frequencies[vital_sign]}, change_rates: {self.change_rates[vital_sign]}, offsets: {self.offsets[vital_sign]}"
+            #)
 
             if self._should_change_state(vital_sign):
                 self.get_logger().debug(
@@ -138,9 +140,6 @@ class Patient(Node):
 
         if range_min != -1.0 and range_max != -1.0 and range_min <= range_max:
             self.vital_datapoints[vital_sign] = random.uniform(range_min, range_max)
-            self.get_logger().debug(
-                f"Generated {vital_sign}: {self.vital_datapoints[vital_sign]:.2f}"
-            )
         else:
             self.get_logger().fatal(
                 f"Invalid risk range for {vital_sign} state {curr_state}: [{range_min}, {range_max}]"
@@ -154,7 +153,6 @@ class Patient(Node):
             response.datapoint = -1.0
         else:
             response.datapoint = float(self.vital_datapoints[vital])
-            self.get_logger().debug(f"Request: ({vital}) -> {response.datapoint:.4f}")
         return response
 
     def spin_patient(self):

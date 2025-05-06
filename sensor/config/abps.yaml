@@ -1,0 +1,17 @@
+abps_node:
+  ros__parameters:
+    sensor: "abps"
+    vital_sign: "abps"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats
+    HighRisk0: "-1.0,-1.0"  # Not used in original code
+    MidRisk0: "-1.0,-1.0"   # Not used in original code
+    LowRisk: "90.0,120.0"
+    MidRisk1: "120.0,140.0"
+    HighRisk1: "140.0,300.0"
+    
+    # Percentage-based risk scores
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"
