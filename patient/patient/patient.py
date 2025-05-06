@@ -68,7 +68,7 @@ class Patient(Node):
             param_name = f"{vital}_{labels[i]}"
             self.declare_parameter(param_name, [-1.0, -1.0])
             risks[i] = self.get_parameter(param_name).value
-        
+
         return risks
 
     def _should_change_state(self, vital_sign):
@@ -92,9 +92,9 @@ class Patient(Node):
             self.vital_Frequencies[vital_sign] += self.PERIOD
             curr_state = self.vital_states[vital_sign]
             # Check if the accumulated time exceeds the change rate + offset
-            #self.get_logger().debug(
+            # self.get_logger().debug(
             #    f"vital_Frequencies: {self.vital_Frequencies[vital_sign]}, change_rates: {self.change_rates[vital_sign]}, offsets: {self.offsets[vital_sign]}"
-            #)
+            # )
 
             if self._should_change_state(vital_sign):
                 self.get_logger().debug(

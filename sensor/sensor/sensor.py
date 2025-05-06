@@ -7,18 +7,17 @@ from bsn_interfaces.msg import SensorData
 from std_msgs.msg import Header
 from sensor.risk_evaluator import RiskEvaluator
 
+
 class Sensor(Node):
 
     def __init__(self, node_name: str, parameters=None):
         super().__init__(
-            node_name,
-            parameter_overrides=parameters or []
+            node_name, parameter_overrides=parameters or []
         )  # Use the node's name as provided in the launch file
         self.declare_parameter("sensor", "")
         self.declare_parameter("vital_sign", "")
         self.declare_parameter("frequency", "1.0")
-        
-        
+
         self.sensor = self.get_parameter("sensor").get_parameter_value().string_value
         self.vital_sign = (
             self.get_parameter("vital_sign").get_parameter_value().string_value
@@ -29,10 +28,10 @@ class Sensor(Node):
         self.frequency = float(
             self.get_parameter("frequency").get_parameter_value().string_value
         )
-        
+
         # Create the risk evaluator and configure it
         self.risk_evaluator = RiskEvaluator()
-        self._configure_risk_evaluator()        
+        self._configure_risk_evaluator()
 
         self.cli = self.create_client(PatientData, "get_sensor_reading")
         while not self.cli.wait_for_service(timeout_sec=1.0):
@@ -45,66 +44,65 @@ class Sensor(Node):
 
         self.window_size = 5
         self.data_window = deque(maxlen=self.window_size)
-        
+
     def _configure_risk_evaluator(self):
         """Load risk ranges from parameters and configure the risk evaluator"""
         # Load risk percentage ranges
         self.declare_parameter("lowrisk", "0,20")
         self.declare_parameter("midrisk", "21,65")
         self.declare_parameter("highrisk", "66,100")
-        
+
         low_risk_str = self.get_parameter("lowrisk").value
         mid_risk_str = self.get_parameter("midrisk").value
         high_risk_str = self.get_parameter("highrisk").value
-        
-        low_min, low_max = map(float, low_risk_str.split(','))
-        mid_min, mid_max = map(float, mid_risk_str.split(','))
-        high_min, high_max = map(float, high_risk_str.split(','))
-        
+
+        low_min, low_max = map(float, low_risk_str.split(","))
+        mid_min, mid_max = map(float, mid_risk_str.split(","))
+        high_min, high_max = map(float, high_risk_str.split(","))
+
         risk_percentages = [
             (low_min, low_max),
             (mid_min, mid_max),
-            (high_min, high_max)
+            (high_min, high_max),
         ]
-        
-        
+
         self.declare_parameter(f"HighRisk0", "-1,-1")
         self.declare_parameter(f"MidRisk0", "-1,-1")
         self.declare_parameter(f"LowRisk", "-1,-1")
         self.declare_parameter(f"MidRisk1", "-1,-1")
         self.declare_parameter(f"HighRisk1", "-1,-1")
-        
+
         high_risk0_str = self.get_parameter(f"HighRisk0").value
         mid_risk0_str = self.get_parameter(f"MidRisk0").value
         low_risk_str = self.get_parameter(f"LowRisk").value
         mid_risk1_str = self.get_parameter(f"MidRisk1").value
         high_risk1_str = self.get_parameter(f"HighRisk1").value
-        
+
         # Parse ranges
-        high_risk0 = tuple(map(float, high_risk0_str.split(',')))
-        mid_risk0 = tuple(map(float, mid_risk0_str.split(',')))
-        low_risk = tuple(map(float, low_risk_str.split(',')))
-        mid_risk1 = tuple(map(float, mid_risk1_str.split(',')))
-        high_risk1 = tuple(map(float, high_risk1_str.split(',')))
-        
+        high_risk0 = tuple(map(float, high_risk0_str.split(",")))
+        mid_risk0 = tuple(map(float, mid_risk0_str.split(",")))
+        low_risk = tuple(map(float, low_risk_str.split(",")))
+        mid_risk1 = tuple(map(float, mid_risk1_str.split(",")))
+        high_risk1 = tuple(map(float, high_risk1_str.split(",")))
+
         # Create ranges dictionary
         sensor_ranges = {
             "high_risk0": high_risk0,
             "mid_risk0": mid_risk0,
             "low_risk": low_risk,
             "mid_risk1": mid_risk1,
-            "high_risk1": high_risk1
+            "high_risk1": high_risk1,
         }
-        
-                # Configure the risk evaluator
+
+        # Configure the risk evaluator
         self.risk_evaluator.configure(self.sensor, sensor_ranges, risk_percentages)
-        
+
         self.get_logger().info(
             f"Configured risk evaluator for {self.sensor}:\n"
             f"  Risk Percentages: Low={risk_percentages[0]}, Mid={risk_percentages[1]}, High={risk_percentages[2]}\n"
             f"  Ranges: {sensor_ranges}"
         )
-        
+
     def collect(self):
         self.req.vital_sign = self.vital_sign
         response = self.cli.call(self.req)
@@ -130,6 +128,7 @@ class Sensor(Node):
                 f"Insufficient data for moving average. Current window size: {len(self.data_window)}"
             )
             return -1.0  # Return -1 to indicate insufficient data
+
     def assess_risk(self, avg: float):
         """Calculate risk level based on sensor type and value"""
         if self.sensor == "thermometer":
@@ -139,7 +138,7 @@ class Sensor(Node):
                 return "normal"
             else:
                 return "moderate"
-                
+
         elif self.sensor == "abpd":
             if avg > 90:
                 return "high"
@@ -147,7 +146,7 @@ class Sensor(Node):
                 return "moderate"
             else:
                 return "normal"
-                
+
         elif self.sensor == "abps":
             if avg >= 140:
                 return "high"
@@ -155,7 +154,7 @@ class Sensor(Node):
                 return "moderate"
             else:
                 return "normal"
-                
+
         elif self.sensor == "ecg":
             if avg > 115 or avg < 70:
                 return "high"
@@ -163,7 +162,7 @@ class Sensor(Node):
                 return "normal"
             else:
                 return "moderate"
-                
+
         elif self.sensor == "glucosemeter":
             if avg < 40 or avg >= 120:
                 return "high"
@@ -171,7 +170,7 @@ class Sensor(Node):
                 return "normal"
             else:
                 return "moderate"
-                
+
         elif self.sensor == "oximeter":
             if avg <= 55:
                 return "high"
@@ -179,7 +178,7 @@ class Sensor(Node):
                 return "moderate"
             else:
                 return "normal"
-                
+
         else:
             if avg < 30 or avg > 180:
                 return "high"
@@ -187,7 +186,6 @@ class Sensor(Node):
                 return "moderate"
             else:
                 return "normal"
-
 
     def transfer(self, datapoint: float):
         msg = SensorData()
@@ -199,12 +197,12 @@ class Sensor(Node):
         msg.header = header
         msg.sensor_type = self.sensor
         msg.sensor_datapoint = datapoint
-        
+
         if datapoint >= 0:
             # Calculate numeric risk (0-100)
             risk_value = self.risk_evaluator.evaluate_risk(self.sensor, datapoint)
             msg.risk = float(risk_value)
-            
+
             # Set risk level label based on the risk percentage
             if risk_value >= 0:
                 msg.risk_level = self.risk_evaluator.risk_label(risk_value)
@@ -213,10 +211,10 @@ class Sensor(Node):
         else:
             msg.risk_level = "unknown"
             msg.risk = -1.0
-            
+
         self.publisher_.publish(msg)
         self.get_logger().info(
-            f'++Transfer++\n Value: {msg.sensor_datapoint}, Risk: {msg.risk:.2f}%, Level: {msg.risk_level}'
+            f"++Transfer++\n Value: {msg.sensor_datapoint}, Risk: {msg.risk:.2f}%, Level: {msg.risk_level}"
         )
 
     def spin_sensor(self):

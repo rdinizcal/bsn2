@@ -21,7 +21,7 @@ def generate_launch_description():
                 emulate_tty=True,
                 output="screen",
                 parameters=[patient_config],
-                #arguments=["--ros-args", "--log-level", "debug"],
+                # arguments=["--ros-args", "--log-level", "debug"],
             ),
             launch_ros.actions.Node(
                 package="sensor",

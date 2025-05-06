@@ -8,7 +8,7 @@ def generate_launch_description():
     config_patient = os.path.join(
         get_package_share_directory("patient"), "config", "patient_params.yaml"
     )
-    
+
     # Get sensor configuration files
     config_thermometer = os.path.join(
         get_package_share_directory("sensor"), "config", "thermometer.yaml"

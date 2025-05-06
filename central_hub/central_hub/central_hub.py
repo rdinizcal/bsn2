@@ -42,7 +42,7 @@ class CentralHub(Node):
             "oximeter": -1.0,
             "thermometer": -1.0,
         }
-        
+
         self.latest_risks = {
             "abpd": "unknown",
             "abps": "unknown",
@@ -97,8 +97,10 @@ class CentralHub(Node):
                     unit = "mg/dL"
                 elif signal == "oximeter":
                     unit = "% SpO2"
-                
-                log_message += f"| {signal:<15} | {value:>7.2f} {unit:<7} | Risk: {risk:<21} |\n"
+
+                log_message += (
+                    f"| {signal:<15} | {value:>7.2f} {unit:<7} | Risk: {risk:<21} |\n"
+                )
 
         log_message += (
             "+-----------------+-----------------+-----------------------------+"
@@ -118,10 +120,10 @@ class CentralHub(Node):
         # Display formatted log message
         log_message = self.format_log_message()
         self.get_logger().info(log_message)
-        
+
         # Emit alerts for high/moderate risks
         self.emit_alert()
-        
+
         # Populate the message fields
         msg.trm_data = self.latest_data.get("thermometer", -1.0)
         msg.ecg_data = self.latest_data.get("ecg", -1.0)
@@ -132,7 +134,7 @@ class CentralHub(Node):
 
         # Convert string risk levels to numeric values
         msg.trm_risk = self.risk_to_numeric("thermometer")
-        msg.ecg_risk = self.risk_to_numeric("ecg") 
+        msg.ecg_risk = self.risk_to_numeric("ecg")
         msg.oxi_risk = self.risk_to_numeric("oximeter")
         msg.abps_risk = self.risk_to_numeric("abps")
         msg.abpd_risk = self.risk_to_numeric("abpd")
@@ -150,7 +152,7 @@ class CentralHub(Node):
         # Publish the message
         self.target_system_publisher.publish(msg)
         self.get_logger().info("Published TargetSystemData")
-    
+
     def risk_to_numeric(self, sensor_type):
         """Convert string risk level to numeric value"""
         risk = self.latest_risks.get(sensor_type, "unknown")
