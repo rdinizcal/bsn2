@@ -33,6 +33,36 @@ class CentralHub(Node):
         self.target_system_publisher = self.create_publisher(
             TargetSystemData, "target_system_data", 10
         )
+        
+            # Declare sensor weight parameters with defaults
+        self.declare_parameter("sensor_weights.thermometer", 0.15)
+        self.declare_parameter("sensor_weights.ecg", 0.25)
+        self.declare_parameter("sensor_weights.oximeter", 0.25)
+        self.declare_parameter("sensor_weights.abps", 0.15)
+        self.declare_parameter("sensor_weights.abpd", 0.10) 
+        self.declare_parameter("sensor_weights.glucosemeter", 0.10)
+
+        # Load sensor weights from parameters
+        self.sensor_weights = {
+            "thermometer": self.get_parameter("sensor_weights.thermometer").value,
+            "ecg": self.get_parameter("sensor_weights.ecg").value,
+            "oximeter": self.get_parameter("sensor_weights.oximeter").value,
+            "abps": self.get_parameter("sensor_weights.abps").value,
+            "abpd": self.get_parameter("sensor_weights.abpd").value,
+            "glucosemeter": self.get_parameter("sensor_weights.glucosemeter").value,
+        }
+
+        # Rest of your initialization code...
+
+        # Add risk percentage storage
+        self.latest_risk = {
+            "abpd": 0.0,
+            "abps": 0.0,
+            "ecg": 0.0,
+            "glucosemeter": 0.0,
+            "oximeter": 0.0,
+            "thermometer": 0.0,
+        }
 
         self.latest_data = {
             "abpd": -1.0,
@@ -43,7 +73,7 @@ class CentralHub(Node):
             "thermometer": -1.0,
         }
 
-        self.latest_risks = {
+        self.latest_risks_labels = {
             "abpd": "unknown",
             "abps": "unknown",
             "ecg": "unknown",
@@ -60,10 +90,38 @@ class CentralHub(Node):
         else:
             # Update the latest data and risk for the corresponding sensor type
             self.latest_data[msg.sensor_type] = msg.sensor_datapoint
-            self.latest_risks[msg.sensor_type] = msg.risk_level
+            self.latest_risks_labels[msg.sensor_type] = msg.risk_level
+            self.latest_risk[msg.sensor_type] = msg.risk
+
             self.get_logger().info(
                 f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
+    def data_fuse(self):
+        """Calculate overall patient status using weighted fusion of sensor risks"""
+        # Check if we have received data from at least one sensor
+        has_data = False
+        for risk in self.latest_risk.values():
+            if risk > 0.0:
+                has_data = True
+                break
+            
+        if not has_data:
+            return 0.0  # No data available yet
+
+        # Get all risk values as a list
+        sensor_types = ["thermometer", "ecg", "oximeter", "abps", "abpd", "glucosemeter"]
+        risk_values = []
+
+        for sensor_type in sensor_types:
+            risk_values.append(self.latest_risk[sensor_type])
+
+        # Calculate weighted sum
+        patient_status = 0.0
+        for i, sensor_type in enumerate(sensor_types):
+            patient_status += self.sensor_weights[sensor_type] * risk_values[i]
+
+        self.get_logger().info(f"Calculated patient status: {patient_status:.2f}%")
+        return patient_status
 
     def format_log_message(self):
         """Format sensor data into a readable table"""
@@ -85,7 +143,7 @@ class CentralHub(Node):
                 log_message += f"| {signal:<15} | waiting data      |                           |\n"
                 continue
             else:
-                risk = self.latest_risks[signal]
+                risk = self.latest_risks_labels[signal]
                 unit = ""
                 if signal == "thermometer":
                     unit = "°C"
@@ -116,13 +174,16 @@ class CentralHub(Node):
         header.stamp = self.get_clock().now().to_msg()
         header.frame_id = "central_hub"
         msg.header = header
+        
+        patient_status = self.data_fuse()
+        
 
         # Display formatted log message
         log_message = self.format_log_message()
         self.get_logger().info(log_message)
 
         # Emit alerts for high/moderate risks
-        self.emit_alert()
+        self.emit_alert(patient_status)
 
         # Populate the message fields
         msg.trm_data = self.latest_data.get("thermometer", -1.0)
@@ -132,13 +193,13 @@ class CentralHub(Node):
         msg.abpd_data = self.latest_data.get("abpd", -1.0)
         msg.glc_data = self.latest_data.get("glucosemeter", -1.0)
 
-        # Convert string risk levels to numeric values
-        msg.trm_risk = self.risk_to_numeric("thermometer")
-        msg.ecg_risk = self.risk_to_numeric("ecg")
-        msg.oxi_risk = self.risk_to_numeric("oximeter")
-        msg.abps_risk = self.risk_to_numeric("abps")
-        msg.abpd_risk = self.risk_to_numeric("abpd")
-        msg.glc_risk = self.risk_to_numeric("glucosemeter")
+        # Set risk values from risk_percentages
+        msg.trm_risk = self.latest_risk.get("thermometer", 0.0)
+        msg.ecg_risk = self.latest_risk.get("ecg", 0.0)
+        msg.oxi_risk = self.latest_risk.get("oximeter", 0.0)
+        msg.abps_risk = self.latest_risk.get("abps", 0.0)
+        msg.abpd_risk = self.latest_risk.get("abpd", 0.0)
+        msg.glc_risk = self.latest_risk.get("glucosemeter", 0.0)
 
         # Placeholder values for battery levels and patient status
         msg.trm_batt = 100.0
@@ -147,33 +208,47 @@ class CentralHub(Node):
         msg.abps_batt = 100.0
         msg.abpd_batt = 100.0
         msg.glc_batt = 100.0
-        msg.patient_status = 0.0  # Placeholder for patient status
+        
+        
+        msg.patient_status = patient_status 
 
         # Publish the message
         self.target_system_publisher.publish(msg)
         self.get_logger().info("Published TargetSystemData")
 
-    def risk_to_numeric(self, sensor_type):
-        """Convert string risk level to numeric value"""
-        risk = self.latest_risks.get(sensor_type, "unknown")
-        if risk == "high":
-            return 1.0
-        elif risk == "moderate":
-            return 0.5
-        else:  # normal or unknown
-            return 0.0
-
-    def emit_alert(self):
-        """Emit alerts based on received risk levels"""
-        for signal, level in self.latest_risks.items():
-            if level == "high":
-                self.get_logger().fatal(
-                    f"[Emergency Detection]\n ALERT: High risk in {signal} detected!\n"
-                )
-            elif level == "moderate":
-                self.get_logger().warning(
-                    f"[Emergency Detection]\n Warning: Abnormal {signal} levels.\n"
-                )
+    def emit_alert(self, patient_status):
+        """Emit alerts based on patient status and sensor risk levels"""
+        # Handle overall patient status if provided
+        
+        # Categorize patient status
+        if patient_status <= 20.0:
+            risk_category = "VERY LOW RISK"
+        elif 20.0 < patient_status <= 40.0:
+            risk_category = "LOW RISK"
+        elif 40.0 < patient_status <= 60.0:
+            risk_category = "MODERATE RISK"
+        elif 60.0 < patient_status <= 80.0:
+            risk_category = "CRITICAL RISK"
+            self.get_logger().fatal(
+                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        elif 80.0 < patient_status <= 100.0:
+            risk_category = "VERY CRITICAL RISK"
+            self.get_logger().fatal(
+                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        else:
+            risk_category = "UNKNOWN RISK"
+        # Log moderate/low risk (critical alerts already handled above)
+        if 40.0 < patient_status <= 60.0:
+            self.get_logger().warning(
+                f"[Emergency Detection]\n SYSTEM WARNING: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        elif patient_status <= 40.0 and patient_status > 0:
+            self.get_logger().info(
+                f"[Emergency Detection]\n System Status: {risk_category} - {patient_status:.1f}%\n"
+            )
+        
 
 
 def main(args=None):
