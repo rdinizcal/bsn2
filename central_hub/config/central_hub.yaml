@@ -1,21 +1,4 @@
 central_hub_node:
   ros__parameters:
     frequency: "10.0"
-    max_buffer_size: 10
     
-    # sensor weights for data fusion
-    sensor_weights:
-      thermometer: 0.15
-      ecg: 0.25
-      oximeter: 0.25
-      abps: 0.15
-      abpd: 0.10
-      glucosemeter: 0.10
-    
-    # Risk thresholds for patient status categorization
-    risk_thresholds:
-      very_low: 20.0
-      low: 40.0
-      moderate: 60.0
-      critical: 80.0
-      very_critical: 100.0

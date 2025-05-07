@@ -7,9 +7,9 @@ abpd_node:
     # Risk ranges as lists of floats
     HighRisk0: "-1.0,-1.0"  # Not used in original code
     MidRisk0: "-1.0,-1.0"   # Not used in original code
-    LowRisk: "60.0,80.0"
+    LowRisk: "0.0,80.0"
     MidRisk1: "80.0,90.0"
-    HighRisk1: "90.0,200.0"
+    HighRisk1: "90.0,300.0"
     
     # Percentage-based risk scores
     lowrisk_percent: "0,20"

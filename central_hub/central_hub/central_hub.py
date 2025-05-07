@@ -34,25 +34,6 @@ class CentralHub(Node):
             TargetSystemData, "target_system_data", 10
         )
         
-            # Declare sensor weight parameters with defaults
-        self.declare_parameter("sensor_weights.thermometer", 0.15)
-        self.declare_parameter("sensor_weights.ecg", 0.25)
-        self.declare_parameter("sensor_weights.oximeter", 0.25)
-        self.declare_parameter("sensor_weights.abps", 0.15)
-        self.declare_parameter("sensor_weights.abpd", 0.10) 
-        self.declare_parameter("sensor_weights.glucosemeter", 0.10)
-
-        # Load sensor weights from parameters
-        self.sensor_weights = {
-            "thermometer": self.get_parameter("sensor_weights.thermometer").value,
-            "ecg": self.get_parameter("sensor_weights.ecg").value,
-            "oximeter": self.get_parameter("sensor_weights.oximeter").value,
-            "abps": self.get_parameter("sensor_weights.abps").value,
-            "abpd": self.get_parameter("sensor_weights.abpd").value,
-            "glucosemeter": self.get_parameter("sensor_weights.glucosemeter").value,
-        }
-
-        # Rest of your initialization code...
 
         # Add risk percentage storage
         self.latest_risk = {
@@ -97,31 +78,81 @@ class CentralHub(Node):
                 f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
     def data_fuse(self):
-        """Calculate overall patient status using weighted fusion of sensor risks"""
-        # Check if we have received data from at least one sensor
-        has_data = False
-        for risk in self.latest_risk.values():
-            if risk > 0.0:
-                has_data = True
-                break
-            
-        if not has_data:
-            return 0.0  # No data available yet
-
-        # Get all risk values as a list
+        """Calculate patient status using the original BSN fusion algorithm"""
         sensor_types = ["thermometer", "ecg", "oximeter", "abps", "abpd", "glucosemeter"]
-        risk_values = []
 
+        # Get risk values in order
+        packets_received = []
         for sensor_type in sensor_types:
-            risk_values.append(self.latest_risk[sensor_type])
+            packets_received.append(self.latest_risk.get(sensor_type, -1.0))
 
-        # Calculate weighted sum
-        patient_status = 0.0
-        for i, sensor_type in enumerate(sensor_types):
-            patient_status += self.sensor_weights[sensor_type] * risk_values[i]
+        # Special handling and calculations
+        average = 0.0
+        count = 0
+        index = 0
+        bpr_avg = 0.0
+        values = []
 
-        self.get_logger().info(f"Calculated patient status: {patient_status:.2f}%")
-        return patient_status
+        for risk in packets_received:
+            if risk >= 0:
+                # Special handling for blood pressure sensors
+                if index == 3 or index == 4:  # abps or abpd
+                    bpr_avg += risk
+                else:
+                    average += risk
+                    values.append(risk)
+                count += 1
+
+            # Process blood pressure after both readings
+            if index == 4 and bpr_avg >= 0.0:
+                bpr_avg /= 2  # Average of systolic and diastolic
+                average += bpr_avg
+                values.append(bpr_avg)
+
+            index += 1
+
+        if count == 0:
+            return 0.0  # No data
+
+        # Calculate average
+        avg = average / count
+
+        # Calculate deviations
+        deviations = []
+        min_dev = float('inf')
+        max_dev = -float('inf')
+
+        for value in values:
+            dev = abs(value - avg)
+            deviations.append(dev)
+
+            if dev > max_dev:
+                max_dev = dev
+            if dev < min_dev:
+                min_dev = dev
+
+        # Calculate weighted average
+        weighted_average = 0.0
+        weight_sum = 0.0
+
+        # If all values are the same, return simple average
+        if max_dev - min_dev <= 0.0:
+            return avg
+
+        # Otherwise calculate weighted average based on deviations
+        for i in range(len(values)):
+            # Normalize deviation to 0-1 range
+            norm_dev = (deviations[i] - min_dev) / (max_dev - min_dev)
+            weight_sum += norm_dev
+            weighted_average += values[i] * norm_dev
+
+        # Final weighted risk status
+        if weight_sum > 0:
+            risk_status = weighted_average / weight_sum
+        else:
+            risk_status = avg
+
+        return risk_status
 
     def format_log_message(self):
         """Format sensor data into a readable table"""

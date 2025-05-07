@@ -7,7 +7,7 @@ abps_node:
     # Risk ranges as lists of floats
     HighRisk0: "-1.0,-1.0"  # Not used in original code
     MidRisk0: "-1.0,-1.0"   # Not used in original code
-    LowRisk: "90.0,120.0"
+    LowRisk: "0.0,120.0"
     MidRisk1: "120.0,140.0"
     HighRisk1: "140.0,300.0"
     
