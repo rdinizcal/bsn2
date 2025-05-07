@@ -99,7 +99,7 @@ class TestCentralHubBehavior:
         # Check initial state
         assert self.central_hub is not None
         assert hasattr(self.central_hub, "latest_data")
-        assert hasattr(self.central_hub, "latest_risks")
+        assert hasattr(self.central_hub, "latest_risk")
 
         # Check that all expected sensor types are initialized
         for sensor_type in [
@@ -112,8 +112,8 @@ class TestCentralHubBehavior:
         ]:
             assert sensor_type in self.central_hub.latest_data
             assert self.central_hub.latest_data[sensor_type] == -1.0
-            assert sensor_type in self.central_hub.latest_risks
-            assert self.central_hub.latest_risks[sensor_type] == "unknown"
+            assert sensor_type in self.central_hub.latest_risk
+            assert self.central_hub.latest_risk[sensor_type] == "unknown"
 
     def test_receive_datapoint(self):
         """Test receiving a datapoint from a sensor"""
@@ -124,7 +124,7 @@ class TestCentralHubBehavior:
 
         # Check that the data was received and stored
         assert self.central_hub.latest_data["thermometer"] == test_value
-        assert self.central_hub.latest_risks["thermometer"] == test_risk
+        assert self.central_hub.latest_risk["thermometer"] == test_risk
 
     def test_detect_normal_conditions(self):
         """Test detection under normal conditions"""
@@ -196,20 +196,6 @@ class TestCentralHubBehavior:
         assert msg.trm_risk == 0.5  # moderate
         assert msg.ecg_risk == 1.0  # high
 
-    def test_risk_to_numeric(self):
-        """Test the risk_to_numeric method"""
-        # Set up test cases
-        self.central_hub.latest_risks["thermometer"] = "high"
-        self.central_hub.latest_risks["ecg"] = "moderate"
-        self.central_hub.latest_risks["oximeter"] = "normal"
-        self.central_hub.latest_risks["abps"] = "unknown"
-
-        # Check conversions
-        assert self.central_hub.risk_to_numeric("thermometer") == 1.0
-        assert self.central_hub.risk_to_numeric("ecg") == 0.5
-        assert self.central_hub.risk_to_numeric("oximeter") == 0.0
-        assert self.central_hub.risk_to_numeric("abps") == 0.0
-        assert self.central_hub.risk_to_numeric("nonexistent") == 0.0
 
     def test_format_log_message(self):
         """Test the format_log_message method"""
@@ -218,8 +204,8 @@ class TestCentralHubBehavior:
         self.central_hub.latest_data["ecg"] = 95.0
         self.central_hub.latest_data["oximeter"] = -1.0  # Waiting for data
 
-        self.central_hub.latest_risks["thermometer"] = "moderate"
-        self.central_hub.latest_risks["ecg"] = "normal"
+        self.central_hub.latest_risk["thermometer"] = "moderate"
+        self.central_hub.latest_risk["ecg"] = "normal"
 
         # Get the formatted log message
         log_message = self.central_hub.format_log_message()
@@ -251,7 +237,7 @@ class TestCentralHubBehavior:
 
         # Check that value was updated
         assert self.central_hub.latest_data["thermometer"] == 39.0
-        assert self.central_hub.latest_risks["thermometer"] == "moderate"
+        assert self.central_hub.latest_risk["thermometer"] == "moderate"
 
     def test_full_system_integration(self):
         """Test full system integration with multiple sensors and changing conditions"""
