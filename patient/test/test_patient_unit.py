@@ -3,7 +3,6 @@ from patient.patient import Patient
 import yaml
 from rclpy.parameter import Parameter
 from ament_index_python.packages import get_package_share_directory
-from rclpy.parameter import Parameter
 import os
 import random
 from bsn_interfaces.srv import PatientData

@@ -2,11 +2,13 @@ import pytest
 import time
 import rclpy
 import math
+import yaml
 from rclpy.parameter import Parameter
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from bsn_interfaces.msg import SensorData, TargetSystemData
 from std_msgs.msg import Header
-
+import os
+from ament_index_python.packages import get_package_share_directory
 
 @pytest.fixture(scope="class")
 def central_hub_node(request):
@@ -17,7 +19,15 @@ def central_hub_node(request):
     # Create node and assign to class
     node = CentralHub()
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
-    
+        # Load YAML params
+    params_path = os.path.join(
+        get_package_share_directory("patient"), "config", "patient_test_params.yaml"
+    )
+    with open(params_path, "r") as f:
+        full_params = yaml.safe_load(f)
+
+    ros_params = full_params["patient_node"]["ros__parameters"]
+    params = [Parameter(name=k, value=v) for k, v in ros_params.items()]
     # Add debug callback
     def debug_target_system_callback(msg):
         node.get_logger().debug(f"Test received TargetSystemData message: {msg}")
