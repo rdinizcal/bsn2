@@ -8,6 +8,7 @@ import random
 from bsn_interfaces.srv import PatientData
 from unittest.mock import patch
 
+
 @pytest.fixture(scope="class")
 def patient_node(request):
     import rclpy
@@ -141,8 +142,7 @@ class TestPatientBehavior:
             self.patient_node.vital_Frequencies[vital] == self.patient_node.PERIOD
         ), f"Frequency should be incremented by PERIOD ({self.patient_node.PERIOD})"
 
-
-    @patch('random.random')
+    @patch("random.random")
     def test_gen_data_resets_frequency_on_state_change(self, mock_random):
         """Test that frequency changes after state change."""
         vital = self.patient_node.vital_signs[0]
@@ -150,13 +150,21 @@ class TestPatientBehavior:
         # Ensure we have a valid state matrix for state 2
         if self.patient_node.transition_matrix_states[vital][2] is None:
             # Set up a valid state matrix for testing
-            self.patient_node.transition_matrix_states[vital][2] = [0.2, 0.2, 0.2, 0.2, 0.2]
+            self.patient_node.transition_matrix_states[vital][2] = [
+                0.2,
+                0.2,
+                0.2,
+                0.2,
+                0.2,
+            ]
 
         # Set initial frequency (store original for restoration later)
         original_frequency = self.patient_node.vital_Frequencies[vital]
 
         # Set frequency high enough to trigger state change
-        change_threshold = self.patient_node.change_rates[vital] + self.patient_node.offsets[vital]
+        change_threshold = (
+            self.patient_node.change_rates[vital] + self.patient_node.offsets[vital]
+        )
         self.patient_node.vital_Frequencies[vital] = change_threshold + 2.0
         high_frequency = self.patient_node.vital_Frequencies[vital]
 
@@ -167,10 +175,14 @@ class TestPatientBehavior:
         self.patient_node.gen_data()
 
         # Debug information to see what's happening
-        print(f"Before: {high_frequency}, After: {self.patient_node.vital_Frequencies[vital]}")
+        print(
+            f"Before: {high_frequency}, After: {self.patient_node.vital_Frequencies[vital]}"
+        )
 
         # Check frequency changed
-        assert self.patient_node.vital_Frequencies[vital] != high_frequency, "Frequency should change after state change"
+        assert (
+            self.patient_node.vital_Frequencies[vital] != high_frequency
+        ), "Frequency should change after state change"
 
         # Restore original frequency for other tests
         self.patient_node.vital_Frequencies[vital] = original_frequency
@@ -376,36 +388,50 @@ class TestPatientBehavior:
         """Test a state transition by fixing the transition matrix."""
         vital = self.patient_node.vital_signs[0]
         print(f"Testing with vital: {vital}")
-        
+
         # Start with state 0 for our test vital
         self.patient_node.vital_states[vital] = 0
-        
+
         # Set frequency high enough to trigger for ALL vitals
         for v in self.patient_node.vital_signs:
-            self.patient_node.vital_Frequencies[v] = self.patient_node.change_rates[v] + 1.0
-        
+            self.patient_node.vital_Frequencies[v] = (
+                self.patient_node.change_rates[v] + 1.0
+            )
+
         # CRITICAL FIX: Make sure the transition matrix isn't None
         # This is what was causing the test failure
         if self.patient_node.transition_matrix_states[vital][0] is None:
             print(f"Fixing None transition matrix for {vital} state 0")
-            self.patient_node.transition_matrix_states[vital][0] = [0.0, 1.0, 0.0, 0.0, 0.0]
-        
+            self.patient_node.transition_matrix_states[vital][0] = [
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+            ]
+
         # IMPORTANT: Fix risk ranges for ALL vital signs
         for test_vital in self.patient_node.vital_signs:
             for state in range(5):
                 if test_vital not in self.patient_node.risk_ranges:
                     self.patient_node.risk_ranges[test_vital] = {}
-                if state not in self.patient_node.risk_ranges[test_vital] or -1.0 in self.patient_node.risk_ranges[test_vital][state]:
-                    self.patient_node.risk_ranges[test_vital][state] = [30.0 + state * 5, 35.0 + state * 5]
-        
+                if (
+                    state not in self.patient_node.risk_ranges[test_vital]
+                    or -1.0 in self.patient_node.risk_ranges[test_vital][state]
+                ):
+                    self.patient_node.risk_ranges[test_vital][state] = [
+                        30.0 + state * 5,
+                        35.0 + state * 5,
+                    ]
+
         # Save original methods for all vital signs
         original_determine = self.patient_node._determine_possible_next_state
         original_calculate = self.patient_node._calculate_datapoint
         original_should_change = self.patient_node._should_change_state
-        
-        # Track which vital signs we've processed 
+
+        # Track which vital signs we've processed
         processed_vitals = set()
-        
+
         # CRITICAL FIX: Override _should_change_state to force it to return True ONLY for our test vital
         def fixed_should_change(vital_sign):
             print(f"Should change check for: {vital_sign}")
@@ -414,7 +440,7 @@ class TestPatientBehavior:
             else:
                 # Use original logic for other vitals
                 return original_should_change(vital_sign)
-        
+
         # Create a test version that returns state 1 ONLY for our test vital
         def fixed_determine(probs, vital_sign):
             processed_vitals.add(vital_sign)
@@ -426,35 +452,37 @@ class TestPatientBehavior:
             else:
                 # Return current state for other vitals to avoid changing them
                 return self.patient_node.vital_states[vital_sign]
-        
+
         # Create a test version that doesn't rely on risk ranges
         def fixed_calculate(vital_sign, curr_state):
             print(f"Fixed calculation for {vital_sign} state {curr_state}")
             self.patient_node.vital_datapoints[vital_sign] = 37.0  # Safe value
-        
+
         # Replace all three methods
         self.patient_node._determine_possible_next_state = fixed_determine
         self.patient_node._calculate_datapoint = fixed_calculate
         self.patient_node._should_change_state = fixed_should_change
-        
+
         try:
             # Add this debug print to see what's in the transition matrix
-            print(f"Transition matrix for {vital} state 0: {self.patient_node.transition_matrix_states[vital][0]}")
-            
+            print(
+                f"Transition matrix for {vital} state 0: {self.patient_node.transition_matrix_states[vital][0]}"
+            )
+
             # Call gen_data
             self.patient_node.gen_data()
-            
+
             # Debug what was processed
             print(f"Processed vitals: {processed_vitals}")
-            
+
             # Verify our vital was processed
             assert vital in processed_vitals, f"Test vital {vital} was not processed!"
-            
+
             # Check the result
             new_state = self.patient_node.vital_states[vital]
             print(f"New state: {new_state}")
             assert new_state == 1, "State should have changed to 1"
-        
+
         finally:
             # Restore original methods
             self.patient_node._determine_possible_next_state = original_determine

@@ -33,7 +33,6 @@ class CentralHub(Node):
         self.target_system_publisher = self.create_publisher(
             TargetSystemData, "target_system_data", 10
         )
-        
 
         # Add risk percentage storage
         self.latest_risk = {
@@ -77,9 +76,17 @@ class CentralHub(Node):
             self.get_logger().info(
                 f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
+
     def data_fuse(self):
         """Calculate patient status using the original BSN fusion algorithm"""
-        sensor_types = ["thermometer", "ecg", "oximeter", "abps", "abpd", "glucosemeter"]
+        sensor_types = [
+            "thermometer",
+            "ecg",
+            "oximeter",
+            "abps",
+            "abpd",
+            "glucosemeter",
+        ]
 
         # Get risk values in order
         packets_received = []
@@ -119,8 +126,8 @@ class CentralHub(Node):
 
         # Calculate deviations
         deviations = []
-        min_dev = float('inf')
-        max_dev = -float('inf')
+        min_dev = float("inf")
+        max_dev = -float("inf")
 
         for value in values:
             dev = abs(value - avg)
@@ -205,9 +212,8 @@ class CentralHub(Node):
         header.stamp = self.get_clock().now().to_msg()
         header.frame_id = "central_hub"
         msg.header = header
-        
+
         patient_status = self.data_fuse()
-        
 
         # Display formatted log message
         log_message = self.format_log_message()
@@ -239,9 +245,8 @@ class CentralHub(Node):
         msg.abps_batt = 100.0
         msg.abpd_batt = 100.0
         msg.glc_batt = 100.0
-        
-        
-        msg.patient_status = patient_status 
+
+        msg.patient_status = patient_status
 
         # Publish the message
         self.target_system_publisher.publish(msg)
@@ -250,7 +255,7 @@ class CentralHub(Node):
     def emit_alert(self, patient_status):
         """Emit alerts based on patient status and sensor risk levels"""
         # Handle overall patient status if provided
-        
+
         # Categorize patient status
         if patient_status <= 20.0:
             risk_category = "VERY LOW RISK"
@@ -279,7 +284,6 @@ class CentralHub(Node):
             self.get_logger().info(
                 f"[Emergency Detection]\n System Status: {risk_category} - {patient_status:.1f}%\n"
             )
-        
 
 
 def main(args=None):
