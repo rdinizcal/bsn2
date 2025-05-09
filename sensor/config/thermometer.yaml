@@ -1,0 +1,17 @@
+thermometer_node:
+  ros__parameters:
+    sensor: "thermometer"
+    vital_sign: "temperature"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats (ROS 2 standard format)
+    HighRisk0: "0.0,31.99"
+    MidRisk0: "32.0,35.99"
+    LowRisk: "36.0,37.99"
+    MidRisk1: "38.0,40.99"
+    HighRisk1: "41.0,50.0"
+    
+    # Percentage-based risk scores (if needed)
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"

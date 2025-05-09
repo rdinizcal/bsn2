@@ -1,0 +1,17 @@
+ecg_node:
+  ros__parameters:
+    sensor: "ecg"
+    vital_sign: "heart_rate"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats
+    HighRisk0: "0.0,70.0"
+    MidRisk0: "70.0,85.0"
+    LowRisk: "85.0,97.0"
+    MidRisk1: "97.0,115.0"
+    HighRisk1: "115.0,300.0"
+    
+    # Percentage-based risk scores
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"
