@@ -458,3 +458,218 @@ class TestSensorBehavior:
 
         with pytest.raises(ValueError):
             evaluator.get_displacement(10, 20, 15, "invalid_logic")
+    def test_collect_service_failure(self, monkeypatch):
+        """Test collect method with service call failure"""
+        # Mock the client call to return None
+        def mock_call_failure(req):
+            return None
+            
+        # Apply the monkeypatch
+        monkeypatch.setattr(self.sensor_node.cli, "call", mock_call_failure)
+        
+        # Call collect and check result
+        result = self.sensor_node.collect()
+        assert result == -1.0  # Should return failure indicator
+        
+    def test_assess_risk_thermometer(self):
+        """Test assess_risk for thermometer with various values"""
+        # Ensure sensor is thermometer for this test
+        self.sensor_node.sensor = "thermometer"
+        
+        # Test high risk - too low
+        assert self.sensor_node.assess_risk(31.0) == "high"
+        
+        # Test high risk - too high
+        assert self.sensor_node.assess_risk(51.0) == "high"
+        
+        # Test normal risk
+        assert self.sensor_node.assess_risk(37.0) == "normal"
+        
+        # Test moderate risk - below normal
+        assert self.sensor_node.assess_risk(33.0) == "moderate"
+        
+        # Test moderate risk - above normal
+        assert self.sensor_node.assess_risk(39.0) == "moderate"
+    
+    def test_assess_risk_abpd(self):
+        """Test assess_risk for abpd with various values"""
+        # Set sensor to abpd for this test
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "abpd"
+            
+            # Test high risk
+            assert self.sensor_node.assess_risk(95.0) == "high"
+            
+            # Test moderate risk
+            assert self.sensor_node.assess_risk(85.0) == "moderate"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(75.0) == "normal"
+        finally:
+            # Restore original sensor
+            self.sensor_node.sensor = original_sensor
+    
+    def test_assess_risk_abps(self):
+        """Test assess_risk for abps with various values"""
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "abps"
+            
+            # Test high risk
+            assert self.sensor_node.assess_risk(145.0) == "high"
+            
+            # Test moderate risk
+            assert self.sensor_node.assess_risk(130.0) == "moderate"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(110.0) == "normal"
+        finally:
+            self.sensor_node.sensor = original_sensor
+    
+    def test_assess_risk_ecg(self):
+        """Test assess_risk for ecg with various values"""
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "ecg"
+            
+            # Test high risk - too high
+            assert self.sensor_node.assess_risk(120.0) == "high"
+            
+            # Test high risk - too low
+            assert self.sensor_node.assess_risk(65.0) == "high"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(90.0) == "normal"
+            
+            # Test moderate risk - above normal
+            assert self.sensor_node.assess_risk(105.0) == "moderate"
+            
+            # Test moderate risk - below normal
+            assert self.sensor_node.assess_risk(80.0) == "moderate"
+        finally:
+            self.sensor_node.sensor = original_sensor
+    
+    def test_assess_risk_glucosemeter(self):
+        """Test assess_risk for glucosemeter with various values"""
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "glucosemeter"
+            
+            # Test high risk - too low
+            assert self.sensor_node.assess_risk(35.0) == "high"
+            
+            # Test high risk - too high
+            assert self.sensor_node.assess_risk(125.0) == "high"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(80.0) == "normal"
+            
+            # Test moderate risk - below normal range
+            assert self.sensor_node.assess_risk(50.0) == "moderate"
+            
+            # Test moderate risk - above normal range
+            assert self.sensor_node.assess_risk(100.0) == "moderate"
+        finally:
+            self.sensor_node.sensor = original_sensor
+    
+    def test_assess_risk_oximeter(self):
+        """Test assess_risk for oximeter with various values"""
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "oximeter"
+            
+            # Test high risk
+            assert self.sensor_node.assess_risk(50.0) == "high"
+            
+            # Test moderate risk
+            assert self.sensor_node.assess_risk(60.0) == "moderate"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(98.0) == "normal"
+        finally:
+            self.sensor_node.sensor = original_sensor
+    
+    def test_assess_risk_unknown_sensor(self):
+        """Test assess_risk with unknown sensor type"""
+        original_sensor = self.sensor_node.sensor
+        try:
+            self.sensor_node.sensor = "unknown_sensor"
+            
+            # Test high risk - too low
+            assert self.sensor_node.assess_risk(25.0) == "high"
+            
+            # Test high risk - too high
+            assert self.sensor_node.assess_risk(185.0) == "high"
+            
+            # Test moderate risk - lower range
+            assert self.sensor_node.assess_risk(40.0) == "moderate"
+            
+            # Test moderate risk - upper range
+            assert self.sensor_node.assess_risk(150.0) == "moderate"
+            
+            # Test normal risk
+            assert self.sensor_node.assess_risk(100.0) == "normal"
+        finally:
+            self.sensor_node.sensor = original_sensor
+    
+    def test_spin_sensor_lifecycle(self, monkeypatch):
+        """Test spin_sensor method with a mocked lifecycle"""
+        # Track method calls
+        call_counts = {
+            "collect": 0,
+            "process": 0,
+            "transfer": 0,
+            "sleep": 0,
+            "ok_checks": 0
+        }
+        
+        # Mock rclpy.ok() to return False after first check
+        original_ok = rclpy.ok
+        ok_calls = 0
+        
+        def mock_ok():
+            nonlocal ok_calls
+            ok_calls += 1
+            call_counts["ok_checks"] = ok_calls
+            # Return False after the first check to exit the loop
+            return ok_calls <= 1
+        
+        # Mock the sensor methods
+        def mock_collect():
+            call_counts["collect"] += 1
+            return 37.0
+            
+        def mock_process(val):
+            call_counts["process"] += 1
+            return val
+            
+        def mock_transfer(val):
+            call_counts["transfer"] += 1
+            
+        def mock_sleep():
+            call_counts["sleep"] += 1
+        
+        # Apply the monkeypatches
+        monkeypatch.setattr(rclpy, "ok", mock_ok)
+        monkeypatch.setattr(self.sensor_node, "collect", mock_collect)
+        monkeypatch.setattr(self.sensor_node, "process", mock_process)
+        monkeypatch.setattr(self.sensor_node, "transfer", mock_transfer)
+        
+        # Mock the rate.sleep() method
+        class MockRate:
+            def sleep(self):
+                call_counts["sleep"] += 1
+        
+        monkeypatch.setattr(self.sensor_node, "create_rate", lambda freq: MockRate())
+        
+        # Run spin_sensor
+        self.sensor_node.spin_sensor()
+        
+        # Check that all methods were called exactly once
+        assert call_counts["ok_checks"] >= 1
+        assert call_counts["collect"] == 1
+        assert call_counts["process"] == 1
+        assert call_counts["transfer"] == 1
+        assert call_counts["sleep"] == 1
+    
