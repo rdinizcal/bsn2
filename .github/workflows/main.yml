@@ -27,5 +27,5 @@ jobs:
         docker run --rm bsn2:latest bash -c "
           source /opt/ros/jazzy/setup.bash && \
           source /ros_ws/install/setup.bash && \
-          colcon test --event-handlers console_direct+ --return-code-on-test-failure
+          colcon test --event-handlers console_direct+ --pytest-args '--cov=. --cov-report=xml --cov-report=term' --return-code-on-test-failure
         "
