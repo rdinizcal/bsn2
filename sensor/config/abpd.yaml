@@ -1,0 +1,17 @@
+abpd_node:
+  ros__parameters:
+    sensor: "abpd"
+    vital_sign: "abpd"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats
+    HighRisk0: "-1.0,-1.0"  # Not used in original code
+    MidRisk0: "-1.0,-1.0"   # Not used in original code
+    LowRisk: "0.0,80.0"
+    MidRisk1: "80.0,90.0"
+    HighRisk1: "90.0,300.0"
+    
+    # Percentage-based risk scores
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"

@@ -1,0 +1,17 @@
+glucosemeter_node:
+  ros__parameters:
+    sensor: "glucosemeter"
+    vital_sign: "glucose"
+    frequency: "1.0"
+    
+    # Risk ranges as lists of floats
+    HighRisk0: "0.0,40.0"
+    MidRisk0: "40.0,55.0"
+    LowRisk: "55.0,100.0"
+    MidRisk1: "100.0,125.0"
+    HighRisk1: "125.0,300.0"
+    
+    # Percentage-based risk scores
+    lowrisk_percent: "0,20"
+    midrisk_percent: "21,65"
+    highrisk_percent: "66,100"
