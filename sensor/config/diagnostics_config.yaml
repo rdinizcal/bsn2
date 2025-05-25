@@ -1,0 +1,58 @@
+# my_diagnostics_config.yaml
+analyzers:
+  # Specific Sensor Analyzers (should come first)
+  thermometer_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/Thermometer' # Adjusted for cleaner hierarchy
+    startswith: ['/thermometer_node'] # Using startswith, which is often more precise
+    timeout: 5.0
+    discard_stale: Fals
+  oximeter_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/Oximeter'
+    startswith: ['/oximeter_node']
+    timeout: 5.0
+    discard_stale: Fals
+  ecg_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/ECG'
+    startswith: ['/ecg_node']
+    timeout: 5.0
+    discard_stale: Fals
+  abps_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/ABPS'
+    startswith: ['/abps_node']
+    timeout: 5.0
+    discard_stale: Fals
+  abpd_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/ABPD'
+    startswith: ['/abpd_node']
+    timeout: 5.0
+    discard_stale: Fals
+  glucosemeter_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Sensors/Glucosemeter'
+    startswith: ['/glucosemeter_node']
+    timeout: 5.0
+    discard_stale: Fals
+  # Specific System Analyzers
+  central_hub_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'System/CentralHub'
+    startswith: ['/central_hub_node']
+    timeout: 5.0
+    discard_stale: Fals
+  patient_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'System/Patient'
+    startswith: ['/patient_node']
+    timeout: 5.0
+    discard_stale: Fals
+  # The catch-all analyzer MUST be last in the list
+  other_analyzer:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: 'Other'
+    # IMPORTANT: No 'contains: ['']' here. This analyzer implicitly matches anything not caught above.
+    discard_stale: False # Set to False if you want it to show STALE, not disappear

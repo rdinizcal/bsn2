@@ -1,0 +1,15 @@
+aggregator_node:
+  ros__parameters:
+    pub_rate: 1.0 # Publish aggregated diagnostics at 1 Hz
+    base_path: "" # No prefix for diagnostic names in output
+    analyzers:
+      # Basic analyzer for all diagnostics starting with 'my_heartbeat_node'
+      my_heartbeat_node_group:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: 'My Heartbeat Node' # This will be the group name in rqt_robot_monitor
+        startswith: ['my_heartbeat_node'] # Matches diagnostics whose name starts with this
+      # Default analyzer for anything not matched by specific rules
+      other_nodes:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: 'Other Nodes'
+        discard_stale: True # Discard diagnostics from nodes that stop publishing

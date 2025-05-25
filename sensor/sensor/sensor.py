@@ -5,6 +5,8 @@ import threading
 from bsn_interfaces.srv import PatientData
 from bsn_interfaces.msg import SensorData
 from std_msgs.msg import Header
+from diagnostic_updater import Updater, DiagnosticStatusWrapper, Heartbeat
+from diagnostic_msgs.msg import DiagnosticStatus
 from sensor.risk_evaluator import RiskEvaluator
 
 
@@ -32,6 +34,12 @@ class Sensor(Node):
         # Create the risk evaluator and configure it
         self.risk_evaluator = RiskEvaluator()
         self._configure_risk_evaluator()
+        
+        self.last_collected_datapoint = -1.0
+        self.last_risk_level = "unknown"
+        self.last_risk_value = -1.0
+        
+        self._setup_diagnostics()
 
         self.cli = self.create_client(PatientData, "get_sensor_reading")
         while not self.cli.wait_for_service(timeout_sec=1.0):
@@ -41,6 +49,7 @@ class Sensor(Node):
         self.publisher_ = self.create_publisher(
             SensorData, f"sensor_data/{self.sensor}", 10
         )
+        
 
         self.window_size = 5
         self.data_window = deque(maxlen=self.window_size)
@@ -102,6 +111,83 @@ class Sensor(Node):
             f"  Risk Percentages: Low={risk_percentages[0]}, Mid={risk_percentages[1]}, High={risk_percentages[2]}\n"
             f"  Ranges: {sensor_ranges}"
         )
+    def _setup_diagnostics(self):
+        """
+        Sets up the diagnostic updater and registers all diagnostic tasks.
+        """
+        self.updater = Updater(self, period=1.0) # Publishes diagnostics every 1 second
+        self.updater.setHardwareID(f"sensor_unit_{self.sensor}")
+
+        # Add a Heartbeat task
+        self.updater.add(Heartbeat())
+
+        # Add custom diagnostic tasks
+        self.updater.add(
+            f"{self.sensor} Service Client Status",
+            self.check_service_client_status
+        )
+        self.updater.add(
+            f"{self.sensor} Data Window Status",
+            self.check_data_window_status
+        )
+        self.updater.add(
+            f"{self.sensor} Last Collected Data",
+            self.check_last_collected_data
+        )
+        self.updater.add(
+            f"{self.sensor} Risk Evaluation Status",
+            self.check_risk_evaluation_status
+        )
+
+    # --- Diagnostic Callback Functions (keep these as separate methods) ---
+    def check_service_client_status(self, stat: DiagnosticStatusWrapper):
+        """Diagnostic task to report on the service client's connection status."""
+        if self.cli.service_is_ready():
+            stat.summary(DiagnosticStatus.OK, "Service client connected.")
+        else:
+            stat.summary(DiagnosticStatus.WARN, "Service client NOT connected or ready.")
+        stat.add("Service Name", self.cli.srv_name)
+        return stat
+
+    def check_data_window_status(self, stat: DiagnosticStatusWrapper):
+        """Diagnostic task to report on the data window's fill level."""
+        current_fill = len(self.data_window)
+        percentage_full = (current_fill / self.window_size) * 100
+
+        if current_fill == self.window_size:
+            stat.summary(DiagnosticStatus.OK, "Data window is full.")
+        elif current_fill > 0:
+            stat.summary(DiagnosticStatus.WARN, "Data window is not yet full.")
+        else:
+            stat.summary(DiagnosticStatus.ERROR, "Data window is empty.")
+
+        stat.add("Current Window Size", str(current_fill))
+        stat.add("Max Window Size", str(self.window_size))
+        stat.add("Fill Percentage", f"{percentage_full:.1f}%")
+        return stat
+
+    def check_last_collected_data(self, stat: DiagnosticStatusWrapper):
+        """Diagnostic task to report the last collected data point."""
+        if self.last_collected_datapoint >= 0:
+            stat.summary(DiagnosticStatus.OK, f"Last collected: {self.last_collected_datapoint:.2f}")
+        else:
+            stat.summary(DiagnosticStatus.WARN, "Last collection failed or no data yet.")
+        stat.add("Last Data Value", f"{self.last_collected_datapoint:.2f}")
+        return stat
+
+    def check_risk_evaluation_status(self, stat: DiagnosticStatusWrapper):
+        """Diagnostic task to report the last calculated risk level."""
+        if self.last_risk_level == "low":
+            stat.summary(DiagnosticStatus.OK, f"Last risk: {self.last_risk_level} ({self.last_risk_value:.1f}%)")
+        elif self.last_risk_level == "moderate":
+            stat.summary(DiagnosticStatus.WARN, f"Last risk: {self.last_risk_level} ({self.last_risk_value:.1f}%)")
+        elif self.last_risk_level == "high":
+            stat.summary(DiagnosticStatus.ERROR, f"Last risk: {self.last_risk_level} ({self.last_risk_value:.1f}%)")
+        else:
+            stat.summary(DiagnosticStatus.STALE, "Risk level unknown or not evaluated.")
+        stat.add("Last Risk Level", self.last_risk_level)
+        stat.add("Last Risk Value", f"{self.last_risk_value:.1f}")
+        return stat    
 
     def collect(self):
         self.req.vital_sign = self.vital_sign
@@ -223,6 +309,7 @@ class Sensor(Node):
             datapoint = self.collect()
             datapoint = self.process(datapoint)
             self.transfer(datapoint)
+            self.updater.update()
             rate.sleep()
 
 
