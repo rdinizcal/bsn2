@@ -15,3 +15,9 @@ thermometer_node:
     lowrisk_percent: "0,20"
     midrisk_percent: "21,65"
     highrisk_percent: "66,100"
+
+    battery_id: "thermometer_battery"
+    battery_capacity: 100.0
+    battery_level: 100.0
+    battery_unit: 0.05
+    instant_recharge: false

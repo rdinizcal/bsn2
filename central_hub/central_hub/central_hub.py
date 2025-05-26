@@ -1,15 +1,50 @@
 import rclpy
 import threading
+import time
 from rclpy.node import Node
-from bsn_interfaces.msg import SensorData
-from bsn_interfaces.msg import TargetSystemData
-from std_msgs.msg import Header
+from bsn_interfaces.msg import SensorData, TargetSystemData, EnergyStatus
+from std_msgs.msg import Header, Float32
+from system_monitor.battery import Battery  # Import Battery class
 
 
 class CentralHub(Node):
 
     def __init__(self):
         super().__init__("central_hub")
+        
+        # Battery parameters for central hub
+        self.declare_parameter("battery_id", "hub_battery")
+        self.declare_parameter("battery_capacity", 100.0)  
+        self.declare_parameter("battery_level", 100.0)
+        self.declare_parameter("battery_unit", 0.001)      
+        self.declare_parameter("instant_recharge", False)  
+        
+        # Initialize battery
+        battery_id = self.get_parameter("battery_id").value
+        battery_capacity = float(self.get_parameter("battery_capacity").value)
+        battery_level = float(self.get_parameter("battery_level").value)
+        battery_unit = float(self.get_parameter("battery_unit").value)
+        
+        self.battery = Battery(
+            id_name=battery_id,
+            capacity=battery_capacity,
+            current_level=battery_level,
+            unit=battery_unit
+        )
+        
+        self.instant_recharge = self.get_parameter("instant_recharge").value
+        self.cost = 0.0  # Track cost for energy status reporting
+        self.active = True  # Track active state
+
+        # Create energy status publisher
+        self.energy_status_pub = self.create_publisher(
+            EnergyStatus, 'collect_energy_status/central_hub', 10  # Use reference topic name
+        )
+        
+        # Create timer for status updates and recharging
+        self.battery_timer = self.create_timer(1.0, self.check_battery_status)
+        
+        # Existing subscription setup
         self.sub_abpd = self.create_subscription(
             SensorData, "sensor_data/abpd", self.receive_datapoint, 10
         )
@@ -43,7 +78,17 @@ class CentralHub(Node):
             "oximeter": 0.0,
             "thermometer": 0.0,
         }
-
+        
+        # Store battery levels from each sensor 
+        self.sensor_battery_levels = {
+            "abpd": 100.0,
+            "abps": 100.0,
+            "ecg": 100.0,
+            "glucosemeter": 100.0,
+            "oximeter": 100.0,
+            "thermometer": 100.0,
+        }
+        
         self.latest_data = {
             "abpd": -1.0,
             "abps": -1.0,
@@ -61,6 +106,59 @@ class CentralHub(Node):
             "oximeter": "unknown",
             "thermometer": "unknown",
         }
+        
+    def is_active(self):
+        """Check if hub is active based on battery level"""
+        return self.active
+    
+    def turn_on(self):
+        """Activate the hub"""
+        self.active = True
+        self.get_logger().info("Central Hub activated")
+        
+    def turn_off(self):
+        """Deactivate the hub"""
+        self.active = False
+        self.get_logger().info("Central Hub deactivated due to low battery")
+    
+    def recharge(self):
+        """
+        Recharge the battery - central hub recovers in 20 seconds
+        (from the original CentralHub.cpp)
+        """
+        if not self.instant_recharge:
+            # Recover 5% per second (100% in 20 seconds)
+            freq = 2.0  # Assuming 2Hz operation from main()
+            self.battery.generate((100.0/20.0)/freq)
+        else:
+            self.battery.generate(100)  # Instantly recharge to full
+            
+    def send_energy_status(self, cost):
+        """Send energy status to monitoring system"""
+        msg = EnergyStatus()
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.source = self.get_name()
+        msg.target = "system"
+        msg.content = f"energy:{self.battery.current_level:.2f}:cost:{cost:.4f}"
+        
+        self.energy_status_pub.publish(msg)
+        self.get_logger().debug(f"Energy status: {msg.content}")
+        
+    def check_battery_status(self):
+        """Check and manage battery status"""
+        # Turn on if charged enough, turn off if too low
+        if not self.is_active() and self.battery.current_level > 90:
+            self.turn_on()
+        elif self.is_active() and self.battery.current_level < 2:
+            self.turn_off()
+            
+        # Recharge if inactive or when instant_recharge is enabled (always plugged in)
+        if not self.is_active() or self.instant_recharge:
+            self.recharge()
+        
+        # Log battery status
+        self.get_logger().info(f"Hub battery level: {self.battery.current_level:.1f}%")
 
     def receive_datapoint(self, msg):
         if msg.sensor_type == "":
@@ -72,13 +170,25 @@ class CentralHub(Node):
             self.latest_data[msg.sensor_type] = msg.sensor_datapoint
             self.latest_risks_labels[msg.sensor_type] = msg.risk_level
             self.latest_risk[msg.sensor_type] = msg.risk
+            
+            # Capture battery level from sensor
+            self.sensor_battery_levels[msg.sensor_type] = getattr(msg, 'battery_level', 100.0)
+
+            # Use a small amount of battery to receive data (using reference value)
+            self.battery.consume(0.001) 
+            self.cost += 0.001
 
             self.get_logger().info(
                 f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
-
+            
     def data_fuse(self):
         """Calculate patient status using the original BSN fusion algorithm"""
+        # Use battery consumption from reference code
+        data_count = sum(1 for risk in self.latest_risk.values() if risk >= 0)
+        self.battery.consume(data_count * 0.001)
+        self.cost += data_count * 0.001
+        
         sensor_types = [
             "thermometer",
             "ecg",
@@ -130,7 +240,8 @@ class CentralHub(Node):
         max_dev = -float("inf")
 
         for value in values:
-            dev = abs(value - avg)
+            # Use actual deviation (not absolute) as per reference
+            dev = value - avg
             deviations.append(dev)
 
             if dev > max_dev:
@@ -163,6 +274,10 @@ class CentralHub(Node):
 
     def format_log_message(self):
         """Format sensor data into a readable table"""
+        # Consume minimal battery for formatting (using reference value)
+        self.battery.consume(0.001)
+        self.cost += 0.001
+        
         log_message = " \n"
         border = "+-----------------+-----------------+-----------------------------+"
         header = "| {0:<15} | {1:<15} | {2:<27} |".format(
@@ -204,53 +319,69 @@ class CentralHub(Node):
         return log_message
 
     def detect(self):
-        # Create a TargetSystemData message
-        msg = TargetSystemData()
+        """Main detection function that processes and publishes health data"""
+        # Skip processing if hub is not active
+        if not self.is_active():
+            self.recharge()
+            return
+            
+        try:
+            # Create a TargetSystemData message
+            msg = TargetSystemData()
 
-        # Add header
-        header = Header()
-        header.stamp = self.get_clock().now().to_msg()
-        header.frame_id = "central_hub"
-        msg.header = header
+            # Add header
+            header = Header()
+            header.stamp = self.get_clock().now().to_msg()
+            header.frame_id = "central_hub"
+            msg.header = header
 
-        patient_status = self.data_fuse()
+            patient_status = self.data_fuse()
 
-        # Display formatted log message
-        log_message = self.format_log_message()
-        self.get_logger().info(log_message)
+            # Display formatted log message
+            log_message = self.format_log_message()
+            self.get_logger().info(log_message)
 
-        # Emit alerts for high/moderate risks
-        self.emit_alert(patient_status)
+            # Emit alerts for high/moderate risks
+            self.emit_alert(patient_status)
 
-        # Populate the message fields
-        msg.trm_data = self.latest_data.get("thermometer", -1.0)
-        msg.ecg_data = self.latest_data.get("ecg", -1.0)
-        msg.oxi_data = self.latest_data.get("oximeter", -1.0)
-        msg.abps_data = self.latest_data.get("abps", -1.0)
-        msg.abpd_data = self.latest_data.get("abpd", -1.0)
-        msg.glc_data = self.latest_data.get("glucosemeter", -1.0)
+            # Populate the message fields
+            msg.trm_data = self.latest_data.get("thermometer", -1.0)
+            msg.ecg_data = self.latest_data.get("ecg", -1.0)
+            msg.oxi_data = self.latest_data.get("oximeter", -1.0)
+            msg.abps_data = self.latest_data.get("abps", -1.0)
+            msg.abpd_data = self.latest_data.get("abpd", -1.0)
+            msg.glc_data = self.latest_data.get("glucosemeter", -1.0)
 
-        # Set risk values from risk_percentages
-        msg.trm_risk = self.latest_risk.get("thermometer", 0.0)
-        msg.ecg_risk = self.latest_risk.get("ecg", 0.0)
-        msg.oxi_risk = self.latest_risk.get("oximeter", 0.0)
-        msg.abps_risk = self.latest_risk.get("abps", 0.0)
-        msg.abpd_risk = self.latest_risk.get("abpd", 0.0)
-        msg.glc_risk = self.latest_risk.get("glucosemeter", 0.0)
+            # Set risk values from risk_percentages
+            msg.trm_risk = self.latest_risk.get("thermometer", 0.0)
+            msg.ecg_risk = self.latest_risk.get("ecg", 0.0)
+            msg.oxi_risk = self.latest_risk.get("oximeter", 0.0)
+            msg.abps_risk = self.latest_risk.get("abps", 0.0)
+            msg.abpd_risk = self.latest_risk.get("abpd", 0.0)
+            msg.glc_risk = self.latest_risk.get("glucosemeter", 0.0)
 
-        # Placeholder values for battery levels and patient status
-        msg.trm_batt = 100.0
-        msg.ecg_batt = 100.0
-        msg.oxi_batt = 100.0
-        msg.abps_batt = 100.0
-        msg.abpd_batt = 100.0
-        msg.glc_batt = 100.0
+            # Update battery levels from the sensor data
+            msg.trm_batt = self.sensor_battery_levels.get("thermometer", 100.0)
+            msg.ecg_batt = self.sensor_battery_levels.get("ecg", 100.0)
+            msg.oxi_batt = self.sensor_battery_levels.get("oximeter", 100.0)
+            msg.abps_batt = self.sensor_battery_levels.get("abps", 100.0)
+            msg.abpd_batt = self.sensor_battery_levels.get("abpd", 100.0)
+            msg.glc_batt = self.sensor_battery_levels.get("glucosemeter", 100.0)
 
-        msg.patient_status = patient_status
+            msg.patient_status = patient_status
 
-        # Publish the message
-        self.target_system_publisher.publish(msg)
-        self.get_logger().info("Published TargetSystemData")
+            # Publish the message - consume battery for transmission (using reference value)
+            self.battery.consume(0.001)
+            self.cost += 0.001
+            self.target_system_publisher.publish(msg)
+            self.get_logger().info("Published TargetSystemData")
+            
+            # Report energy status after each detection cycle
+            self.send_energy_status(self.cost)
+            self.cost = 0.0  # Reset cost counter
+            
+        except Exception as e:
+            self.get_logger().error(f"Error in detect(): {str(e)}")
 
     def emit_alert(self, patient_status):
         """Emit alerts based on patient status and sensor risk levels"""
@@ -300,7 +431,15 @@ def main(args=None):
 
     try:
         while rclpy.ok():
-            emergency_detector.detect()
+            # Only run detection if hub is active
+            if emergency_detector.is_active():
+                emergency_detector.detect()
+            else:
+                # If hub is inactive, try to recharge
+                emergency_detector.recharge()
+                emergency_detector.get_logger().warning(
+                    f"Hub in power saving mode, recharging: {emergency_detector.battery.current_level:.1f}%"
+                )
             rate.sleep()
     finally:
         emergency_detector.destroy_node()

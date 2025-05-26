@@ -20,6 +20,7 @@ set(interface_files
   # Messages
   "msg/SensorData.msg"
   "msg/TargetSystemData.msg"
+  "msg/EnergyStatus.msg"
   # Services
   "srv/PatientData.srv"
 )
