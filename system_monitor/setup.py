@@ -9,6 +9,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
+        ('share/' + package_name + '/config', ['config/monitor_config.yaml']),
         ('share/' + package_name, ['package.xml']),
     ],
     install_requires=['setuptools'],
@@ -20,6 +21,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'system_monitor = system_monitor.node_monitor:main',  # This line is likely incorrect
         ],
     },
 )

@@ -1,0 +1,23 @@
+node_monitor:
+  ros__parameters:
+    # List of nodes to monitor and manage
+    monitored_nodes: 
+      - "thermometer_node"
+      # Add other nodes as needed
+      # - "oximeter_node" 
+      # - "glucosemeter_node"
+
+    # Timing parameters
+    heartbeat_timeout: 5.0  # Seconds before a node is considered offline
+    task_timeout: 30.0      # Seconds before a task is considered stuck
+    check_interval: 2.0     # How often to poll node states
+
+    # Auto-management settings
+    auto_configure: true    # Automatically configure nodes on startup
+    auto_activate: true     # Automatically activate nodes after configuration
+    auto_restart: true      # Automatically restart failed nodes
+    
+    # Recovery parameters
+    max_restart_attempts: 3           # Maximum times to try restarting a node
+    restart_cooldown_period: 60.0     # Seconds between restart attempts
+    recovery_strategy: "progressive"  # Options: "immediate", "progressive", "manual"

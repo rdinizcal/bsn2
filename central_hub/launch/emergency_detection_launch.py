@@ -28,6 +28,11 @@ def generate_launch_description():
     config_glucosemeter = os.path.join(
         get_package_share_directory("sensor"), "config", "glucosemeter.yaml"
     )
+    config_monitor = os.path.join(
+        get_package_share_directory('system_monitor'),
+        'config',
+        'monitor_config.yaml'
+    )
 
     return launch.LaunchDescription(
         [
@@ -94,5 +99,14 @@ def generate_launch_description():
                 emulate_tty=True,
                 output="screen",
             ),
+            launch_ros.actions.Node(
+            package='system_monitor',
+            executable='system_monitor',
+            name='node_monitor',
+            output='screen',
+            emulate_tty=True,
+            parameters=[config_monitor]
+            )
+            
         ]
     )
