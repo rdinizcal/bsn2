@@ -128,15 +128,6 @@ class Sensor(LifecycleNode):
         self.get_logger().info("Deactivating sensor...")
         self.active = False
         
-        # Stop heartbeat timer but DO NOT set to None
-        if self.heartbeat_timer:
-            self.heartbeat_timer.cancel()
-        
-        # Keep battery check timer running - DO NOT cancel it
-        # if self.timer:
-        #    self.timer.cancel()
-        #    self.timer = None
-        
         self.publish_event("deactivate")
         self.publish_status("deactivated", "idle")
         return TransitionCallbackReturn.SUCCESS

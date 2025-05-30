@@ -154,13 +154,7 @@ class CentralHub(LifecycleNode):  # Change from Node to LifecycleNode
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
         self.get_logger().info("Deactivating Central Hub...")
         self.active = False
-        # Stop heartbeat timer
-        if self.heartbeat_timer:
-            self.heartbeat_timer.cancel()
-            self.heartbeat_timer = None
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
+
         self.publish_event("deactivate")
         self.publish_status("deactivated", "idle")
         return TransitionCallbackReturn.SUCCESS
