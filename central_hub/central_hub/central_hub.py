@@ -2,18 +2,21 @@ import rclpy
 import threading
 import time
 from rclpy.node import Node
-from bsn_interfaces.msg import SensorData, TargetSystemData, EnergyStatus
+from rclpy.lifecycle import LifecycleNode, State, TransitionCallbackReturn
+from lifecycle_msgs.msg import State as LifecycleState
+from bsn_interfaces.msg import SensorData, TargetSystemData, EnergyStatus, Event, Status
 from std_msgs.msg import Header, Float32
 from system_monitor.battery import Battery  # Import Battery class
 
 
-class CentralHub(Node):
+class CentralHub(LifecycleNode):  # Change from Node to LifecycleNode
 
     def __init__(self):
         super().__init__("central_hub")
         
         # Battery parameters for central hub
         self.declare_parameter("battery_id", "hub_battery")
+        self.declare_parameter("frequency", 2.0)
         self.declare_parameter("battery_capacity", 100.0)  
         self.declare_parameter("battery_level", 100.0)
         self.declare_parameter("battery_unit", 0.001)      
@@ -25,6 +28,7 @@ class CentralHub(Node):
         battery_level = float(self.get_parameter("battery_level").value)
         battery_unit = float(self.get_parameter("battery_unit").value)
         
+        self.frequency = float(self.get_parameter("frequency").value)
         self.battery = Battery(
             id_name=battery_id,
             capacity=battery_capacity,
@@ -34,42 +38,31 @@ class CentralHub(Node):
         
         self.instant_recharge = self.get_parameter("instant_recharge").value
         self.cost = 0.0  # Track cost for energy status reporting
-        self.active = True  # Track active state
-
+        
+        # Initialize with inactive state for lifecycle compliance
+        self.active = False  # Start as inactive until activated through lifecycle
+        self._finalized = False  # Flag for shutdown handling
+        
+        # Set up status publisher as None initially (will be created on configure)
+        self.status_pub = None
+        self.current_task = "idle"
+        
         # Create energy status publisher
         self.energy_status_pub = self.create_publisher(
-            EnergyStatus, 'collect_energy_status/central_hub', 10  # Use reference topic name
+            EnergyStatus, 'collect_energy_status/central_hub_node', 10
         )
+        
+        # Create event publisher
+        self.event_pub = self.create_publisher(Event, 'collect_event', 10)
         
         # Create timer for status updates and recharging
-        self.battery_timer = self.create_timer(1.0, self.check_battery_status)
+        self.timer = self.create_timer(1.0, self.check_battery_status)
         
-        # Existing subscription setup
-        self.sub_abpd = self.create_subscription(
-            SensorData, "sensor_data/abpd", self.receive_datapoint, 10
-        )
-        self.sub_abps = self.create_subscription(
-            SensorData, "sensor_data/abps", self.receive_datapoint, 10
-        )
-        self.sub_ecg = self.create_subscription(
-            SensorData, "sensor_data/ecg", self.receive_datapoint, 10
-        )
-        self.sub_glucosemeter = self.create_subscription(
-            SensorData, "sensor_data/glucosemeter", self.receive_datapoint, 10
-        )
-        self.sub_oximeter = self.create_subscription(
-            SensorData, "sensor_data/oximeter", self.receive_datapoint, 10
-        )
-        self.sub_thermometer = self.create_subscription(
-            SensorData, "sensor_data/thermometer", self.receive_datapoint, 10
-        )
+        # Set up heartbeat timer as None initially (will be created on activate)
+        self.heartbeat_timer = None
+        
+        # Data structures for tracking sensors
         self.NOT_USED = ""
-
-        self.target_system_publisher = self.create_publisher(
-            TargetSystemData, "target_system_data", 10
-        )
-
-        # Add risk percentage storage
         self.latest_risk = {
             "abpd": 0.0,
             "abps": 0.0,
@@ -79,7 +72,6 @@ class CentralHub(Node):
             "thermometer": 0.0,
         }
         
-        # Store battery levels from each sensor 
         self.sensor_battery_levels = {
             "abpd": 100.0,
             "abps": 100.0,
@@ -106,30 +98,152 @@ class CentralHub(Node):
             "oximeter": "unknown",
             "thermometer": "unknown",
         }
+
+    # Lifecycle Node callback methods
+    def on_configure(self, state: State) -> TransitionCallbackReturn:
+        """Callback when transitioning to Configured state."""
+        self.get_logger().info("Configuring Central Hub...")
         
+        # Add status publisher
+        self.status_pub = self.create_publisher(
+            Status, 'component_status', 10
+        )
+        
+        # Setup subscriptions
+        self.sub_abpd = self.create_subscription(
+            SensorData, "sensor_data/abpd", self.receive_datapoint, 10
+        )
+        self.sub_abps = self.create_subscription(
+            SensorData, "sensor_data/abps", self.receive_datapoint, 10
+        )
+        self.sub_ecg = self.create_subscription(
+            SensorData, "sensor_data/ecg", self.receive_datapoint, 10
+        )
+        self.sub_glucosemeter = self.create_subscription(
+            SensorData, "sensor_data/glucosemeter", self.receive_datapoint, 10
+        )
+        self.sub_oximeter = self.create_subscription(
+            SensorData, "sensor_data/oximeter", self.receive_datapoint, 10
+        )
+        self.sub_thermometer = self.create_subscription(
+            SensorData, "sensor_data/thermometer", self.receive_datapoint, 10
+        )
+        
+        # Setup publisher
+        self.target_system_publisher = self.create_publisher(
+            TargetSystemData, "target_system_data", 10
+        )
+        
+        # Publish configured status
+        self.publish_status("configured", "idle")
+        
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_activate(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().info("Activating Central Hub...")
+        
+        self.active = True
+        # Start heartbeat timer and publish immediate activate event
+        if self.heartbeat_timer is None:
+            self.heartbeat_timer = self.create_timer(2.0, self.publish_heartbeat)
+        # Publish activation event immediately
+        self.publish_event("activate")
+        self.publish_status("activated", "idle")
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().info("Deactivating Central Hub...")
+        self.active = False
+        # Stop heartbeat timer
+        if self.heartbeat_timer:
+            self.heartbeat_timer.cancel()
+            self.heartbeat_timer = None
+        if self.timer:
+            self.timer.cancel()
+            self.timer = None
+        self.publish_event("deactivate")
+        self.publish_status("deactivated", "idle")
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_cleanup(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().info("Cleaning up Central Hub...")
+        self.sub_abpd = None
+        self.sub_abps = None
+        self.sub_ecg = None
+        self.sub_glucosemeter = None
+        self.sub_oximeter = None
+        self.sub_thermometer = None
+        self.target_system_publisher = None
+        self.publish_status("unconfigured", "idle")
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().info("Shutting down Central Hub...")
+        self.active = False
+        self._finalized = True
+        if self.heartbeat_timer is not None:
+            self.heartbeat_timer.cancel()
+            self.heartbeat_timer = None
+        return TransitionCallbackReturn.SUCCESS
+        
+    # Status and event methods
+    def publish_status(self, content, task):
+        """Publish component status"""
+        if self.status_pub is None:
+            return
+            
+        msg = Status()
+        msg.source = self.get_name()
+        msg.target = "system"
+        msg.content = content
+        msg.task = task
+        self.status_pub.publish(msg)
+        self.get_logger().debug(f"Status published: {content}, task: {task}")
+        self.current_task = task
+        
+    def publish_heartbeat(self):
+        """Publish a heartbeat event indicating current activity state"""
+        msg = Event()
+        msg.source = self.get_name()
+        msg.target = "system"
+        msg.freq = self.frequency  # 2Hz operation from main()
+        msg.content = "activate" if self.active else "deactivate"
+        self.event_pub.publish(msg)
+        self.get_logger().debug(f"Heartbeat event published: {msg.content} at {msg.freq}Hz")
+
+    def publish_event(self, event_type):
+        """Publish a one-time event like activate or deactivate"""
+        msg = Event()
+        msg.source = self.get_name()
+        msg.target = "system"
+        msg.content = event_type
+        msg.freq = self.frequency  # 2Hz operation from main()
+        self.event_pub.publish(msg)
+        self.get_logger().info(f"Event published: {event_type}")
+    
+    # Battery and energy methods
     def is_active(self):
-        """Check if hub is active based on battery level"""
+        """Check if hub is active based on active flag"""
         return self.active
     
     def turn_on(self):
         """Activate the hub"""
         self.active = True
         self.get_logger().info("Central Hub activated")
+        self.publish_event("activate")
         
     def turn_off(self):
         """Deactivate the hub"""
         self.active = False
         self.get_logger().info("Central Hub deactivated due to low battery")
+        self.publish_event("deactivate")
     
     def recharge(self):
-        """
-        Recharge the battery - central hub recovers in 20 seconds
-        (from the original CentralHub.cpp)
-        """
+        """Recharge the battery"""
         if not self.instant_recharge:
             # Recover 5% per second (100% in 20 seconds)
-            freq = 2.0  # Assuming 2Hz operation from main()
-            self.battery.generate((100.0/20.0)/freq)
+            
+            self.battery.generate((100.0/20.0)/self.frequency)
         else:
             self.battery.generate(100)  # Instantly recharge to full
             
@@ -160,7 +274,15 @@ class CentralHub(Node):
         # Log battery status
         self.get_logger().info(f"Hub battery level: {self.battery.current_level:.1f}%")
 
+    # Main functionality methods
     def receive_datapoint(self, msg):
+        """Receive data from sensors"""
+        # Skip if not active
+        if not self.active:
+            return
+            
+        self.publish_status(self.active and "activated" or "deactivated", "receive")
+            
         if msg.sensor_type == "":
             self.get_logger().debug(
                 f"null value received: {msg.sensor_type} with {msg.sensor_datapoint}"
@@ -182,20 +304,24 @@ class CentralHub(Node):
                 f"Received data from {msg.sensor_type}: {msg.sensor_datapoint} with risk: {msg.risk_level}"
             )
             
+        self.publish_status(self.active and "activated" or "deactivated", "idle")
+            
     def data_fuse(self):
         """Calculate patient status using the original BSN fusion algorithm"""
+        # Skip if not active
+        if not self.active:
+            return 0.0
+            
+        self.publish_status(self.active and "activated" or "deactivated", "calculate")
+        
         # Use battery consumption from reference code
         data_count = sum(1 for risk in self.latest_risk.values() if risk >= 0)
         self.battery.consume(data_count * 0.001)
         self.cost += data_count * 0.001
         
+        # Original data fusion algorithm implementation
         sensor_types = [
-            "thermometer",
-            "ecg",
-            "oximeter",
-            "abps",
-            "abpd",
-            "glucosemeter",
+            "thermometer", "ecg", "oximeter", "abps", "abpd", "glucosemeter",
         ]
 
         # Get risk values in order
@@ -229,6 +355,7 @@ class CentralHub(Node):
             index += 1
 
         if count == 0:
+            self.publish_status(self.active and "activated" or "deactivated", "idle")
             return 0.0  # No data
 
         # Calculate average
@@ -255,6 +382,7 @@ class CentralHub(Node):
 
         # If all values are the same, return simple average
         if max_dev - min_dev <= 0.0:
+            self.publish_status(self.active and "activated" or "deactivated", "idle")
             return avg
 
         # Otherwise calculate weighted average based on deviations
@@ -270,6 +398,7 @@ class CentralHub(Node):
         else:
             risk_status = avg
 
+        self.publish_status(self.active and "activated" or "deactivated", "idle")
         return risk_status
 
     def format_log_message(self):
@@ -317,6 +446,46 @@ class CentralHub(Node):
             "+-----------------+-----------------+-----------------------------+"
         )
         return log_message
+
+    def emit_alert(self, patient_status):
+        """Emit alerts based on patient status and sensor risk levels"""
+        # Skip if not active
+        if not self.active or patient_status <= 0:
+            return
+            
+        self.publish_status(self.active and "activated" or "deactivated", "emit_emergency")
+        
+        # Categorize patient status
+        if patient_status <= 20.0:
+            risk_category = "VERY LOW RISK"
+        elif 20.0 < patient_status <= 40.0:
+            risk_category = "LOW RISK"
+        elif 40.0 < patient_status <= 60.0:
+            risk_category = "MODERATE RISK"
+        elif 60.0 < patient_status <= 80.0:
+            risk_category = "CRITICAL RISK"
+            self.get_logger().fatal(
+                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        elif 80.0 < patient_status <= 100.0:
+            risk_category = "VERY CRITICAL RISK"
+            self.get_logger().fatal(
+                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        else:
+            risk_category = "UNKNOWN RISK"
+        
+        # Log moderate/low risk (critical alerts already handled above)
+        if 40.0 < patient_status <= 60.0:
+            self.get_logger().warning(
+                f"[Emergency Detection]\n SYSTEM WARNING: {risk_category} - Patient Status: {patient_status:.1f}%\n"
+            )
+        elif patient_status <= 40.0 and patient_status > 0:
+            self.get_logger().info(
+                f"[Emergency Detection]\n System Status: {risk_category} - {patient_status:.1f}%\n"
+            )
+            
+        self.publish_status(self.active and "activated" or "deactivated", "idle")
 
     def detect(self):
         """Main detection function that processes and publishes health data"""
@@ -383,54 +552,30 @@ class CentralHub(Node):
         except Exception as e:
             self.get_logger().error(f"Error in detect(): {str(e)}")
 
-    def emit_alert(self, patient_status):
-        """Emit alerts based on patient status and sensor risk levels"""
-        # Handle overall patient status if provided
-
-        # Categorize patient status
-        if patient_status <= 20.0:
-            risk_category = "VERY LOW RISK"
-        elif 20.0 < patient_status <= 40.0:
-            risk_category = "LOW RISK"
-        elif 40.0 < patient_status <= 60.0:
-            risk_category = "MODERATE RISK"
-        elif 60.0 < patient_status <= 80.0:
-            risk_category = "CRITICAL RISK"
-            self.get_logger().fatal(
-                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
-            )
-        elif 80.0 < patient_status <= 100.0:
-            risk_category = "VERY CRITICAL RISK"
-            self.get_logger().fatal(
-                f"[Emergency Detection]\n SYSTEM ALERT: {risk_category} - Patient Status: {patient_status:.1f}%\n"
-            )
-        else:
-            risk_category = "UNKNOWN RISK"
-        # Log moderate/low risk (critical alerts already handled above)
-        if 40.0 < patient_status <= 60.0:
-            self.get_logger().warning(
-                f"[Emergency Detection]\n SYSTEM WARNING: {risk_category} - Patient Status: {patient_status:.1f}%\n"
-            )
-        elif patient_status <= 40.0 and patient_status > 0:
-            self.get_logger().info(
-                f"[Emergency Detection]\n System Status: {risk_category} - {patient_status:.1f}%\n"
-            )
-
 
 def main(args=None):
     rclpy.init(args=args)
 
     emergency_detector = CentralHub()
-
+    
     # Run spin in a thread, make thread daemon so we don't have to join it to exit
     thread = threading.Thread(
         target=rclpy.spin, args=(emergency_detector,), daemon=True
     )
     thread.start()
-    rate = emergency_detector.create_rate(2)  # 2 Hz
+    rate = emergency_detector.create_rate(emergency_detector.frequency)  # 2 Hz
 
     try:
+        # Automatically configure and activate
+        emergency_detector.trigger_configure()
+        time.sleep(0.5)  # Wait for configuration
+        emergency_detector.trigger_activate()
+        time.sleep(0.5)  # Wait for activation
+        
         while rclpy.ok():
+            if emergency_detector._finalized:
+                break
+                
             # Only run detection if hub is active
             if emergency_detector.is_active():
                 emergency_detector.detect()
@@ -441,6 +586,8 @@ def main(args=None):
                     f"Hub in power saving mode, recharging: {emergency_detector.battery.current_level:.1f}%"
                 )
             rate.sleep()
+    except KeyboardInterrupt:
+        pass
     finally:
         emergency_detector.destroy_node()
         rclpy.shutdown()

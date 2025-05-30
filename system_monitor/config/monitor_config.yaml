@@ -4,8 +4,12 @@ node_monitor:
     monitored_nodes: 
       - "thermometer_node"
       # Add other nodes as needed
-      # - "oximeter_node" 
-      # - "glucosemeter_node"
+      - "oximeter_node" 
+      - "glucosemeter_node"
+      - "abps_node"
+      - "ecg_node"
+      - "abpd_node"
+      - "central_hub_node"
 
     # Timing parameters
     heartbeat_timeout: 5.0  # Seconds before a node is considered offline

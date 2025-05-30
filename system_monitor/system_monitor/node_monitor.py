@@ -41,6 +41,9 @@ class NodeMonitor(Node):
         self.declare_parameter('restart_cooldown_period', 60.0)
         self.declare_parameter('recovery_strategy', 'progressive')
         
+        # Debugging parameter
+        self.declare_parameter('debug_level', False)
+        
         # Get parameters
         self.node_list = self.get_parameter('monitored_nodes').value
         self.heartbeat_timeout = self.get_parameter('heartbeat_timeout').value
@@ -51,6 +54,9 @@ class NodeMonitor(Node):
         self.auto_configure = self.get_parameter('auto_configure').value
         self.auto_activate = self.get_parameter('auto_activate').value
         self.auto_restart = self.get_parameter('auto_restart').value
+        
+        # Debugging flag
+        self.debug = self.get_parameter('debug_level').value
         
         # Subscribe to heartbeat events
         self.event_sub = self.create_subscription(
@@ -100,9 +106,11 @@ class NodeMonitor(Node):
         
         self.get_logger().info(f"Monitoring {len(self.node_list)} nodes: {self.node_list}")
 
-        # Add an initialization trigger for auto-configure/activate
+        # Add a initialization trigger for auto-configure/activate
         if self.auto_configure:
-            self.create_timer(5.0, self.initialize_nodes)
+            # Wait longer before initializing to ensure services are available
+            self.get_logger().info("Auto-configure enabled, will initialize nodes in 10 seconds...")
+            self.create_timer(10.0, self.initialize_nodes)
 
     def event_callback(self, msg):
         """Process heartbeat and event messages"""
@@ -154,18 +162,47 @@ class NodeMonitor(Node):
         for node_name, info in self.monitored_nodes.items():
             time_since_last = current_time - info['last_heartbeat']
             
+            # Only log warning if node should be active
             if time_since_last > self.heartbeat_timeout:
                 if info['active']:
                     self.get_logger().warn(f"Node {node_name} hasn't sent a heartbeat in {time_since_last:.1f} seconds!")
-                    # Could take recovery action here
-                    # self.restart_node(node_name)
+                    
+                    # Don't restart immediately, give it more time
+                    if time_since_last > self.heartbeat_timeout * 3:  # Allow 3x timeout before action
+                        self.get_logger().error(f"Node {node_name} heartbeat missing for too long, attempting restart")
+                        restart_success = self.restart_node(node_name)
+                        if restart_success:
+                            # Reset the heartbeat time to avoid immediate restart again
+                            self.monitored_nodes[node_name]['last_heartbeat'] = current_time
 
     def check_nodes_state(self):
         """Poll each node's lifecycle state"""
         for node_name, info in self.monitored_nodes.items():
-            self.get_state(node_name)
+            # Get the current state
+            client = info['clients']['get_state']
+            if client.service_is_ready():
+                req = GetState.Request()
+                try:
+                    # Use synchronous call to avoid race conditions
+                    response = client.call(req)
+                    if response is not None:
+                        state_id = response.current_state.id
+                        label = response.current_state.label
+                        
+                        # Update tracked state
+                        old_state = self.monitored_nodes[node_name]['state']
+                        self.monitored_nodes[node_name]['state'] = label
+                        
+                        # Log state change
+                        if old_state != label:
+                            self.get_logger().info(f"Node {node_name} state: {label} (id={state_id})")
+                except Exception as e:
+                    self.get_logger().error(f"Error getting state for {node_name}: {e}")
+            else:
+                if self.debug:
+                    self.get_logger().warn(f"GetState service not available for {node_name}")
             
-            # Publish enhanced monitor status including task
+            # Publish status regardless of whether state update succeeded
             status_msg = String()
             status_msg.data = (
                 f"{node_name}: "
@@ -206,6 +243,10 @@ class NodeMonitor(Node):
                 # Log state change
                 if old_state != label:
                     self.get_logger().info(f"Node {node_name} state: {label} (id={state_id})")
+                    
+                    # Debugging output
+                    if self.debug:
+                        self.get_logger().info(f"Detailed state for {node_name}: {self.monitored_nodes[node_name]}")
         except Exception as e:
             self.get_logger().error(f"Failed to get state for {node_name}: {e}")
 
@@ -331,30 +372,29 @@ class NodeMonitor(Node):
         for node_name in self.monitored_nodes:
             # First check if the node is already configured/activated
             self.get_state(node_name)
-            time.sleep(0.5)  # Brief pause to allow state check to complete
+            time.sleep(1.0)  # Increased pause to ensure state is received
             
             # Check current state and take appropriate action
             current_state = self.monitored_nodes[node_name]['state']
+            self.get_logger().info(f"Node {node_name} current state: {current_state}")
             
-            if current_state == 'unconfigured':
+            if current_state == 'unknown':
+                self.get_logger().warn(f"Could not determine state of {node_name}, skipping initialization")
+            elif current_state == 'unconfigured':
                 self.get_logger().info(f"Auto-configuring node {node_name}")
                 if self.configure_node(node_name):
-                    time.sleep(1.0)  # Wait for configuration to complete
-                    
+                    time.sleep(1.0)
                     if self.auto_activate:
                         self.get_logger().info(f"Auto-activating node {node_name}")
                         self.activate_node(node_name)
-            
             elif current_state == 'inactive':
                 if self.auto_activate:
                     self.get_logger().info(f"Auto-activating node {node_name}")
                     self.activate_node(node_name)
-            
             elif current_state == 'active':
-                self.get_logger().info(f"Node {node_name} is already active")
-            
+                self.get_logger().info(f"Node {node_name} is already active, no action needed")
             else:
-                self.get_logger().warn(f"Node {node_name} is in unknown state {current_state}, skipping initialization")
+                self.get_logger().warn(f"Node {node_name} is in state '{current_state}', not sure how to initialize")
 
 
 def main(args=None):

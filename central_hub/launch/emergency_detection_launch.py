@@ -106,7 +106,6 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[config_monitor]
-            )
-            
+            ),
         ]
     )

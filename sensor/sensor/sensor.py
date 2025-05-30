@@ -112,9 +112,13 @@ class Sensor(LifecycleNode):
         self.get_logger().debug("ACTIVATING SENSOR...")
         
         self.active = True
-        # Start heartbeat timer and publish immediate activate event
+        # Make sure heartbeat timer is active
         if self.heartbeat_timer is None:
             self.heartbeat_timer = self.create_timer(2.0, self.publish_heartbeat)
+        else:
+            # Reset the existing timer
+            self.heartbeat_timer.reset()
+            
         # Publish activation event immediately
         self.publish_event("activate")
         self.publish_status("activated", "idle")
@@ -123,13 +127,16 @@ class Sensor(LifecycleNode):
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
         self.get_logger().info("Deactivating sensor...")
         self.active = False
-        # Stop heartbeat timer
+        
+        # Stop heartbeat timer but DO NOT set to None
         if self.heartbeat_timer:
             self.heartbeat_timer.cancel()
-            self.heartbeat_timer = None
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
+        
+        # Keep battery check timer running - DO NOT cancel it
+        # if self.timer:
+        #    self.timer.cancel()
+        #    self.timer = None
+        
         self.publish_event("deactivate")
         self.publish_status("deactivated", "idle")
         return TransitionCallbackReturn.SUCCESS
@@ -224,15 +231,28 @@ class Sensor(LifecycleNode):
         
     def check_battery_status(self):
         """Check and manage battery status"""
-        # Turn on if charged enough, turn off if too low
-        if not self.active and self.battery.current_level > 10:
-            pass
-        elif self.active and self.battery.current_level < 2:
-            self.turn_off()
+        # Log current battery level at debug level to avoid log flooding
+        self.get_logger().debug(f"Battery level: {self.battery.current_level:.1f}%")
+        
+        # Turn off if too low
+        if self.active and self.battery.current_level < 5.0:
+            self.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), deactivating {self.sensor}")
+            # Don't call turn_off() which publishes events - we're just setting a flag
+            self.active = False
+            self.publish_event("deactivate")  # Explicitly publish the event
             
-        # Recharge if inactive
-        if not self.active:
+        # Recharge if inactive or if instant_recharge is enabled
+        if not self.active or self.instant_recharge:
+            old_level = self.battery.current_level
             self.recharge()
+            if self.battery.current_level > old_level + 0.5:  # Only log significant changes
+                self.get_logger().info(f"Recharging battery: {self.battery.current_level:.1f}%")
+                
+        # Automatically reactivate when battery is good
+        if not self.active and self.battery.current_level > 15.0:  # Hysteresis to avoid oscillation
+            self.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), activating {self.sensor}")
+            self.active = True
+            self.publish_event("activate")  # Explicitly publish the event
 
     def collect(self):
         """Collect data from patient service with battery management"""
@@ -253,7 +273,7 @@ class Sensor(LifecycleNode):
         if response is None:
             self.get_logger().error("Service call failed. No response received.")
             return -1.0
-        self.get_logger().info(
+        self.get_logger().debug(
             f"++Collect++\n new data from {self.req.vital_sign} collected: [{response.datapoint}]"
         )
         result = response.datapoint
@@ -279,7 +299,7 @@ class Sensor(LifecycleNode):
         # Calculate the moving average
         if len(self.data_window) == self.window_size:
             moving_avg = sum(self.data_window) / self.window_size
-            self.get_logger().info(f"Moving average for {self.sensor}: {moving_avg}")
+            self.get_logger().debug(f"Moving average for {self.sensor}: {moving_avg}")
             result = moving_avg
         else:
             self.get_logger().info(
@@ -396,6 +416,12 @@ class Sensor(LifecycleNode):
     def spin_sensor(self):
         """Main sensor loop with battery management"""
         rate = self.create_rate(self.frequency)
+        
+        self.trigger_configure()
+        
+        self.trigger_activate()
+        
+        
         while rclpy.ok():
             if hasattr(self, '_finalized') and self._finalized:
                 self.get_logger().info("Node has been shut down, exiting spin loop")
