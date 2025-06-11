@@ -1,0 +1,6 @@
+# Request
+string name
+bool connection
+---
+# Response
+bool ack

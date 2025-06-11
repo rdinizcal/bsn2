@@ -23,8 +23,16 @@ set(interface_files
   "msg/TargetSystemData.msg"
   "msg/EnergyStatus.msg"
   "msg/Status.msg"
+  "msg/Persist.msg"
+  "msg/AdaptationCommand.msg"
+  "msg/Uncertainty.msg"
+  "msg/Exception.msg"
+  "msg/Strategy.msg"
   # Services
   "srv/PatientData.srv"
+  "srv/DataAccess.srv"
+  "srv/EffectorRegister.srv"
+  "srv/EngineRequest.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

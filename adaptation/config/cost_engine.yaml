@@ -1,0 +1,42 @@
+cost_engine:
+  ros__parameters:
+    # Core parameters
+    qos_attribute: "cost"
+    info_quant: 5
+    monitor_freq: 1.0
+    actuation_freq: 0.5
+    
+    # Control parameters
+    setpoint: 0.2
+    offset: 0.05
+    gain: 0.2
+    tolerance: 0.02
+    
+    # Formula parameters
+    formula_refresh_seconds: 60.0  # How often to refresh formula
+    
+    # Adaptation parameters
+    max_cost: 0.5                  # Maximum acceptable cost
+    max_priority_adjust: 10        # Maximum priority adjustment
+    priority_decay_rate: 0.1       # Rate of priority decay
+    
+    # Component configuration
+    components:
+      - name: "g3t1_1"             # Thermometer
+        priority: 70
+        max_cost: 0.3
+      - name: "g3t1_2"             # ECG
+        priority: 95               # High priority (low cost tolerance)
+        max_cost: 0.15
+      - name: "g3t1_3"             # Oximeter
+        priority: 80
+        max_cost: 0.2
+      - name: "g3t1_4"             # ABP Systolic
+        priority: 75
+        max_cost: 0.25
+      - name: "g3t1_5"             # ABP Diastolic
+        priority: 75
+        max_cost: 0.25
+      - name: "g3t1_6"             # Glucometer
+        priority: 60               # Low priority (high cost tolerance)
+        max_cost: 0.4

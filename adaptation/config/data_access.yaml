@@ -1,0 +1,43 @@
+data_access:
+  ros__parameters:
+    # Core operation parameters
+    frequency: 1.0                   # Calculation frequency (Hz)
+    buffer_size: 1000                # Maximum entries per component in memory
+    flush_frequency: 30              # Number of messages before flushing to disk
+    
+    # Storage parameters
+    log_path: "/var/log/bsn"         # Path for storing log files
+    compress_logs: false             # Whether to compress old log files
+    max_log_age_days: 7              # Maximum age of log files before deletion
+    
+    # Calculation formulas
+    reliability_formula: "successes/(successes+failures)"
+    cost_formula: "battery_consumption"
+    
+    # Timing parameters
+    time_window_seconds: 10          # Time window for reliability calculation (seconds)
+    
+    # Component initialization
+    default_component_reliability: 1.0
+    default_component_battery: 100.0
+    
+    # Component configuration
+    components:
+      - name: "g3t1_1"               # Thermometer
+        type: "sensor"
+        initial_battery: 100.0
+      - name: "g3t1_2"               # ECG
+        type: "sensor"
+        initial_battery: 100.0
+      - name: "g3t1_3"               # Oximeter
+        type: "sensor"
+        initial_battery: 100.0
+      - name: "g3t1_4"               # ABP Systolic
+        type: "sensor"
+        initial_battery: 100.0
+      - name: "g3t1_5"               # ABP Diastolic
+        type: "sensor"
+        initial_battery: 100.0
+      - name: "g3t1_6"               # Glucometer
+        type: "sensor"
+        initial_battery: 100.0

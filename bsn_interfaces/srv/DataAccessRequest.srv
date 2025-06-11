@@ -1,0 +1,6 @@
+# Request
+string name
+string query
+---
+# Response
+string content

@@ -1,0 +1,18 @@
+param_adapter:
+  ros__parameters:
+    # Registration parameters
+    max_components: 50               # Maximum number of components that can register
+    registration_timeout: 10.0       # Seconds to wait for components to register
+    
+    # Command routing parameters
+    queue_size: 10                   # Queue size for component-specific topics
+    retry_attempts: 3                # Number of retries for failed command delivery
+    retry_delay: 1.0                 # Delay between retries (seconds)
+    
+    # Logging parameters
+    log_commands: true               # Whether to log commands for debugging
+    log_level: "info"                # Log level: debug, info, warn, error
+    
+    # Heartbeat parameters
+    publish_heartbeat: true          # Whether to publish heartbeats
+    heartbeat_frequency: 1.0         # Heartbeat publication frequency (Hz)

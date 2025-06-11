@@ -1,0 +1,42 @@
+reliability_engine:
+  ros__parameters:
+    # Core parameters
+    qos_attribute: "reliability"
+    info_quant: 5
+    monitor_freq: 1.0
+    actuation_freq: 0.5
+    
+    # Control parameters
+    setpoint: 0.95
+    offset: 0.05
+    gain: 0.2
+    tolerance: 0.02
+    
+    # Formula parameters
+    formula_refresh_seconds: 60.0  # How often to refresh formula
+    
+    # Adaptation parameters
+    min_reliability: 0.5           # Minimum acceptable reliability
+    max_priority_adjust: 10        # Maximum priority adjustment
+    priority_decay_rate: 0.1       # Rate of priority decay
+    
+    # Component configuration
+    components:
+      - name: "g3t1_1"             # Thermometer
+        priority: 80
+        min_reliability: 0.9
+      - name: "g3t1_2"             # ECG
+        priority: 95
+        min_reliability: 0.98
+      - name: "g3t1_3"             # Oximeter
+        priority: 90
+        min_reliability: 0.95
+      - name: "g3t1_4"             # ABP Systolic
+        priority: 85
+        min_reliability: 0.9
+      - name: "g3t1_5"             # ABP Diastolic
+        priority: 85
+        min_reliability: 0.9
+      - name: "g3t1_6"             # Glucometer
+        priority: 70
+        min_reliability: 0.85
