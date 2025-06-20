@@ -28,6 +28,7 @@ set(interface_files
   "msg/Uncertainty.msg"
   # Services
   "srv/PatientData.srv"
+  "srv/EffectorRegister.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
