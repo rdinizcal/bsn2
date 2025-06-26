@@ -7,9 +7,10 @@ from sensor.components.data_processor import DataProcessor
 from sensor.components.risk_manager import RiskManager
 from sensor.components.publishers import PublisherManager
 from sensor.components.config_manager import ConfigManager
+from sensor.components.lifecycle_manager import LifecycleManager  # Add this import
 
 class Sensor(LifecycleNode):
-    """Main sensor node class."""
+    """Main sensor node class with individual lifecycle management."""
     
     def __init__(self, node_name: str, parameters=None):
         super().__init__(node_name, parameter_overrides=parameters or [])
@@ -23,12 +24,29 @@ class Sensor(LifecycleNode):
         self.risk_manager = RiskManager(self)
         self.processor = DataProcessor(self)
         
+        # Lifecycle manager - handles its own state transitions
+        self.lifecycle_manager = LifecycleManager(self)
+        
         # Node state
         self.active = False
         self._finalized = False
         self._heartbeat_timer = None
         
-    # Lifecycle callbacks integrated directly
+        # Configure lifecycle management
+        self.lifecycle_manager.set_auto_management_flags(
+            auto_configure=True,
+            auto_activate=True,
+            battery_aware=True,
+            auto_recovery=True
+        )
+        
+        # Set battery thresholds for lifecycle decisions
+        self.lifecycle_manager.configure_thresholds(
+            battery_low=5.0,
+            battery_recovery=15.0
+        )
+        
+    # Lifecycle callbacks remain the same but are now managed by LifecycleManager
     def on_configure(self, state: State) -> TransitionCallbackReturn:
         """Handle transition to Configured state."""
         self.get_logger().info(f"Configuring {self.config.sensor} sensor...")
@@ -36,7 +54,6 @@ class Sensor(LifecycleNode):
         try:
             # Set up publishers
             self.publisher_manager.setup_publishers()
-            
             # Publish configured status
             self.publisher_manager.publish_status("configured", "idle")
             
@@ -80,9 +97,7 @@ class Sensor(LifecycleNode):
         try:
             # Update node state
             self.active = False
-            
-            # Keep heartbeat timer running, but change content to "deactivate"
-            # DO NOT cancel the timer
+        
             
             # Publish deactivation events
             self.publisher_manager.publish_event("deactivate")
@@ -119,6 +134,9 @@ class Sensor(LifecycleNode):
         self.get_logger().info(f"Shutting down {self.config.sensor} sensor...")
         
         try:
+            # Stop lifecycle management
+            self.lifecycle_manager.stop_auto_management()
+            
             # Update node state flags
             self.active = False
             self._finalized = True
@@ -138,15 +156,12 @@ class Sensor(LifecycleNode):
         return self.active
         
     def spin_sensor(self):
-        """Main sensor loop with battery management"""
+        """Main sensor loop with individual lifecycle management"""
         rate = self.create_rate(self.config.frequency)
         
-        # Configure and activate
-        self.get_logger().info("Auto-configuring and activating sensor...")
-        self.trigger_configure()
-        time.sleep(0.5)  # Wait for configuration
-        self.trigger_activate()
-        time.sleep(0.5)  # Wait for activation
+        # Start automatic lifecycle management
+        self.get_logger().info("Starting individual lifecycle management...")
+        self.lifecycle_manager.start_auto_management()
         
         while rclpy.ok():
             if self._finalized:
@@ -162,7 +177,9 @@ class Sensor(LifecycleNode):
                         self.processor.transfer(datapoint)
                 except Exception as e:
                     self.get_logger().error(f"Sensor operation failed: {str(e)}")
+                    # Let the lifecycle manager handle recovery
             else:
+                # Recharge while inactive
                 self.battery_manager.recharge()
                 
             rate.sleep()

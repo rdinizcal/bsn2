@@ -50,21 +50,26 @@ class BatteryManager:
         """Periodic battery status check"""
         self.node.get_logger().debug(f"Battery level: {self.battery.current_level:.1f}%")
         
+        # Battery-based lifecycle management
         if self.node.active and self.battery.current_level < 5.0:
-            self.node.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), deactivating {self.node.config.sensor}")
-            self.node.active = False
-            self.node.publisher_manager.publish_event("deactivate")
-            
-        if not self.node.active or self.instant_recharge:
+            self.node.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), deactivating {self.node.sensor}")
+            self.node.lifecycle_manager.deactivate_node()
+        
+        # Handle recharging
+        if self.node.active or self.instant_recharge:
             old_level = self.battery.current_level
             self.recharge()
             if self.battery.current_level > old_level + 0.5:
                 self.node.get_logger().info(f"Recharging battery: {self.battery.current_level:.1f}%")
-                
-        if not self.node.active and self.battery.current_level > 15.0:
-            self.node.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), activating {self.node.config.sensor}")
-            self.node.active = True
-            self.node.publisher_manager.publish_event("activate")
+        
+        # Battery-based reactivation - must check if node is in correct state (inactive)    
+        if self.node.active and self.battery.current_level > 15.0:
+            self.node.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), activating {self.node.get_name()}")
+            self.node.lifecycle_manager.activate_node()
+        elif self.node.active and self.battery.current_level > 15.0:
+            if self.node.lifecycle_manager.configure_node():
+                # Wait a moment for configuration to complete
+                self.node.create_timer(0.5, lambda: self.node.lifecycle_manager.activate_node())
     
     def send_energy_status(self):
         """Send energy status report"""
