@@ -168,7 +168,8 @@ class Sensor(LifecycleNode):
                 self.get_logger().info("Node has been shut down, exiting spin loop")
                 break
                 
-            if self.active:
+            # Only process if active AND not in recharge mode
+            if self.active and not self.battery_manager.is_recharging:
                 try:
                     # Perform sensor operations through processor
                     datapoint = self.processor.collect()
@@ -177,9 +178,8 @@ class Sensor(LifecycleNode):
                         self.processor.transfer(datapoint)
                 except Exception as e:
                     self.get_logger().error(f"Sensor operation failed: {str(e)}")
-                    # Let the lifecycle manager handle recovery
             else:
-                # Recharge while inactive
+                # Handle recharging while inactive or in recharge mode
                 self.battery_manager.recharge()
                 
             rate.sleep()
