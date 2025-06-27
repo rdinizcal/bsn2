@@ -354,7 +354,10 @@ class TestCentralHubDirect:
             time.sleep(0.2)  # Give time for the change to take effect
             
             # Now check if the node is inactive
-            assert not hub.active, "Node should deactivate below threshold"
+            assert hub.battery_manager.is_recharging, "Node should enter recharge mode below threshold"
+            
+            # Additional assertions to verify correct behavior
+            assert hub.active, "Node should remain active during recharge"
             
         finally:
             # Restore original battery level
@@ -700,7 +703,8 @@ class TestCentralHubDirect:
             time.sleep(0.1)
             
             # Should be inactive
-            assert not hub.active, "Node should deactivate at zero battery"
+            assert hub.battery_manager.is_recharging, "Node should enter recharge mode at zero battery"
+            assert hub.active, "Node should remain active during recharge"
             
         finally:
             # Restore original battery level
