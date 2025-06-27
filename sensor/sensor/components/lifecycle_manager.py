@@ -131,7 +131,7 @@ class LifecycleManager:
             self.node.get_logger().info("Triggering node configuration...")
             result = self.node.trigger_configure()
             
-            if result == TransitionCallbackReturn.SUCCESS:
+            if result == TransitionCallbackReturn.SUCCESS or int(result) == int(TransitionCallbackReturn.SUCCESS):
                 self.node.get_logger().info("Node configuration successful")
                 # Mark as configured for future reference
                 setattr(self.node, '_was_configured', True)

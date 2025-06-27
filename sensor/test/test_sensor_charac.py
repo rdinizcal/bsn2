@@ -175,6 +175,12 @@ class TestSensorBehavior:
         if hasattr(self.sensor_node, 'processor') and hasattr(self.sensor_node.processor, 'data_window'):
             self.sensor_node.processor.data_window.clear()
 
+        # Force node to active state for testing - FIXED: use sensor_node instead of node
+        self.sensor_node.active = True
+        
+        # Remove test mode flag since it's not needed
+        # This line was causing problems since there's no test mode in your code
+
     def wait_for_messages(self, count=1, timeout=2.0):
         """Wait for specified number of messages with timeout"""
         start_time = time.time()
