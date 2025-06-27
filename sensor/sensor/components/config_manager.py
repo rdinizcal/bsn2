@@ -62,3 +62,6 @@ class ConfigManager:
         self.LowRisk = self.node.get_parameter("LowRisk").value
         self.MidRisk1 = self.node.get_parameter("MidRisk1").value
         self.HighRisk1 = self.node.get_parameter("HighRisk1").value
+        
+        self.node.declare_parameter("enable_adaptation", False)
+        self.activate_adaptation = self.node.get_parameter("enable_adaptation").value

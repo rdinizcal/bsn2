@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 from bsn_interfaces.msg import AdaptationCommand
 from bsn_interfaces.srv import EffectorRegister, EffectorRegister_Request, EffectorRegister_Response
-from sensor.components.adaptation_handler import AdaptationHandler
+from shared_components.adaptation_handler import AdaptationHandler
 import time
 
 class MockFuture:

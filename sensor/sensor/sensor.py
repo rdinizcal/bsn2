@@ -2,13 +2,13 @@ from rclpy.lifecycle import LifecycleNode, State, TransitionCallbackReturn
 import rclpy
 import threading
 import time
-from sensor.components.battery_manager import BatteryManager
 from sensor.components.data_processor import DataProcessor
+from sensor.components.battery_manager import BatteryManager
 from sensor.components.risk_manager import RiskManager
 from sensor.components.publishers import PublisherManager
 from sensor.components.config_manager import ConfigManager
-from sensor.components.lifecycle_manager import LifecycleManager  # Add this import
-
+from shared_components.lifecycle_manager import LifecycleManager  # Add this import
+from shared_components.adaptation_handler import AdaptationHandler
 class Sensor(LifecycleNode):
     """Main sensor node class with individual lifecycle management."""
     
@@ -27,6 +27,9 @@ class Sensor(LifecycleNode):
         # Lifecycle manager - handles its own state transitions
         self.lifecycle_manager = LifecycleManager(self)
         
+        self.adaptation_handler = AdaptationHandler(self)
+        if self.config.activate_adaptation: 
+            self.adaptation_handler.register_with_effector()
         # Node state
         self.active = False
         self._finalized = False

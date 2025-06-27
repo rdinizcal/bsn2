@@ -1,5 +1,5 @@
 import pytest
-from system_monitor.battery import Battery
+from shared_components.battery import Battery
 
 class TestBattery:
     """Tests for the Battery class"""

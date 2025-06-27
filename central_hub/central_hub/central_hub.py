@@ -9,9 +9,11 @@ from central_hub.components.config_manager import ConfigManager
 from central_hub.components.data_fusion import DataFusionEngine
 from central_hub.components.publishers import PublisherManager
 from central_hub.components.sensor_data_handler import SensorDataHandler
-from central_hub.components.lifecycle_manager import LifecycleManager
+#from central_hub.components.lifecycle_manager import LifecycleManager
 from central_hub.utils.visualization import Visualizer
 from central_hub.utils.risk_analyzer import RiskAnalyzer
+from shared_components.lifecycle_manager import LifecycleManager  # Add this import
+from shared_components.adaptation_handler import AdaptationHandler
 
 class CentralHub(LifecycleNode):
     """
@@ -37,6 +39,9 @@ class CentralHub(LifecycleNode):
         # Add lifecycle manager
         self.lifecycle_manager = LifecycleManager(self)
         
+        self.adaptation_handler = AdaptationHandler(self)
+        if self.config.activate_adaptation: 
+            self.adaptation_handler.register_with_effector()
         # Node state
         self.active = False
         self._finalized = False

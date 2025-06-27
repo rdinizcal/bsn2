@@ -1,4 +1,4 @@
-from system_monitor.battery import Battery
+from shared_components.battery import Battery
 from bsn_interfaces.msg import EnergyStatus
 from std_msgs.msg import Header
 

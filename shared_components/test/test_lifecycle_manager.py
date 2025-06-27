@@ -7,7 +7,7 @@ import threading
 import time
 
 # Import the LifecycleManager class
-from sensor.components.lifecycle_manager import LifecycleManager
+from shared_components.lifecycle_manager import LifecycleManager
 
 # Add wait_for mechanism to ensure operation completion
 def wait_for(condition_function, timeout=5.0):
@@ -486,3 +486,202 @@ class TestLifecycleManager:
         
         # Verify activation happened
         assert lifecycle_node.active is True
+    
+    def test_battery_aware_deactivation(self, lifecycle_manager, lifecycle_node, monkeypatch):
+        """Test battery-aware deactivation"""
+        # Configure and activate node
+        lifecycle_manager.configure_node()
+        lifecycle_manager.activate_node()
+        assert lifecycle_node.active is True
+        
+        # Create mock battery with low level
+        class MockBatteryManager:
+            def __init__(self):
+                self.battery = MockBattery(level=2.0)
+        
+        # Add battery manager to node
+        lifecycle_node.battery_manager = MockBatteryManager()
+        
+        # Enable battery-aware deactivation
+        lifecycle_manager.battery_aware_deactivation = True
+        
+        # Run monitor
+        lifecycle_manager.monitor_lifecycle_state()
+        
+        # Node should remain active as deactivation happens separately in battery manager
+        assert lifecycle_node.active is True
+
+    def test_monitor_without_auto_manage(self, lifecycle_manager, lifecycle_node):
+        """Test monitor_lifecycle_state when auto_manage is False"""
+        # Setup initial state
+        lifecycle_node.active = True
+        lifecycle_manager.auto_manage = False
+        
+        # Run monitor
+        lifecycle_manager.monitor_lifecycle_state()
+        
+        # Verify state unchanged (function should exit early)
+        assert lifecycle_node.active is True
+
+    def test_monitor_unconfigured_node(self, lifecycle_manager, lifecycle_node, monkeypatch):
+        """Test monitor with unconfigured node"""
+        # Setup unconfigured node
+        lifecycle_node.active = False
+        lifecycle_node.configured = False
+        
+        # No _was_configured attribute
+        if hasattr(lifecycle_node, '_was_configured'):
+            delattr(lifecycle_node, '_was_configured')
+        
+        # Mock configure to track if it was called
+        configure_called = [False]
+        original_configure = lifecycle_manager.configure_node
+        
+        def mock_configure():
+            configure_called[0] = True
+            return original_configure()
+        
+        monkeypatch.setattr(lifecycle_manager, 'configure_node', mock_configure)
+        
+        # Enable auto-recovery
+        lifecycle_manager.auto_recovery = True
+        lifecycle_manager.auto_manage = True
+        
+        # Run monitor
+        lifecycle_manager.monitor_lifecycle_state()
+        
+        # Verify configure was called
+        assert configure_called[0] is True
+
+    def test_monitor_with_battery_threshold(self, lifecycle_manager, lifecycle_node):
+        """Test monitor with different battery thresholds"""
+        # Setup configured but inactive node
+        lifecycle_node.active = False
+        lifecycle_node.configured = True
+        setattr(lifecycle_node, '_was_configured', True)
+        
+        # Create mock battery with level below recovery threshold
+        class MockBatteryManager:
+            def __init__(self):
+                self.battery = MockBattery(level=10.0)
+        
+        # Add battery manager to node
+        lifecycle_node.battery_manager = MockBatteryManager()
+        
+        # Set recovery threshold higher than current level
+        lifecycle_manager.battery_recovery_threshold = 20.0
+        
+        # Enable auto-recovery
+        lifecycle_manager.auto_recovery = True
+        
+        # Run monitor
+        lifecycle_manager.monitor_lifecycle_state()
+        
+        # Node should remain inactive due to low battery
+        assert lifecycle_node.active is False
+        
+        # Now increase battery level above threshold
+        lifecycle_node.battery_manager.battery.current_level = 25.0
+        
+        # Run monitor again
+        lifecycle_manager.monitor_lifecycle_state()
+        
+        # Node should now be active
+        assert lifecycle_node.active is True
+
+    def test_failed_lifecycle_transitions(self, lifecycle_manager, lifecycle_node, monkeypatch):
+        """Test handling of failed lifecycle transitions"""
+        # Mock failed transition results
+        def mock_failed_configure():
+            return TransitionCallbackReturn.FAILURE
+            
+        def mock_failed_activate():
+            return TransitionCallbackReturn.FAILURE
+        
+        def mock_failed_deactivate():
+            return TransitionCallbackReturn.FAILURE
+        
+        def mock_failed_cleanup():
+            return TransitionCallbackReturn.FAILURE
+        
+        def mock_failed_shutdown():
+            return TransitionCallbackReturn.FAILURE
+        
+        # Test failed configure
+        monkeypatch.setattr(lifecycle_node, 'trigger_configure', mock_failed_configure)
+        assert lifecycle_manager.configure_node() is False
+        
+        # Test failed activate
+        monkeypatch.setattr(lifecycle_node, 'trigger_activate', mock_failed_activate)
+        assert lifecycle_manager.activate_node() is False
+        
+        lifecycle_node.active = True  # Add this line
+    
+        # Test failed deactivate
+        monkeypatch.setattr(lifecycle_node, 'trigger_deactivate', mock_failed_deactivate)
+        assert lifecycle_manager.deactivate_node() is False
+        
+        # Test failed cleanup
+        monkeypatch.setattr(lifecycle_node, 'trigger_cleanup', mock_failed_cleanup)
+        assert lifecycle_manager.cleanup_node() is False
+        
+        # Test failed shutdown
+        monkeypatch.setattr(lifecycle_node, 'trigger_shutdown', mock_failed_shutdown)
+        assert lifecycle_manager.shutdown_node() is False
+
+    def test_timer_callbacks(self, lifecycle_manager, lifecycle_node, monkeypatch):
+        """Test timer callbacks are executed properly"""
+        # Start auto management (creates timers)
+        lifecycle_manager.start_auto_management()
+        
+        # Verify timer created
+        assert hasattr(lifecycle_manager, 'monitor_timer')
+        
+        # Now trigger the callback directly (simulating timer expiration)
+        callback = lifecycle_node._timer_callbacks[0]
+        callback()
+        
+        # Get initial setup callback
+        initial_setup_callback = lifecycle_node._timer_callbacks[1]
+        
+        # Mock the configure and activate methods to track calls
+        configure_called = [False]
+        activate_called = [False]
+        
+        original_configure = lifecycle_manager.configure_node
+        original_activate = lifecycle_manager.activate_node
+        
+        def mock_configure():
+            configure_called[0] = True
+            return original_configure()
+            
+        def mock_activate():
+            activate_called[0] = True
+            return original_activate()
+        
+        monkeypatch.setattr(lifecycle_manager, 'configure_node', mock_configure)
+        monkeypatch.setattr(lifecycle_manager, 'activate_node', mock_activate)
+        
+        # Trigger initial setup callback
+        initial_setup_callback()
+        
+        # Verify configure was called
+        assert configure_called[0] is True
+
+    def test_special_cases(self, lifecycle_manager, lifecycle_node):
+        """Test special cases for coverage"""
+        # Test get_battery_level with no battery manager
+        assert lifecycle_manager.get_battery_level() == 100.0
+        
+        # Test monitor with already active node
+        lifecycle_node.active = True
+        lifecycle_manager.monitor_lifecycle_state()
+        assert lifecycle_node.active is True
+        
+        # Test already inactive node deactivation
+        lifecycle_node.active = False
+        assert lifecycle_manager.deactivate_node() is True
+        
+        # Test already active node activation
+        lifecycle_node.active = True
+        assert lifecycle_manager.activate_node() is True
