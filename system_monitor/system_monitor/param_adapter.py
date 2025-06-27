@@ -22,7 +22,7 @@ class ParamAdapter(Node):
         
         # Track registered components
         self.registered_components = {}
-        self.publishers = {}
+        self._component_publishers = {}  # Changed variable name to avoid property conflict
         
         # Configure adapter parameters
         self.declare_parameter('check_interval', 10.0)  # Interval to check for stale components
@@ -51,7 +51,7 @@ class ParamAdapter(Node):
         self.create_timer(self.check_interval, self.check_components)
         
         self.get_logger().info("ParamAdapter initialized and ready to register components")
-
+    
     def module_connect(self, request, response):
         """Handle component registration and deregistration"""
         try:
@@ -66,7 +66,7 @@ class ParamAdapter(Node):
                         f'reconfigure_{component_name}',
                         10
                     )
-                    self.publishers[component_name] = pub
+                    self._component_publishers[component_name] = pub  # Updated variable name
                     
                     # Track when component was registered
                     self.registered_components[component_name] = {
@@ -105,9 +105,9 @@ class ParamAdapter(Node):
         """Process adaptation command and route to target component"""
         target = msg.target
         
-        if target in self.publishers:
+        if target in self._component_publishers:  # Updated variable name
             # Forward command to component's specific topic
-            self.publishers[target].publish(msg)
+            self._component_publishers[target].publish(msg)  # Updated variable name
             
             # Update tracking
             if target in self.registered_components:

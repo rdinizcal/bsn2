@@ -110,14 +110,6 @@ def generate_launch_description():
             launch_ros.actions.Node(
                 package='system_monitor',
                 executable='system_monitor',
-                name='collector',
-                output='screen',
-                emulate_tty=True,
-                parameters=[config_monitor]
-            ),
-            launch_ros.actions.Node(
-                package='system_monitor',
-                executable='system_monitor',
                 name='node_monitor',
                 output='screen',
                 emulate_tty=True,

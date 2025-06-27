@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
 # Explicitly import modules to ensure coverage
 import system_monitor.battery
-import system_monitor.collector
+import system_monitor.node_monitor
 import system_monitor.logger
 
 @pytest.fixture(scope="session", autouse=True)

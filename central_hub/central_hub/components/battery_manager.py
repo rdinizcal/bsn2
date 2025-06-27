@@ -16,6 +16,11 @@ class BatteryManager:
             unit=node.config.battery_unit
         )
         
+        # Add recharge mode flag and thresholds
+        self.is_recharging = False
+        self.low_threshold = 2.0  # When to enter recharge mode
+        self.recovery_threshold = 15.0  # When to exit recharge mode
+        
         self.instant_recharge = node.config.instant_recharge
         self.cost = 0.0
         
@@ -36,37 +41,60 @@ class BatteryManager:
         """Recharge the battery"""
         if not self.instant_recharge:
             # Recover 5% per second (100% in 20 seconds)
-            self.battery.generate((100.0/20.0)/self.node.config.frequency)
+            self.battery.generate(5.0)
         else:
             self.battery.generate(100)  # Instantly recharge to full
-            
+    
     def check_battery_status(self):
         """Check and manage battery status"""
-        # Turn on if charged enough, turn off if too low
-        if not self.node.active and self.battery.current_level > 90:
-            self.node.active = True
-            self.node.get_logger().info("Central Hub activated due to sufficient battery")
-            self.node.publisher_manager.publish_event("activate")
-        elif self.node.active and self.battery.current_level < 2:
-            self.node.active = False
-            self.node.get_logger().info("Central Hub deactivated due to low battery")
-            self.node.publisher_manager.publish_event("deactivate")
-            
-        # Recharge if inactive or when instant_recharge is enabled
-        if not self.node.active or self.instant_recharge:
-            self.recharge()
+        # Check if we need to enter recharge mode
+        if not self.is_recharging and self.battery.current_level < self.low_threshold:
+            self.node.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), entering recharge mode")
+            self.enter_recharge_mode()
         
-        # Log battery status
-        self.node.get_logger().info(f"Hub battery level: {self.battery.current_level:.1f}%")
+        # Always handle recharging when in recharge mode or instant recharge is enabled
+        if self.is_recharging or self.instant_recharge:
+            old_level = self.battery.current_level
+            self.recharge()
+            if self.battery.current_level > old_level + 0.5:
+                self.node.get_logger().info(f"Recharging battery: {self.battery.current_level:.1f}%")
+        
+        # Check if we can exit recharge mode
+        if self.is_recharging and self.battery.current_level > self.recovery_threshold:
+            self.node.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), exiting recharge mode")
+            self.exit_recharge_mode()
+        
+        # Always send energy status
+        self.send_energy_status()
+    
+    def enter_recharge_mode(self):
+        """Enter recharge mode - only essential operations continue"""
+        self.is_recharging = True
+        
+        # Keep node active but publish recharging status
+        self.node.publisher_manager.publish_status("deactivated", "recharging")
+        self.node.publisher_manager.publish_event("recharge_start")
+        
+        self.node.get_logger().info("Entered recharge mode - processing stopped until battery > 15%")
+    
+    def exit_recharge_mode(self):
+        """Exit recharge mode - resume normal operations"""
+        self.is_recharging = False
+        
+        # Update status
+        self.node.publisher_manager.publish_status("activated", "idle")
+        self.node.publisher_manager.publish_event("recharge_complete")
+        
+        self.node.get_logger().info("Exited recharge mode - resuming normal processing")
     
     def send_energy_status(self):
-        """Send energy status to monitoring system"""
+        """Send energy status report"""
         msg = EnergyStatus()
         msg.header = Header()
         msg.header.stamp = self.node.get_clock().now().to_msg()
         msg.source = self.node.get_name()
         msg.target = "system"
-        msg.content = f"energy:{self.battery.current_level:.2f}:cost:{self.cost:.4f}"
+        msg.content = f"energy:{self.battery.current_level:.2f}:cost:{self.cost:.2f}"
         
         self.energy_status_pub.publish(msg)
         self.node.get_logger().debug(f"Energy status: {msg.content}")

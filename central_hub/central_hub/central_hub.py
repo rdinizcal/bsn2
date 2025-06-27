@@ -9,6 +9,7 @@ from central_hub.components.config_manager import ConfigManager
 from central_hub.components.data_fusion import DataFusionEngine
 from central_hub.components.publishers import PublisherManager
 from central_hub.components.sensor_data_handler import SensorDataHandler
+from central_hub.components.lifecycle_manager import LifecycleManager
 from central_hub.utils.visualization import Visualizer
 from central_hub.utils.risk_analyzer import RiskAnalyzer
 
@@ -33,12 +34,28 @@ class CentralHub(LifecycleNode):
         self.risk_analyzer = RiskAnalyzer(self)
         self.visualizer = Visualizer(self)
         
+        # Add lifecycle manager
+        self.lifecycle_manager = LifecycleManager(self)
+        
         # Node state
         self.active = False
         self._finalized = False
         self._heartbeat_timer = None
-    
-    # Lifecycle Node callback methods
+        
+        # Configure lifecycle management
+        self.lifecycle_manager.set_auto_management_flags(
+            auto_configure=True,
+            auto_activate=True,
+            battery_aware=True,
+            auto_recovery=True
+        )
+        
+        # Set battery thresholds for lifecycle decisions
+        self.lifecycle_manager.configure_thresholds(
+            battery_low=2.0,  # Lower for hub
+            battery_recovery=15.0
+        )
+
     def on_configure(self, state: State) -> TransitionCallbackReturn:
         """Callback when transitioning to Configured state."""
         self.get_logger().info("Configuring Central Hub...")
@@ -127,17 +144,18 @@ class CentralHub(LifecycleNode):
         except Exception as e:
             self.get_logger().error(f"Error during shutdown: {e}")
             return TransitionCallbackReturn.FAILURE
-    
-    # Main functionality methods
+
     def is_active(self):
         """Check if hub is active"""
         return self.active
-        
+
     def detect(self):
         """Main detection function that processes and publishes health data"""
-        # Skip processing if hub is not active
-        if not self.is_active():
-            self.battery_manager.recharge()
+        # Skip processing if hub is not active or in recharge mode
+        if not self.is_active() or (hasattr(self.battery_manager, 'is_recharging') and self.battery_manager.is_recharging):
+            # Always handle recharging
+            if hasattr(self.battery_manager, 'recharge'):
+                self.battery_manager.recharge()
             return
             
         try:
@@ -171,6 +189,9 @@ def main(args=None):
 
     hub = CentralHub()
     
+    # Start automatic lifecycle management
+    hub.lifecycle_manager.start_auto_management()
+    
     # Run spin in a thread
     thread = threading.Thread(
         target=rclpy.spin, args=(hub,), daemon=True
@@ -179,24 +200,18 @@ def main(args=None):
     rate = hub.create_rate(hub.config.frequency)
 
     try:
-        # Automatically configure and activate
-        hub.trigger_configure()
-        time.sleep(0.5)  # Wait for configuration
-        hub.trigger_activate()
-        time.sleep(0.5)  # Wait for activation
-        
         while rclpy.ok():
             if hub._finalized:
                 break
                 
-            # Only run detection if hub is active
-            if hub.is_active():
+            # Run detection if active and not in recharge mode
+            if hub.is_active() and not hub.battery_manager.is_recharging:
                 hub.detect()
             else:
-                # If hub is inactive, try to recharge
-                hub.battery_manager.recharge()
-                hub.get_logger().warning(
-                    f"Hub in power saving mode, recharging: {hub.battery_manager.battery.current_level:.1f}%"
+                # Let battery manager handle recharging
+                hub.get_logger().debug(
+                    f"Hub in {'recharging' if hub.battery_manager.is_recharging else 'inactive'} state, "
+                    f"battery: {hub.battery_manager.battery.current_level:.1f}%"
                 )
             rate.sleep()
     except KeyboardInterrupt:
@@ -204,6 +219,7 @@ def main(args=None):
     finally:
         hub.destroy_node()
         rclpy.shutdown()
+        thread.join()
 
 
 if __name__ == "__main__":
