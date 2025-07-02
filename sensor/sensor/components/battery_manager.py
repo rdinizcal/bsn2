@@ -1,4 +1,4 @@
-from system_monitor.battery import Battery
+from shared_components.battery import Battery
 from bsn_interfaces.msg import EnergyStatus
 from std_msgs.msg import Header
 
@@ -22,6 +22,9 @@ class BatteryManager:
             current_level=self.battery_level,
             unit=self.battery_unit
         )
+        
+        # Add recharge mode flag
+        self.is_recharging = False
         
         self.cost = 0.0
         
@@ -50,21 +53,45 @@ class BatteryManager:
         """Periodic battery status check"""
         self.node.get_logger().debug(f"Battery level: {self.battery.current_level:.1f}%")
         
-        if self.node.active and self.battery.current_level < 5.0:
-            self.node.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), deactivating {self.node.config.sensor}")
-            self.node.active = False
-            self.node.publisher_manager.publish_event("deactivate")
-            
-        if not self.node.active or self.instant_recharge:
+        # Check if we need to enter recharge mode
+        if not self.is_recharging and self.battery.current_level < 5.0:
+            self.node.get_logger().warn(f"Battery low ({self.battery.current_level:.1f}%), entering recharge mode")
+            self.enter_recharge_mode()
+        
+        # Always handle recharging when in recharge mode or instant recharge is enabled
+        if self.is_recharging or self.instant_recharge:
             old_level = self.battery.current_level
             self.recharge()
             if self.battery.current_level > old_level + 0.5:
                 self.node.get_logger().info(f"Recharging battery: {self.battery.current_level:.1f}%")
-                
-        if not self.node.active and self.battery.current_level > 15.0:
-            self.node.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), activating {self.node.config.sensor}")
-            self.node.active = True
-            self.node.publisher_manager.publish_event("activate")
+        
+        # Check if we can exit recharge mode
+        if self.is_recharging and self.battery.current_level > 15.0:
+            self.node.get_logger().info(f"Battery charged enough ({self.battery.current_level:.1f}%), exiting recharge mode")
+            self.exit_recharge_mode()
+        
+        # Always send energy status
+        self.send_energy_status()
+    
+    def enter_recharge_mode(self):
+        """Enter recharge mode - only essential operations continue"""
+        self.is_recharging = True
+        
+        # Keep node active but publish recharging status
+        self.node.publisher_manager.publish_status("deactivated", "recharging")
+        self.node.publisher_manager.publish_event("recharge_start")
+        
+        self.node.get_logger().info("Entered recharge mode - processing stopped until battery > 15%")
+    
+    def exit_recharge_mode(self):
+        """Exit recharge mode - resume normal operations"""
+        self.is_recharging = False
+        
+        # Update status
+        self.node.publisher_manager.publish_status("activated", "idle")
+        self.node.publisher_manager.publish_event("recharge_complete")
+        
+        self.node.get_logger().info("Exited recharge mode - resuming normal processing")
     
     def send_energy_status(self):
         """Send energy status report"""

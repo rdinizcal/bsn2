@@ -1,6 +1,4 @@
-# Request
-string name
-bool connection
+string name     # Component name 
+bool connection # True to register, False to deregister
 ---
-# Response
-bool ack
+bool ack        # Acknowledgment

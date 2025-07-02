@@ -22,5 +22,7 @@ class ConfigManager:
         # Get frequency
         self.frequency = float(node.get_parameter("frequency").value)
         
+        self.node.declare_parameter("enable_adaptation", False)
+        self.activate_adaptation = self.node.get_parameter("enable_adaptation").value
         # Log configuration
         node.get_logger().info(f"Initialized Central Hub with frequency: {self.frequency}Hz")

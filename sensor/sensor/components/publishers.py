@@ -56,7 +56,16 @@ class PublisherManager:
         msg.source = self.node.get_name()
         msg.target = "system"
         msg.freq = float(self.node.config.frequency)
-        msg.content = "activate" if self.node.active else "deactivate"
+        
+        # Check for recharge mode
+        if hasattr(self.node, 'battery_manager') and hasattr(self.node.battery_manager, 'is_recharging'):
+            if self.node.battery_manager.is_recharging:
+                msg.content = "recharging"
+            else:
+                msg.content = "activate" if self.node.active else "deactivate"
+        else:
+            msg.content = "activate" if self.node.active else "deactivate"
+            
         self.event_pub.publish(msg)
         self.node.get_logger().debug(f"Heartbeat published: {msg.content}")
     

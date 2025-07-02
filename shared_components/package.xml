@@ -1,25 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>central_hub</name>
+  <name>shared_components</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="ricardo.caldas@chalmers.se">root</maintainer>
+  <maintainer email="gabrielbfranca@gmail.com">DockerUser</maintainer>
   <license>TODO: License declaration</license>
 
+  <depend>rclpy</depend>
   <depend>bsn_interfaces</depend>
-  <depend>system_monitor</depend>
-  <depend>shared_components</depend>
-  
+  <depend>lifecycle_msgs</depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>python3-pytest-cov</test_depend>
   <test_depend>python3-coverage</test_depend>
-
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

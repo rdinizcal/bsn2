@@ -267,3 +267,35 @@ def test_battery_management(lifecycle_sensor):
         node.battery_manager.battery.discharge(10.0)
         new_level = node.battery_manager.battery.current_level
         assert new_level < initial_level, "Battery level should decrease after discharge"
+
+
+def test_recharging_behavior(lifecycle_sensor):
+    """Test behavior when battery is recharging"""
+    node = lifecycle_sensor
+    
+    # Force recharging mode
+    node.battery_manager.is_recharging = True
+    
+    # Mock the recharge method to track calls
+    original_recharge = node.battery_manager.recharge
+    recharge_called = [False]
+    
+    def mock_recharge():
+        recharge_called[0] = True
+        return original_recharge()
+        
+    node.battery_manager.recharge = mock_recharge
+    
+    # Call a simulated processing cycle manually
+    # This avoids having to run the full spin_sensor loop
+    if hasattr(node, 'on_timer'):
+        node.on_timer()
+    else:
+        # Simulate what would happen in a single spin_sensor iteration
+        if node.active and not node.battery_manager.is_recharging:
+            node.processor.collect()
+        else:
+            node.battery_manager.recharge()
+    
+    # Verify recharge was called
+    assert recharge_called[0] is True

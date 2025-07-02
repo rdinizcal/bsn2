@@ -38,13 +38,5 @@ def generate_launch_description():
                 parameters=[config],
                 arguments=["--ros-args", "--log-level", "debug"],
             ),
-            launch_ros.actions.Node(
-            package='system_monitor',
-            executable='system_monitor',
-            name='node_monitor',
-            output='screen',
-            emulate_tty=True,
-            parameters=[config_monitor]
-            )
         ]
     )
