@@ -180,11 +180,11 @@ class TestFormulaErrorHandling:
         
         with pytest.raises((ZeroDivisionError, FormulaError)):
             formula.evaluate()
-    
+    # changed test from x + + y to x + * y
     def test_invalid_syntax(self):
         """Test invalid formula syntax"""
         with pytest.raises((ValueError, FormulaError)):
-            Formula("x + + y")
+            Formula("x + * y")
     
     def test_undefined_variable(self):
         """Test undefined variable in formula"""

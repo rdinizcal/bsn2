@@ -6,13 +6,16 @@ from typing import Dict, List, Union, Any
 from collections import defaultdict
 
 class FormulaError(Exception):
-    """Custom exception for Formula-related errors"""
+    """Custom exception for Formula-related errors."""
+    
     pass
+
 
 class Formula:
     """
-    Python implementation of BSN Formula class
-    Provides mathematical expression parsing and evaluation
+    Python implementation of BSN Formula class.
+    
+    Provides mathematical expression parsing and evaluation.
     """
     
     # Supported mathematical operations
@@ -59,7 +62,7 @@ class Formula:
 
     def __init__(self, text: str = "", terms: List[str] = None, values: List[float] = None):
         """
-        Initialize Formula
+        Initialize Formula.
         
         Args:
             text: Mathematical expression as string
@@ -71,28 +74,35 @@ class Formula:
         self._parsed_expression = None
         self._variables = set()
         
-        if text:
+        # Check for empty formula and raise ValueError
+        if text is not None and text.strip() == "":
+            raise ValueError("Empty formula expression")
+        
+        if text and text.strip():
             self._parse_expression(text)
         
         if terms is not None and values is not None:
             self.set_term_value_map(terms, values)
     
     def __del__(self):
-        """Destructor"""
+        """Destructor."""
         pass
     
     def __copy__(self):
-        """Copy constructor"""
+        """Copy constructor."""
         new_formula = Formula(self._expression_text)
         new_formula._term_value = self._term_value.copy()
         return new_formula
     
     def __deepcopy__(self, memo):
-        """Deep copy constructor"""
+        """Deep copy constructor."""
         return self.__copy__()
     
     def _parse_expression(self, text: str):
-        """Parse mathematical expression string"""
+        """Parse mathematical expression string."""
+        if not text or text.strip() == "":
+            raise ValueError("Empty formula expression")
+            
         try:
             # Clean the expression
             cleaned_text = self._clean_expression(text)
@@ -104,22 +114,25 @@ class Formula:
             self._variables = self._extract_variables(self._parsed_expression)
             
         except SyntaxError as e:
-            raise FormulaError(f"Invalid mathematical expression: {text} - {str(e)}")
+            # Raise ValueError for syntax errors to match test expectations
+            raise ValueError(f"Invalid mathematical expression: {text[:20]}...")
     
     def _clean_expression(self, text: str) -> str:
-        """Clean and prepare expression for parsing"""
+        """Clean and prepare expression for parsing."""
         # Replace ^ with ** for power operations
         text = text.replace('^', '**')
         
-        # Add multiplication signs where needed (e.g., 2x -> 2*x)
-        text = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', text)
-        text = re.sub(r'([a-zA-Z])(\d)', r'\1*\2', text)
-        text = re.sub(r'([a-zA-Z])([a-zA-Z])', r'\1*\2', text)
+        # MUCH more conservative approach - only handle very specific cases
+        # Don't touch variable names with underscores or function calls
+        
+        # Only add multiplication for simple cases like "2x" -> "2*x"
+        # But NOT for cases like "sin" or "R_G3_T1_1"
+        text = re.sub(r'(\d)\s*([a-zA-Z][a-zA-Z0-9_]*)', r'\1*\2', text)
         
         return text
     
     def _extract_variables(self, node) -> set:
-        """Extract variable names from AST"""
+        """Extract variable names from AST."""
         variables = set()
         
         for child in ast.walk(node):
@@ -132,7 +145,7 @@ class Formula:
         return variables
     
     def _evaluate_node(self, node, variables: Dict[str, float]):
-        """Evaluate AST node recursively"""
+        """Evaluate AST node recursively."""
         if isinstance(node, ast.Constant):  # Python 3.8+
             return node.value
         elif isinstance(node, ast.Num):  # Python < 3.8
@@ -165,31 +178,34 @@ class Formula:
             raise FormulaError(f"Unsupported operation: {type(node)}")
     
     def get_expression_text(self) -> str:
-        """Get the original expression text"""
+        """Get the original expression text."""
         return self._expression_text
     
     def set_expression(self, text: str):
-        """Set new expression"""
+        """Set new expression."""
         self._expression_text = text
-        self._parse_expression(text)
+        if text and text.strip():
+            self._parse_expression(text)
+        elif text is not None and text.strip() == "":
+            raise ValueError("Empty formula expression")
     
     def get_term_value_map(self) -> Dict[str, float]:
-        """Get term-value mapping"""
+        """Get term-value mapping."""
         return self._term_value.copy()
     
     def set_term_value_map(self, terms: List[str], values: List[float]):
-        """Set term-value mapping from lists"""
+        """Set term-value mapping from lists."""
         if len(terms) != len(values):
             raise ValueError("Terms and values size do not correspond to each other.")
         
         self._term_value = {term: value for term, value in zip(terms, values)}
     
     def set_term_value_map_dict(self, term_value: Dict[str, float]):
-        """Set term-value mapping from dictionary"""
+        """Set term-value mapping from dictionary."""
         self._term_value = term_value.copy()
     
     def evaluate(self) -> float:
-        """Evaluate the expression with current term values"""
+        """Evaluate the expression with current term values."""
         if not self._parsed_expression:
             raise FormulaError("No expression to evaluate")
         
@@ -207,9 +223,9 @@ class Formula:
             raise FormulaError(f"Error evaluating expression: {str(e)}")
     
     def get_terms(self) -> List[str]:
-        """Get all variable terms in the expression"""
+        """Get all variable terms in the expression."""
         return list(self._variables)
     
     def get_formula(self) -> str:
-        """Get formula text (compatibility with original BSN API)"""
+        """Get formula text (compatibility with original BSN API)."""
         return self._expression_text
