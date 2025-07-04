@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+"""
+Parameter adaptation routing for Body Sensor Network components.
+
+This module provides component registration and adaptation command routing
+capabilities for the BSN system. It manages dynamic registration of system
+components and routes adaptation commands to appropriate targets.
+"""
+
 import rclpy
 from rclpy.node import Node
 from bsn_interfaces.msg import AdaptationCommand
@@ -6,17 +13,58 @@ from bsn_interfaces.srv import EffectorRegister
 import threading
 import time
 
+
 class ParamAdapter(Node):
     """
-    Parameter Adaptation routing component for BSN system in ROS2
+    Parameter adaptation routing component for BSN system.
     
-    Key functions:
-    - Receives component registrations via service
-    - Receives adaptation commands from enactor
-    - Routes commands to target components
+    This class manages component registration and routes adaptation commands
+    to appropriate system components. It provides a centralized adaptation
+    infrastructure that allows components to register themselves and receive
+    targeted configuration changes during runtime.
+    
+    The adapter maintains a registry of active components and creates dedicated
+    communication channels for each registered component to ensure reliable
+    adaptation command delivery.
+    
+    Attributes:
+        registered_components (dict): Registry of active components with timestamps.
+        _component_publishers (dict): Publishers for component-specific topics.
+        check_interval (float): Interval for checking component staleness.
+        debug (bool): Whether debug logging is enabled.
+        register_service: ROS service for component registration.
+        command_sub: Subscriber for incoming adaptation commands.
+        
+    Examples:
+        Basic usage:
+        ```python
+        import rclpy
+        from system_monitor.param_adapter import ParamAdapter
+        
+        rclpy.init()
+        adapter = ParamAdapter()
+        rclpy.spin(adapter)
+        ```
+        
+        Component registration via service:
+        ```python
+        # From a component
+        client = node.create_client(EffectorRegister, 'EffectorRegister')
+        request = EffectorRegister.Request()
+        request.name = "my_component"
+        request.connection = True
+        response = client.call(request)
+        ```
     """
 
     def __init__(self):
+        """
+        Initialize the parameter adapter.
+        
+        Sets up component registration service, adaptation command subscription,
+        and periodic component checking. Configures adapter parameters for
+        staleness detection and debug logging.
+        """
         super().__init__('param_adapter')
         self.get_logger().info("Starting ParamAdapter")
         
@@ -53,7 +101,23 @@ class ParamAdapter(Node):
         self.get_logger().info("ParamAdapter initialized and ready to register components")
     
     def module_connect(self, request, response):
-        """Handle component registration and deregistration"""
+        """
+        Handle component registration and deregistration requests.
+        
+        Processes service requests from components wanting to register or
+        deregister from the adaptation system. Creates dedicated publishers
+        for registered components and maintains registration timestamps.
+        
+        Args:
+            request (EffectorRegister.Request): Service request containing
+                component name and connection flag (True=register, False=deregister).
+            response (EffectorRegister.Response): Service response to populate
+                with acknowledgment status.
+                
+        Returns:
+            EffectorRegister.Response: Response with ack field set to True
+                for successful operations, False for errors.
+        """
         try:
             component_name = request.name
             
@@ -102,7 +166,18 @@ class ParamAdapter(Node):
         return response
 
     def receive_adaptation_command(self, msg):
-        """Process adaptation command and route to target component"""
+        """
+        Process and route adaptation commands to target components.
+        
+        Receives adaptation commands from the enactor and routes them to
+        the appropriate registered components using dedicated communication
+        channels. Tracks command delivery and provides error handling for
+        unknown targets.
+        
+        Args:
+            msg (AdaptationCommand): Adaptation command containing source,
+                target component name, and action to perform.
+        """
         target = msg.target
         
         if target in self._component_publishers:  # Updated variable name
@@ -127,7 +202,14 @@ class ParamAdapter(Node):
                     self.get_logger().warn(f"Did you mean '{component}' instead of '{target}'?")
 
     def check_components(self):
-        """Check for components that haven't been active for a while"""
+        """
+        Check for components that haven't been active recently.
+        
+        Periodically reviews registered components to identify those that
+        haven't shown activity for extended periods. Logs stale components
+        for system monitoring purposes but doesn't automatically remove them
+        as they might still be functional.
+        """
         current_time = time.time()
         stale_threshold = 300.0  # Consider component stale after 5 minutes
         
@@ -150,6 +232,16 @@ class ParamAdapter(Node):
 
 
 def main(args=None):
+    """
+    Main entry point for the parameter adapter node.
+    
+    Initializes ROS, creates the parameter adapter, and runs it in a
+    multi-threaded executor to handle service requests and command
+    routing concurrently.
+    
+    Args:
+        args: Command line arguments passed to ROS initialization.
+    """
     rclpy.init(args=args)
     node = ParamAdapter()
     

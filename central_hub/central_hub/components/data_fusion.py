@@ -1,11 +1,63 @@
+"""
+Data fusion algorithms for central hub emergency detection.
+
+This module implements sophisticated data fusion algorithms that combine
+sensor readings from multiple sources to calculate overall patient risk
+status using weighted averaging and deviation-based calculations.
+"""
+
+
 class DataFusionEngine:
-    """Implements data fusion algorithm for sensor data"""
+    """
+    Implements data fusion algorithm for sensor data integration.
+    
+    This class combines data from multiple sensors to calculate a unified
+    patient risk status. It uses weighted averaging based on data deviations
+    and special handling for blood pressure readings to provide accurate
+    emergency detection capabilities.
+    
+    Attributes:
+        node: Reference to the parent central hub node.
+        
+    Examples:
+        ```python
+        fusion_engine = DataFusionEngine(central_hub_node)
+        
+        # Calculate patient risk status
+        risk_status = fusion_engine.fuse_data()
+        print(f"Patient risk: {risk_status:.1f}%")
+        ```
+    """
     
     def __init__(self, node):
+        """
+        Initialize data fusion engine.
+        
+        Sets up the fusion engine with reference to the parent node
+        for accessing sensor data and system status.
+        
+        Args:
+            node: The parent central hub node instance.
+        """
         self.node = node
     
     def fuse_data(self):
-        """Calculate patient risk status using fusion algorithm"""
+        """
+        Calculate patient risk status using advanced fusion algorithm.
+        
+        Implements a sophisticated data fusion algorithm that:
+        1. Processes risk values from all available sensors
+        2. Applies special handling for blood pressure data
+        3. Calculates weighted averages based on data deviations
+        4. Returns a unified patient risk percentage
+        
+        The algorithm handles missing data gracefully and provides
+        meaningful results even with partial sensor availability.
+        
+        Returns:
+            float: Patient risk status as percentage (0-100), or 0.0
+                   if no valid sensor data is available or hub is inactive.
+        """
         # Skip if hub not active
         if not self.node.active:
             return 0.0
@@ -66,7 +118,21 @@ class DataFusionEngine:
         return risk_status
         
     def _calculate_weighted_risk(self, values, avg):
-        """Calculate weighted risk based on deviations"""
+        """
+        Calculate weighted risk based on data deviations.
+        
+        Implements a sophisticated weighting algorithm that considers
+        how much each sensor reading deviates from the average. Sensors
+        with higher deviations receive more weight in the final calculation.
+        
+        Args:
+            values (list): List of valid sensor risk values.
+            avg (float): Simple average of all sensor values.
+            
+        Returns:
+            float: Weighted average risk value, or simple average
+                   if all values are identical.
+        """
         if not values:
             return 0.0
             

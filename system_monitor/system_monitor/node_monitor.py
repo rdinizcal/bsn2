@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""
+Combined system monitor and message collector for Body Sensor Network.
+
+This module provides comprehensive system monitoring capabilities including
+message collection and forwarding, node activity tracking, heartbeat monitoring,
+and system status reporting for the BSN system.
+"""
+
 import rclpy
 from rclpy.node import Node
 from bsn_interfaces.msg import Status, Event, EnergyStatus
@@ -11,15 +19,53 @@ class SystemMonitor(Node):
     """
     Combined system monitor and message collector for BSN system.
     
-    Features:
-    - Collects and forwards all system messages to the Logger
-    - Tracks node activity through heartbeats
-    - Monitors node states and lifecycle events
-    - Reports detailed system status
-    - Detects and reports missing heartbeats
+    This class provides dual functionality as both a message collector that
+    forwards system messages to the Logger and a comprehensive system monitor
+    that tracks node activity, lifecycle events, and system health.
+    
+    The monitor tracks individual node states including activation status,
+    current tasks, battery levels, and heartbeat timing to provide real-time
+    system oversight and detect potential issues.
+    
+    Attributes:
+        node_list (list): List of node names to monitor.
+        heartbeat_timeout (float): Maximum time between heartbeats before warning.
+        check_interval (float): Frequency for checking node status.
+        debug (bool): Whether debug logging is enabled.
+        frequency (float): Operating frequency for status updates.
+        monitored_nodes (dict): Dictionary tracking state of each monitored node.
+        log_status_pub: Publisher for forwarding status messages to logger.
+        log_event_pub: Publisher for forwarding event messages to logger.
+        log_energy_pub: Publisher for forwarding energy messages to logger.
+        status_pub: Publisher for system monitor status reports.
+        
+    Examples:
+        Basic usage:
+        ```python
+        import rclpy
+        from system_monitor.node_monitor import SystemMonitor
+        
+        rclpy.init()
+        monitor = SystemMonitor()
+        rclpy.spin(monitor)
+        ```
+        
+        With custom configuration:
+        ```python
+        monitor = SystemMonitor()
+        monitor.node_list = ["sensor1", "sensor2", "hub"]
+        monitor.heartbeat_timeout = 10.0
+        ```
     """
 
     def __init__(self):
+        """
+        Initialize the combined system monitor and message collector.
+        
+        Sets up message forwarding capabilities, node state tracking,
+        heartbeat monitoring, and status reporting with configurable
+        parameters for monitoring behavior.
+        """
         super().__init__('node_monitor')
         self.get_logger().info("Starting Combined System Monitor")
         
@@ -92,7 +138,17 @@ class SystemMonitor(Node):
         self.get_logger().info("System monitor initialized and ready")
 
     def status_callback(self, msg):
-        """Process and forward status messages"""
+        """
+        Process and forward status messages from system components.
+        
+        Handles incoming component status messages by forwarding them to the
+        Logger and updating internal node state tracking. Automatically updates
+        activation states and task information based on status content.
+        
+        Args:
+            msg (Status): Status message containing source, target, content,
+                         and task information from a system component.
+        """
         # Forward to Logger (Collector functionality)
         self.log_status_pub.publish(msg)
         
@@ -130,7 +186,17 @@ class SystemMonitor(Node):
                 break
     
     def event_callback(self, msg):
-        """Process and forward event messages"""
+        """
+        Process and forward event messages from system components.
+        
+        Handles incoming event messages by forwarding them to the Logger
+        and updating heartbeat timing and activation states. Events serve
+        as heartbeats for monitoring node liveliness.
+        
+        Args:
+            msg (Event): Event message containing source, target, and content
+                        information representing system events or heartbeats.
+        """
         # Forward to Logger (Collector functionality)
         self.log_event_pub.publish(msg)
         
@@ -161,7 +227,17 @@ class SystemMonitor(Node):
                 break
     
     def energy_callback(self, msg):
-        """Process and forward energy status messages"""
+        """
+        Process and forward energy status messages from system components.
+        
+        Handles incoming energy status messages by forwarding them to the
+        Logger for persistence. Energy messages provide battery level and
+        consumption information for system monitoring.
+        
+        Args:
+            msg (EnergyStatus): Energy status message containing battery
+                               level and energy consumption information.
+        """
         # Forward to Logger (Collector functionality)
         self.log_energy_pub.publish(msg)
         
@@ -170,7 +246,13 @@ class SystemMonitor(Node):
         self.get_logger().debug(f"Energy update from {node_name}: {msg.content}")
 
     def check_heartbeats(self):
-        """Check for missing heartbeats and log warnings"""
+        """
+        Check for missing heartbeats and log warnings for silent nodes.
+        
+        Monitors the time since last heartbeat for each tracked node and
+        logs warnings when active nodes haven't sent heartbeats within the
+        configured timeout period. Inactive nodes are only logged in debug mode.
+        """
         current_time = time.time()
         
         for node_name, info in self.monitored_nodes.items():
@@ -184,7 +266,14 @@ class SystemMonitor(Node):
                     self.get_logger().debug(f"Inactive node {node_name} silent for {time_since_last:.1f}s")
 
     def publish_monitor_status(self):
-        """Publish current status of all monitored nodes"""
+        """
+        Publish current status of all monitored nodes.
+        
+        Generates and publishes comprehensive status reports for each monitored
+        node including activation state, current task, status content, and
+        recharging state. Provides real-time system overview for external
+        monitoring tools.
+        """
         for node_name, info in self.monitored_nodes.items():
             # Create a detailed status message
             status_msg = String()
@@ -207,6 +296,16 @@ class SystemMonitor(Node):
 
 
 def main(args=None):
+    """
+    Main entry point for the system monitor node.
+    
+    Initializes ROS, creates the system monitor, and runs it in a
+    multi-threaded executor to handle message processing and monitoring
+    tasks concurrently.
+    
+    Args:
+        args: Command line arguments passed to ROS initialization.
+    """
     rclpy.init(args=args)
     node = SystemMonitor()
     

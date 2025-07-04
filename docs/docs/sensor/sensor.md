@@ -1,0 +1,3 @@
+# Sensor Node
+
+::: sensor.sensor

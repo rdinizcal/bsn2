@@ -1,3 +1,11 @@
+"""
+Main sensor node implementation with lifecycle management.
+
+This module provides the core sensor functionality including data collection,
+processing, risk evaluation, and battery management within a ROS 2 lifecycle
+node framework.
+"""
+
 from rclpy.lifecycle import LifecycleNode, State, TransitionCallbackReturn
 import rclpy
 import threading
@@ -7,12 +15,48 @@ from sensor.components.battery_manager import BatteryManager
 from sensor.components.risk_manager import RiskManager
 from sensor.components.publishers import PublisherManager
 from sensor.components.config_manager import ConfigManager
-from shared_components.lifecycle_manager import LifecycleManager  # Add this import
+from shared_components.lifecycle_manager import LifecycleManager
 from shared_components.adaptation_handler import AdaptationHandler
+
+
 class Sensor(LifecycleNode):
-    """Main sensor node class with individual lifecycle management."""
+    """
+    Main sensor node class with individual lifecycle management.
+    
+    This class implements a ROS 2 lifecycle node for sensor data collection,
+    processing, and publishing. It manages battery consumption, risk evaluation,
+    and automatic lifecycle transitions based on battery levels.
+    
+    Attributes:
+        config (ConfigManager): Manages node parameters and configuration.
+        battery_manager (BatteryManager): Handles battery state and charging.
+        publisher_manager (PublisherManager): Manages all ROS publishers.
+        risk_manager (RiskManager): Evaluates risk levels for sensor data.
+        processor (DataProcessor): Handles data collection and processing.
+        lifecycle_manager (LifecycleManager): Manages automatic state transitions.
+        adaptation_handler (AdaptationHandler): Handles system adaptation.
+        active (bool): Current activation state of the node.
+        
+    Examples:
+        Basic usage:
+        ```python
+        import rclpy
+        from sensor.sensor import Sensor
+        
+        rclpy.init()
+        sensor_node = Sensor("thermometer_node")
+        rclpy.spin(sensor_node)
+        ```
+    """
     
     def __init__(self, node_name: str, parameters=None):
+        """
+        Initialize the sensor node.
+        
+        Args:
+            node_name: Name of the ROS node.
+            parameters: Optional list of parameter overrides.
+        """
         super().__init__(node_name, parameter_overrides=parameters or [])
         
         # Configuration manager (loads and manages parameters)
@@ -30,6 +74,7 @@ class Sensor(LifecycleNode):
         self.adaptation_handler = AdaptationHandler(self)
         if self.config.activate_adaptation: 
             self.adaptation_handler.register_with_effector()
+            
         # Node state
         self.active = False
         self._finalized = False
@@ -49,9 +94,19 @@ class Sensor(LifecycleNode):
             battery_recovery=15.0
         )
         
-    # Lifecycle callbacks remain the same but are now managed by LifecycleManager
     def on_configure(self, state: State) -> TransitionCallbackReturn:
-        """Handle transition to Configured state."""
+        """
+        Handle transition to Configured state.
+        
+        Sets up publishers and configures risk evaluation ranges based on
+        sensor type and parameters.
+        
+        Args:
+            state: Current lifecycle state.
+            
+        Returns:
+            SUCCESS if configuration successful, ERROR otherwise.
+        """
         self.get_logger().info(f"Configuring {self.config.sensor} sensor...")
         
         try:
@@ -69,7 +124,17 @@ class Sensor(LifecycleNode):
             return TransitionCallbackReturn.ERROR
         
     def on_activate(self, state: State) -> TransitionCallbackReturn:
-        """Handle transition to Active state."""
+        """
+        Handle transition to Active state.
+        
+        Activates the sensor for data collection and starts heartbeat timer.
+        
+        Args:
+            state: Current lifecycle state.
+            
+        Returns:
+            SUCCESS if activation successful, ERROR otherwise.
+        """
         self.get_logger().info(f"Activating {self.config.sensor} sensor...")
         
         try:
@@ -94,13 +159,22 @@ class Sensor(LifecycleNode):
             return TransitionCallbackReturn.ERROR
         
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
-        """Handle transition to Inactive state."""
+        """
+        Handle transition to Inactive state.
+        
+        Deactivates the sensor and stops data collection.
+        
+        Args:
+            state: Current lifecycle state.
+            
+        Returns:
+            SUCCESS if deactivation successful, ERROR otherwise.
+        """
         self.get_logger().info(f"Deactivating {self.config.sensor} sensor...")
         
         try:
             # Update node state
             self.active = False
-        
             
             # Publish deactivation events
             self.publisher_manager.publish_event("deactivate")
@@ -112,7 +186,17 @@ class Sensor(LifecycleNode):
             return TransitionCallbackReturn.ERROR
         
     def on_cleanup(self, state: State) -> TransitionCallbackReturn:
-        """Handle transition to Unconfigured state."""
+        """
+        Handle transition to Unconfigured state.
+        
+        Cleans up resources and resets data processor state.
+        
+        Args:
+            state: Current lifecycle state.
+            
+        Returns:
+            SUCCESS if cleanup successful, ERROR otherwise.
+        """
         self.get_logger().info(f"Cleaning up {self.config.sensor} sensor...")
         
         try:
@@ -133,7 +217,17 @@ class Sensor(LifecycleNode):
             return TransitionCallbackReturn.ERROR
         
     def on_shutdown(self, state: State) -> TransitionCallbackReturn:
-        """Handle shutdown transition."""
+        """
+        Handle shutdown transition.
+        
+        Performs final cleanup and stops all operations.
+        
+        Args:
+            state: Current lifecycle state.
+            
+        Returns:
+            SUCCESS if shutdown successful, FAILURE otherwise.
+        """
         self.get_logger().info(f"Shutting down {self.config.sensor} sensor...")
         
         try:
@@ -154,12 +248,23 @@ class Sensor(LifecycleNode):
             self.get_logger().error(f"Error during shutdown: {e}")
             return TransitionCallbackReturn.FAILURE
     
-    # Main functionality
     def is_active(self):
+        """
+        Check if the sensor is currently active.
+        
+        Returns:
+            bool: True if sensor is active, False otherwise.
+        """
         return self.active
         
     def spin_sensor(self):
-        """Main sensor loop with individual lifecycle management"""
+        """
+        Main sensor loop with individual lifecycle management.
+        
+        Continuously collects, processes, and publishes sensor data while
+        managing battery consumption and automatic lifecycle transitions.
+        The loop runs until ROS is shut down or the node is finalized.
+        """
         rate = self.create_rate(self.config.frequency)
         
         # Start automatic lifecycle management
@@ -186,8 +291,18 @@ class Sensor(LifecycleNode):
                 self.battery_manager.recharge()
                 
             rate.sleep()
-            
+
+
 def main(args=None):
+    """
+    Main entry point for the sensor node.
+    
+    Initializes ROS, creates the sensor node, and starts the main sensor loop
+    in a separate thread while spinning the node for ROS communication.
+    
+    Args:
+        args: Command line arguments passed to ROS.
+    """
     rclpy.init(args=args)
 
     # Get node name from CLI remapping (set in the launch file)

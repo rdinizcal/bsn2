@@ -1,5 +1,9 @@
 #!/bin/bash
-
+sudo apt install -y pipx
+pipx install mkdocs
+pipx inject mkdocs mkdocs-material mkdocstrings mkdocstrings-python pymdown-extensions
+pipx install behave
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/DockerUser/.bashrc
 # Update rosdep
 sudo rosdep update
 

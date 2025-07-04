@@ -1,9 +1,51 @@
+"""
+Sensor data reception and management for central hub.
+
+This module handles receiving sensor data from multiple sensors, storing
+the latest readings, and managing sensor battery level information for
+the emergency detection system.
+"""
+
 from bsn_interfaces.msg import SensorData
 
+
 class SensorDataHandler:
-    """Handles sensor data reception and storage"""
+    """
+    Handles sensor data reception and storage for the central hub.
+    
+    This class manages subscriptions to multiple sensor data topics, stores
+    the latest sensor readings and risk assessments, and tracks battery levels
+    of individual sensors for system monitoring.
+    
+    Attributes:
+        node: Reference to the parent central hub node.
+        NOT_USED (str): Constant for unused sensor data.
+        latest_risk (dict): Latest risk percentages from each sensor.
+        sensor_battery_levels (dict): Current battery levels of each sensor.
+        latest_data (dict): Latest sensor readings from each sensor.
+        latest_risks_labels (dict): Latest risk level labels from each sensor.
+        
+    Examples:
+        ```python
+        handler = SensorDataHandler(central_hub_node)
+        handler.setup_subscriptions()
+        
+        # Access latest data
+        temp = handler.latest_data["thermometer"]
+        risk = handler.latest_risk["thermometer"]
+        ```
+    """
     
     def __init__(self, node):
+        """
+        Initialize sensor data handler.
+        
+        Sets up data structures for tracking sensor readings, risk levels,
+        and battery status for all supported sensor types.
+        
+        Args:
+            node: The parent central hub node instance.
+        """
         self.node = node
         
         # Data structures for tracking sensors
@@ -29,7 +71,13 @@ class SensorDataHandler:
         }
     
     def setup_subscriptions(self):
-        """Set up subscriptions to sensor data"""
+        """
+        Set up subscriptions to sensor data topics.
+        
+        Creates ROS subscriptions for all supported sensor types including
+        blood pressure (systolic/diastolic), ECG, glucose, oximeter, and
+        thermometer sensors.
+        """
         self.sub_abpd = self.node.create_subscription(
             SensorData, "sensor_data/abpd", self.receive_datapoint, 10
         )
@@ -50,7 +98,12 @@ class SensorDataHandler:
         )
         
     def cleanup_subscriptions(self):
-        """Clean up subscriptions"""
+        """
+        Clean up sensor data subscriptions.
+        
+        Sets all subscription references to None, allowing them to be
+        garbage collected during lifecycle cleanup operations.
+        """
         self.sub_abpd = None
         self.sub_abps = None
         self.sub_ecg = None
@@ -59,7 +112,17 @@ class SensorDataHandler:
         self.sub_thermometer = None
     
     def receive_datapoint(self, msg):
-        """Receive data from sensors"""
+        """
+        Receive and process sensor data messages.
+        
+        Processes incoming sensor data including sensor readings, risk
+        assessments, and battery levels. Updates internal data structures
+        and publishes status updates.
+        
+        Args:
+            msg (SensorData): Incoming sensor data message containing
+                sensor type, reading value, risk assessment, and battery level.
+        """
         # Skip if not active
         if not self.node.active:
             return

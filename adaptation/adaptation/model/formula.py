@@ -15,7 +15,28 @@ class Formula:
     """
     Python implementation of BSN Formula class.
     
-    Provides mathematical expression parsing and evaluation.
+    Provides mathematical expression parsing and evaluation with support
+    for variables, constants, and mathematical functions.
+    
+    Attributes:
+        _expression_text: The original mathematical expression string
+        _term_value: Dictionary mapping variable names to values
+        _parsed_expression: AST representation of the expression
+        _variables: Set of variable names found in the expression
+    
+    Examples:
+        Basic usage:
+        ```python
+        formula = Formula("x + y", ["x", "y"], [1, 2])
+        result = formula.evaluate()  # Returns 3
+        ```
+        
+        Using mathematical functions:
+        ```python
+        formula = Formula("sin(x) + cos(y)")
+        formula.set_term_value_map(["x", "y"], [0, 0])
+        result = formula.evaluate()  # Returns 1
+        ```
     """
     
     # Supported mathematical operations

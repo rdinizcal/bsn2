@@ -1,0 +1,108 @@
+site_name: Body Sensor Network 2 Documentation
+site_description: Documentation for BSN 2, a framework for goal-oriented software development.
+site_author: Gabriel França
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline 
+        name: Switch to dark mode
+      primary: teal
+      accent: purple 
+    - scheme: slate 
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode    
+      primary: teal
+      accent: lime
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["/ros_ws/src"]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: false
+            heading_level: 2
+
+nav:
+  - Home: index.md
+  - Adaptation Module:
+    - Formula: adaptation/model/formula.md
+    - Goal Model:
+      - Context: adaptation/goal_model/context.md
+      - Property: adaptation/goal_model/property.md
+      - Node: adaptation/goal_model/node.md
+      - Goal: adaptation/goal_model/goal.md
+      - Task: adaptation/goal_model/task.md
+      - LeafTask: adaptation/goal_model/leaftask.md
+      - GoalTree: adaptation/goal_model/goaltree.md
+  - Sensor Module:
+    - Sensor Node: sensor/sensor.md
+    - Components:
+      - Config Manager: sensor/components/config_manager.md
+      - Data Processor: sensor/components/data_processor.md
+      - Battery Manager: sensor/components/battery_manager.md
+      - Publishers: sensor/components/publishers.md
+      - Risk Manager: sensor/components/risk_manager.md
+    - Utilities:
+      - Risk Evaluator: sensor/utils/risk_evaluator.md
+  - Central Hub Module:
+    - Central Hub Node: central_hub/central_hub.md
+    - Components:
+      - Config Manager: central_hub/components/config_manager.md
+      - Sensor Data Handler: central_hub/components/sensor_data_handler.md
+      - Data Fusion: central_hub/components/data_fusion.md
+      - Battery Manager: central_hub/components/battery_manager.md
+      - Publishers: central_hub/components/publishers.md
+    - Utilities:
+      - Risk Analyzer: central_hub/utils/risk_analyzer.md
+      - Visualization: central_hub/utils/visualization.md
+  - Patient Module:
+    - Patient Simulator: patient/patient.md
+  - System Monitor Module:
+    - Node Monitor: system_monitor/node_monitor.md
+    - Logger: system_monitor/logger.md
+    - Parameter Adapter: system_monitor/param_adapter.md
+    - Collector: system_monitor/collector.md
+  - Shared Components:
+    - Battery: shared_components/battery.md
+    - Lifecycle Manager: shared_components/lifecycle_manager.md
+    - Adaptation Handler: shared_components/adaptation_handler.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.tilde
+
+copyright: |
+  &copy; 2025 UNB

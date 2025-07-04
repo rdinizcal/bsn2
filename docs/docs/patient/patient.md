@@ -1,0 +1,3 @@
+# Patient Simulator
+
+::: patient.patient
