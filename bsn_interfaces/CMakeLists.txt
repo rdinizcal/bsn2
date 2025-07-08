@@ -18,10 +18,17 @@ find_package(rosidl_default_generators REQUIRED)
 #### ROS2 Interface Directives ####
 set(interface_files
   # Messages
+  "msg/Event.msg"
   "msg/SensorData.msg"
   "msg/TargetSystemData.msg"
+  "msg/EnergyStatus.msg"
+  "msg/AdaptationCommand.msg"
+  "msg/Status.msg"
+  "msg/Persist.msg"
+  "msg/Uncertainty.msg"
   # Services
   "srv/PatientData.srv"
+  "srv/EffectorRegister.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

@@ -1,0 +1,4 @@
+string name     # Component name 
+bool connection # True to register, False to deregister
+---
+bool ack        # Acknowledgment

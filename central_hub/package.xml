@@ -8,11 +8,15 @@
   <license>TODO: License declaration</license>
 
   <depend>bsn_interfaces</depend>
-
+  <depend>system_monitor</depend>
+  <depend>shared_components</depend>
+  
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-pytest-cov</test_depend>
+  <test_depend>python3-coverage</test_depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>

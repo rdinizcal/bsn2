@@ -1,4 +1,9 @@
 central_hub_node:
   ros__parameters:
-    frequency: "10.0"
+    frequency: 2.0
     
+    battery_id: 'hub_battery'
+    battery_capacity: 500.0  
+    battery_level: 500.0
+    battery_unit: 0.01  
+    instant_recharge: False  

@@ -488,3 +488,106 @@ class TestPatientBehavior:
             self.patient_node._determine_possible_next_state = original_determine
             self.patient_node._calculate_datapoint = original_calculate
             self.patient_node._should_change_state = original_should_change
+
+    def test_main_function(self):
+        """Test the main function with mock objects."""
+        with patch('rclpy.init') as mock_init, \
+             patch('rclpy.shutdown') as mock_shutdown, \
+             patch('patient.patient.Patient') as mock_patient, \
+             patch('threading.Thread') as mock_thread:
+            
+            # Setup mock patient
+            mock_patient_instance = mock_patient.return_value
+            mock_patient_instance.destroy_node = lambda: None
+            
+            # Setup mock thread
+            mock_thread_instance = mock_thread.return_value
+            mock_thread_instance.start = lambda: None
+            
+            # Call main with arguments
+            import sys
+            from patient.patient import main
+            old_argv = sys.argv
+            try:
+                sys.argv = ['patient']
+                main()
+            finally:
+                sys.argv = old_argv
+            
+            # Check that functions were called
+            mock_init.assert_called_once()
+            mock_patient.assert_called_once()
+            mock_thread.assert_called_once()
+            mock_shutdown.assert_called_once()
+
+    def test_specific_vital_sign_parameter_handling(self):
+        """Test that individual vital sign parameters are correctly handled."""
+        # Check each vital sign has its own frequency and offset parameters
+        for vital in self.patient_node.vital_signs:
+            change_param = f"{vital}_Change"
+            offset_param = f"{vital}_Offset"
+            
+            # Verify parameters exist
+            assert self.patient_node.has_parameter(change_param)
+            assert self.patient_node.has_parameter(offset_param)
+            
+            # Verify values were stored correctly
+            change_value = self.patient_node.get_parameter(change_param).value
+            assert 1 / change_value == self.patient_node.change_rates[vital]
+            
+            offset_value = self.patient_node.get_parameter(offset_param).value
+            assert offset_value == self.patient_node.offsets[vital]
+
+    def test_calculate_datapoint_edge_cases(self):
+        """Test the calculation of datapoints at edge cases."""
+        vital = self.patient_node.vital_signs[0]
+        
+        # Test with very narrow range
+        if vital not in self.patient_node.risk_ranges:
+            self.patient_node.risk_ranges[vital] = {}
+        
+        # Save original range
+        original_range = self.patient_node.risk_ranges[vital].get(2, [0, 0])
+        
+        try:
+            # Test with narrow range
+            self.patient_node.risk_ranges[vital][2] = [37.0, 37.0]  # Single point range
+            for _ in range(5):  # Try multiple times
+                self.patient_node._calculate_datapoint(vital, 2)
+                assert self.patient_node.vital_datapoints[vital] == 37.0
+                
+            # Test with very small range
+            self.patient_node.risk_ranges[vital][2] = [37.0, 37.0001]  # Tiny range
+            self.patient_node._calculate_datapoint(vital, 2)
+            assert 37.0 <= self.patient_node.vital_datapoints[vital] <= 37.0001
+            
+        finally:
+            # Restore original range
+            self.patient_node.risk_ranges[vital][2] = original_range
+
+    def test_patient_service_handler(self):
+        """Test that the service handler is properly created."""
+        # Verify service exists
+        service_name = 'get_sensor_reading'
+        
+        # Ideally would use get_service_names() but more complex in test environment
+        # Instead check that the patient has the service attribute
+        assert hasattr(self.patient_node, 'srv')
+        assert self.patient_node.srv is not None
+        
+        # Test the service with some example vital signs
+        for vital in self.patient_node.vital_signs:
+            # Set a test value
+            test_value = 37.5
+            self.patient_node.vital_datapoints[vital] = test_value
+            
+            # Create request
+            request = PatientData.Request()
+            request.vital_sign = vital
+            response = PatientData.Response()
+            
+            # Call service handler
+            self.patient_node.get_data(request, response)
+            
+            # Verify correct response
+            assert response.datapoint == test_value, f"Service returned wrong value for {vital}"
