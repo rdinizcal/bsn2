@@ -33,6 +33,11 @@ def generate_launch_description():
         'config',
         'monitor_config.yaml'
     )
+    config_enactor = os.path.join(
+        get_package_share_directory('adaptation'),
+        'config',
+        'enactor.yaml'
+    )
 
     return launch.LaunchDescription(
         [
@@ -114,6 +119,22 @@ def generate_launch_description():
                 output='screen',
                 emulate_tty=True,
                 parameters=[config_monitor]
+            ),
+            launch_ros.actions.Node(
+                package='system_monitor',
+                executable='param_adapter',
+                name='param_adapter',
+                output='screen',
+                emulate_tty=True,
+                parameters=[config_monitor]
+            ),
+            launch_ros.actions.Node(
+                package='adaptation',
+                executable='enactor',
+                name='enactor',
+                output='screen',
+                emulate_tty=True,
+                #parameters=[config_enactor]
             ),
         ]
     )

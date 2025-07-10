@@ -21,7 +21,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'collector = system_monitor.collector:main',
             'system_monitor = system_monitor.node_monitor:main',
             'logger = system_monitor.logger:main',
             'param_adapter = system_monitor.param_adapter:main',

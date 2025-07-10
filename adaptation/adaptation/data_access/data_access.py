@@ -91,7 +91,7 @@ class DataAccess(Node):
         self.declare_parameter('buffer_size', 1000)
         self.declare_parameter('time_window', 10.1)
         self.declare_parameter('log_path', '/tmp/bsn_logs')
-        self.declare_parameter('models_path', '/tmp/bsn_models')
+        self.declare_parameter('models_path', '../../resource/model')
         self.declare_parameter('flush_interval', 30)
         
         # Get parameters
@@ -116,8 +116,8 @@ class DataAccess(Node):
         self.adaptation_messages: List[AdaptationMessage] = []
         
         # Component data storage
-        self.status: Dict[str, deque] = defaultdict(deque)
-        self.events: Dict[str, deque] = defaultdict(deque)
+        self.status: Dict[str, deque] = defaultdict(lambda: deque(maxlen=self.buffer_size))
+        self.events: Dict[str, deque] = defaultdict(lambda: deque(maxlen=self.buffer_size))
         self.contexts: Dict[str, int] = {}
         
         # Component metrics

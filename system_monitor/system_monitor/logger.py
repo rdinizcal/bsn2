@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 Message logging and persistence for Body Sensor Network.
 
@@ -8,6 +11,7 @@ reports, adaptation commands, and uncertainty messages from all BSN components.
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from bsn_interfaces.msg import Status, Event, EnergyStatus, AdaptationCommand, Uncertainty, Persist
 import threading
 
@@ -63,32 +67,70 @@ class Logger(Node):
         timestamp generation across all logged messages.
         """
         super().__init__('logger')
-        self.declare_parameter("frequency", 2.0)  # Default frequency of 2 Hz
+        
+        # Declare parameters
+        self.declare_parameter("frequency", 2.0)
         self.frequency = self.get_parameter("frequency").value
         
-        # Store time reference for consistent timestamps
+        # Store time reference for consistent timestamps (matching C++ behavior)
         self.time_ref = self.get_clock().now().nanoseconds
         
-        # Create persist publisher
-        self.persist_pub = self.create_publisher(Persist, 'persist', 10)
+        # Setup QoS profile for reliable communication
+        qos_profile = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1000,  # Matching C++ queue size
+            durability=DurabilityPolicy.VOLATILE
+        )
         
-        # Create subscribers for all message types
-        self.status_sub = self.create_subscription(
-            Status, 'log_status', self.receive_status, 1000)
+        # Setup publishers (matching C++ original)
+        self._setup_publishers(qos_profile)
+        
+        # Setup subscribers (matching C++ original)
+        self._setup_subscribers(qos_profile)
+        
+        self.get_logger().info('Logger started - persisting and routing messages')
+    
+    def _setup_publishers(self, qos_profile):
+        """Setup publishers following C++ Logger pattern"""
+        
+        # Publisher for persistence (to DataAccess)
+        self.persist_pub = self.create_publisher(Persist, 'persist', qos_profile)
+        
+        # Publishers for message routing (matching C++ Logger::setUp())
+        
+        # Republish adaptation commands as 'reconfigure' for ParamAdapter
+        self.reconfigure_pub = self.create_publisher(
+            AdaptationCommand, 'reconfigure', qos_profile)
+        
+        # Republish events for Enactor
+        self.event_pub = self.create_publisher(Event, 'event', qos_profile)
+        
+        # Republish status messages (for other components that might need them)
+        self.status_pub = self.create_publisher(Status, 'status', qos_profile)
+        
+        self.get_logger().info('Publishers initialized: persist, reconfigure, event, status')
+    
+    def _setup_subscribers(self, qos_profile):
+        """Setup subscribers following C++ Logger body() pattern"""
+        
+        # Subscribe to log_* topics (matching C++ Logger::body())
+        self.adapt_sub = self.create_subscription(
+            AdaptationCommand, 'log_adapt', self.receive_adaptation_command, qos_profile)
             
-        self.event_sub = self.create_subscription(
-            Event, 'log_event', self.receive_event, 1000)
+        self.status_sub = self.create_subscription(
+            Status, 'log_status', self.receive_status, qos_profile)
             
         self.energy_sub = self.create_subscription(
-            EnergyStatus, 'log_energy_status', self.receive_energy, 1000)
+            EnergyStatus, 'log_energy_status', self.receive_energy_status, qos_profile)
             
-        self.adapt_sub = self.create_subscription(
-            AdaptationCommand, 'log_adapt', self.receive_adapt, 1000)
+        self.event_sub = self.create_subscription(
+            Event, 'log_event', self.receive_event, qos_profile)
             
         self.uncertainty_sub = self.create_subscription(
-            Uncertainty, 'log_uncertainty', self.receive_uncertainty, 1000)
-            
-        self.get_logger().info('Logger started')
+            Uncertainty, 'log_uncertainty', self.receive_uncertainty, qos_profile)
+        
+        self.get_logger().info('Subscribers initialized for log_* topics')
     
     def now(self):
         """
@@ -100,7 +142,7 @@ class Logger(Node):
         Returns:
             int: Current timestamp in milliseconds since logger started.
         """
-        return self.get_clock().now().nanoseconds // 1000000
+        return self.get_clock().now().nanoseconds
     
     def receive_status(self, msg):
         """
@@ -113,14 +155,21 @@ class Logger(Node):
             msg (Status): Status message containing source, target, content,
                          and task information from a system component.
         """
+        # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
         persist_msg.type = "Status"
-        persist_msg.timestamp = self.now() - (self.time_ref // 1000000)
+        persist_msg.timestamp = self.now() - self.time_ref
         persist_msg.content = msg.content
         
+        # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
+        
+        # Republish original message
+        self.status_pub.publish(msg)
+        
+        self.get_logger().debug(f"Logged status: {msg.source}: {msg.content}")
     
     def receive_event(self, msg):
         """
@@ -133,16 +182,24 @@ class Logger(Node):
             msg (Event): Event message containing source, target, and content
                         representing system events or state changes.
         """
+        # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
         persist_msg.type = "Event"
-        persist_msg.timestamp = self.now() - (self.time_ref // 1000000)
+        persist_msg.timestamp = self.now() - self.time_ref
         persist_msg.content = msg.content
         
+        # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
+        
+        # CRITICAL: Republish to 'event' topic (for Enactor)
+        self.event_pub.publish(msg)
+        
+        self.get_logger().debug(
+            f"Logged and routed event: {msg.source}: {msg.content}")
     
-    def receive_energy(self, msg):
+    def receive_energy_status(self, msg):
         """
         Process and persist an energy status message.
         
@@ -154,16 +211,20 @@ class Logger(Node):
             msg (EnergyStatus): Energy status message containing battery
                                level and consumption information.
         """
+        # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
         persist_msg.type = "EnergyStatus"
-        persist_msg.timestamp = self.now() - (self.time_ref // 1000000)
+        persist_msg.timestamp = self.now() - self.time_ref
         persist_msg.content = msg.content
         
+        # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
+        
+        self.get_logger().debug(f"Logged energy: {msg.source}: {msg.content}")
     
-    def receive_adapt(self, msg):
+    def receive_adaptation_command(self, msg):
         """
         Process and persist an adaptation command message.
         
@@ -175,14 +236,22 @@ class Logger(Node):
                                     target, and action information for
                                     system reconfiguration.
         """
+        # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
-        persist_msg.type = "Adaptation"
-        persist_msg.timestamp = self.now() - (self.time_ref // 1000000)
+        persist_msg.type = "AdaptationCommand"
+        persist_msg.timestamp = self.now() - self.time_ref
         persist_msg.content = msg.action
         
+        # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
+        
+        # CRITICAL: Republish to 'reconfigure' topic (for ParamAdapter)
+        self.reconfigure_pub.publish(msg)
+        
+        self.get_logger().debug(
+            f"Logged and routed adaptation: {msg.source} -> {msg.target}: {msg.action}")
     
     def receive_uncertainty(self, msg):
         """
@@ -195,14 +264,18 @@ class Logger(Node):
             msg (Uncertainty): Uncertainty message containing uncertainty
                               level or confidence information from components.
         """
+        # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
         persist_msg.type = "Uncertainty"
-        persist_msg.timestamp = self.now() - (self.time_ref // 1000000)
+        persist_msg.timestamp = self.now() - self.time_ref
         persist_msg.content = msg.content
         
+        # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
+        
+        self.get_logger().debug(f"Logged uncertainty: {msg.source}: {msg.content}")
 
 
 def main(args=None):

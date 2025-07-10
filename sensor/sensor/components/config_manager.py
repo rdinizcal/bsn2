@@ -117,3 +117,4 @@ class ConfigManager:
         
         self.node.declare_parameter("enable_adaptation", False)
         self.activate_adaptation = self.node.get_parameter("enable_adaptation").value
+        #self.activate_adaptation = True

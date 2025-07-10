@@ -6,4 +6,5 @@ central_hub_node:
     battery_capacity: 500.0  
     battery_level: 500.0
     battery_unit: 0.01  
-    instant_recharge: False  
+    instant_recharge: False
+    enable_adaptation: true

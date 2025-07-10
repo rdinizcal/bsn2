@@ -13,7 +13,7 @@ class Controller(Enactor):
     """
     
     def __init__(self):
-        super().__init__('controller')
+        super().__init__('enactor')
         
         # Additional parameters specific to Controller
         self.declare_parameter('kp', 0.5)  # Proportional gain for control
