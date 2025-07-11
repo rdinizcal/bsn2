@@ -137,6 +137,8 @@ class DataAccess(Node):
         
         # Goal Model
         self.goal_tree: Optional[GoalTree] = None
+        self.goal_model_contexts: Dict[str, Context] = {}
+        self.goal_model_properties: Dict[str, Dict[str, Property]] = {}
         
         # File paths
         self.log_files = {}
@@ -228,8 +230,12 @@ class DataAccess(Node):
             if os.path.exists(reliability_path):
                 with open(reliability_path, 'r') as f:
                     self.reliability_formula_text = f.read().strip()
-                    self.reliability_formula = Formula(self.reliability_formula_text)
-                    self.get_logger().info("Loaded reliability formula")
+                    try:
+                        self.reliability_formula = Formula(self.reliability_formula_text)
+                        self.get_logger().info(f"Loaded and parsed reliability formula: {self.reliability_formula_text}")
+                    except FormulaError as e:
+                        self.get_logger().error(f"Error parsing reliability formula: {e}")
+                        self.reliability_formula = None
             
             # Load cost formula
             cost_path = os.path.join(self.models_path, 'cost.formula')
@@ -462,12 +468,17 @@ class DataAccess(Node):
                 else:
                     aux += f"{status_content},"
             
+            # Calculate basic reliability
             reliability = success_count / total_count if total_count > 0 else 0
             aux += f"{reliability};"
             
             # Update component reliability
             key = component.lstrip('/')
             self.components_reliabilities[key] = reliability
+            
+            # Update goal model property if available
+            if key in self.goal_model_properties and 'reliability' in self.goal_model_properties[key]:
+                self.goal_model_properties[key]['reliability'].set_value(reliability)
             
             return aux
             
