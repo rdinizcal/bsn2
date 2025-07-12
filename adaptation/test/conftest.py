@@ -4,17 +4,31 @@ Pytest configuration for BSN2 Engine tests
 
 import pytest
 import rclpy
+from rclpy.executors import SingleThreadedExecutor
 
 
-
-@pytest.fixture(scope="session", autouse=True)
-def ros_setup():
-    """Setup ROS2 for all tests"""
+@pytest.fixture(scope="session")
+def rclpy_context():
+    """Initialize rclpy once per test session"""
     if not rclpy.ok():
         rclpy.init()
     yield
-    if rclpy.ok():
-        rclpy.shutdown()
+    try:
+        if rclpy.ok():
+            rclpy.shutdown()
+    except:
+        pass
+
+
+@pytest.fixture(scope="session")
+def executor(rclpy_context):
+    """Create executor for the test session"""
+    executor = SingleThreadedExecutor()
+    yield executor
+    try:
+        executor.shutdown()
+    except:
+        pass
 
 
 @pytest.fixture

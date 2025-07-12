@@ -1,56 +1,34 @@
 import pytest
 import rclpy
+from unittest.mock import Mock, patch, MagicMock
 from rclpy.parameter import Parameter
-from unittest.mock import Mock, patch
 
 from adaptation.engines.reli_engine import ReliabilityEngine
-from adaptation.model.formula import Formula
 from bsn_interfaces.srv import DataAccessRequest
 from bsn_interfaces.msg import Strategy
 
 
 @pytest.fixture(scope="class")
-def reli_engine_node(request):
-    """Setup ReliabilityEngine node for testing - matching BSN1 parameters"""
-    rclpy.init()
-
-    # Create test parameters matching BSN1 ReliabilityEngine.cpp
+def reli_engine_node(request, rclpy_context):
+    """Create ReliabilityEngine node for testing"""
+    # Default parameters for testing
     params = [
-        Parameter(name="qos_attribute", value="reliability"),
-        Parameter(name="info_quant", value=10.0),
-        Parameter(name="monitor_freq", value=1.0),
-        Parameter(name="actuation_freq", value=1.0),
         Parameter(name="setpoint", value=0.9),
-        Parameter(name="offset", value=0.0),
-        Parameter(name="gain", value=0.0),
+        Parameter(name="offset", value=0.1),
+        Parameter(name="gain", value=0.5),
         Parameter(name="tolerance", value=0.02),
+        Parameter(name="monitor_freq", value=10),
+        Parameter(name="actuation_freq", value=5),
+        Parameter(name="info_quant", value=1),
+        Parameter(name="strategy", value="R_G3_T1_1:1.0,R_G3_T1_2:1.0"),
+        Parameter(name="priority", value="R_G3_T1_1:50,R_G3_T1_2:50"),
     ]
-
-    # Create ReliabilityEngine node
-    node = ReliabilityEngine()
-    node.set_parameters(params)
-
-    # Mock ROS2 interfaces
-    node.data_access_client = Mock()
-    node.exception_subscriber = Mock()
-    node.enactor_server = Mock()
-    node.strategy_publisher = Mock()
-
-    # Setup test formula matching BSN1 reliability formula
-    formula_text = (
-        "R_G3_T1_1 * CTX_G3_T1_1 * F_G3_T1_1 + R_G3_T1_2 * CTX_G3_T1_2 * F_G3_T1_2"
-    )
-    node.target_system_model = Formula(formula_text)
-
-    # Initialize strategy and priority
-    terms = node.target_system_model.get_terms()
-    node.strategy = node.initialize_strategy(terms)
-    node.priority = node.initialize_priority(terms)
-
+    
+    # Create node and assign to test class
+    node = ReliabilityEngine(parameters=params)
     request.cls.reli_engine_node = node
     yield node
     node.destroy_node()
-    rclpy.shutdown()
 
 
 @pytest.mark.usefixtures("reli_engine_node")
