@@ -477,25 +477,46 @@ class TestReliabilityEngine:
         self.reli_engine_node.tolerance = 0.02
         self.reli_engine_node.cycles = 0
 
-        
+        # Setup initial strategy
+        self.reli_engine_node.strategy = {
+            "R_G3_T1_1": 1.0,
+            "R_G3_T1_2": 1.0,
+            "CTX_G3_T1_1": 0.0,
+            "CTX_G3_T1_2": 0.0,
+            "F_G3_T1_1": 1.0,
+            "F_G3_T1_2": 1.0,
+        }
+
         reliability_data = (
             "/g3t1_1:success,fail,success,0.70;/g3t1_2:success,success,0.80;"
         )
         context_data = "/g3t1_1:activate;/g3t1_2:activate;"
 
-        # Mock service calls
+        # Mock service calls - create separate futures for each call
         mock_reliability_response = Mock()
         mock_reliability_response.content = reliability_data
         mock_context_response = Mock()
         mock_context_response.content = context_data
 
-        responses = [mock_reliability_response, mock_context_response]
+        # Create separate futures for each call
+        mock_reliability_future = Mock()
+        mock_reliability_future.result.return_value = mock_reliability_response
+        mock_context_future = Mock()
+        mock_context_future.result.return_value = mock_context_response
 
-        mock_future = Mock()
-        mock_future.result.side_effect = responses
+        # Set up the mock to return different futures for different calls
+        def mock_call_async(request):
+            if "reliability" in request.query:
+                return mock_reliability_future
+            elif "event" in request.query:
+                return mock_context_future
+            else:
+                mock_default = Mock()
+                mock_default.result.return_value = Mock(content="")
+                return mock_default
 
         self.reli_engine_node.data_access_client.wait_for_service.return_value = True
-        self.reli_engine_node.data_access_client.call_async.return_value = mock_future
+        self.reli_engine_node.data_access_client.call_async.side_effect = mock_call_async
 
         # Mock QoS calculations that lead to convergence
         qos_sequence = [0.75, 0.85, 0.90]  # Monitor -> Plan -> Execute

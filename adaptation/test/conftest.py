@@ -109,7 +109,19 @@ def engine_node(request, rclpy_context):
     node = TestEngine("test_engine_node")
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
 
-    # Initialize engine attributes - don't try to set parameters since they're already set
+    # IMPORTANT: Mock the data_access_client properly
+    mock_client = Mock()
+    mock_client.wait_for_service.return_value = True
+    mock_response = Mock()
+    mock_response.content = "R_G3_T1_1 * R_G3_T1_2"
+    mock_future = Mock()
+    mock_future.result.return_value = mock_response
+    mock_client.call_async.return_value = mock_future
+    
+    # Assign the mock client to the node
+    node.data_access_client = mock_client
+
+    # Initialize engine attributes
     node.qos_attribute = "reliability"
     node.monitor_freq = 10.0
     node.actuation_freq = 5.0
