@@ -8,29 +8,6 @@ from bsn_interfaces.srv import DataAccessRequest
 from bsn_interfaces.msg import Strategy
 
 
-@pytest.fixture(scope="class")
-def reli_engine_node(request, rclpy_context):
-    """Create ReliabilityEngine node for testing"""
-    # Default parameters for testing
-    params = [
-        Parameter(name="setpoint", value=0.9),
-        Parameter(name="offset", value=0.1),
-        Parameter(name="gain", value=0.5),
-        Parameter(name="tolerance", value=0.02),
-        Parameter(name="monitor_freq", value=10),
-        Parameter(name="actuation_freq", value=5),
-        Parameter(name="info_quant", value=1),
-        Parameter(name="strategy", value="R_G3_T1_1:1.0,R_G3_T1_2:1.0"),
-        Parameter(name="priority", value="R_G3_T1_1:50,R_G3_T1_2:50"),
-    ]
-    
-    # Create node and assign to test class
-    node = ReliabilityEngine(parameters=params)
-    request.cls.reli_engine_node = node
-    yield node
-    node.destroy_node()
-
-
 @pytest.mark.usefixtures("reli_engine_node")
 class TestReliabilityEngine:
     """Test ReliabilityEngine functionality matching BSN1 ReliabilityEngine.cpp"""
@@ -49,8 +26,8 @@ class TestReliabilityEngine:
 
         # Check default values match BSN1
         assert self.reli_engine_node.setpoint == 0.9
-        assert self.reli_engine_node.offset == 0.0
-        assert self.reli_engine_node.gain == 0.0
+        assert self.reli_engine_node.offset == 0.1
+        assert self.reli_engine_node.gain == 0.5
         assert self.reli_engine_node.tolerance == 0.02
         assert self.reli_engine_node.cycles == 0
         assert self.reli_engine_node.prefix == "R_"

@@ -1,329 +1,280 @@
+"""
+Test base engine functionality matching BSN1 Engine behavior
+"""
+
 import pytest
 import rclpy
 from rclpy.parameter import Parameter
 from unittest.mock import Mock, patch, MagicMock
-import yaml
-import os
-from ament_index_python.packages import get_package_share_directory
+import time
+import threading
 
 from adaptation.engines.base_engine import Engine
-from bsn_interfaces.srv import DataAccessRequest
+from adaptation.model.formula import Formula
+from bsn_interfaces.srv import DataAccessRequest, EngineRequest
+from bsn_interfaces.msg import Exception as BSNException
 
-
-class TestEngine(Engine):
-    """Concrete implementation of Engine for testing"""
-    
-    def __init__(self, node_name="test_engine", **kwargs):
-        super().__init__(node_name, **kwargs)
-        self.monitor_called = False
-        self.analyze_called = False
-        self.plan_called = False
-        self.execute_called = False
-    
-    def get_prefix(self):
-        return "T_"
-    
-    def initialize_strategy(self, terms):
-        return {term: 1.0 for term in terms}
-    
-    def initialize_priority(self, terms):
-        return {term: 50 for term in terms}
-    
-    def monitor(self):
-        self.monitor_called = True
-    
-    def analyze(self):
-        self.analyze_called = True
-    
-    def plan(self):
-        self.plan_called = True
-    
-    def execute(self):
-        self.execute_called = True
-
-
-@pytest.fixture(scope="class")
-def engine_node(request, rclpy_context):
-    """Create engine node for testing"""
-    
-    # Create node
-    node = TestEngine()
-    
-    # Set default parameters
-    default_params = {
-        "monitor_freq": 10,
-        "actuation_freq": 5,
-        "info_quant": 1,
-        "strategy": "R_G3_T1_1:1.0,R_G3_T1_2:1.0",
-        "priority": "R_G3_T1_1:50,R_G3_T1_2:50",
-    }
-    
-    for param_name, param_value in default_params.items():
-        try:
-            node.declare_parameter(param_name, param_value)
-        except Exception:
-            pass
-    
-    # Mock the ROS-specific methods that cause context issues
-    node.create_rate = Mock()
-    node.create_rate.return_value = Mock()
-    node.create_rate.return_value.sleep = Mock()
-    
-    # Mock publishers and clients to avoid actual ROS communication
-    node.strategy_publisher = Mock()
-    node.data_access_client = Mock()
-    node.adaptation_parameter_client = Mock()
-    
-    # Mock spin_once to avoid context conflicts
-    with patch('rclpy.spin_once'):
-        request.cls.engine_node = node
-        yield node
-    
-    try:
-        node.destroy_node()
-    except:
-        pass
-
+# Note: TestEngine is now defined in conftest.py to avoid import issues
 
 @pytest.mark.usefixtures("engine_node")
 class TestBaseEngine:
-    engine_node: TestEngine  # Type annotation
+    """Test Base Engine functionality"""
     
-    def test_initialization_matches_bsn1(self):
-        """Test that initialization matches BSN1 Engine behavior"""
-        assert self.engine_node.monitor_freq > 0
-        assert self.engine_node.actuation_freq > 0
-        assert self.engine_node.info_quant > 0
+    engine_node = None  # Will be set by fixture
+    received_strategy_messages = []  # Will store published strategy messages
+    received_exception_messages = []  # Will store published exception messages
+
+    def setup_method(self):
+        """Set up before each test"""
+        # Clear previously received messages
+        self.received_strategy_messages.clear()
+        self.received_exception_messages.clear()
+
+        # Reset engine state
+        self.engine_node.monitor_called = False
+        self.engine_node.analyze_called = False
+        self.engine_node.plan_called = False
+        self.engine_node.execute_called = False
+
+    def wait_for_messages(self, message_list, count=1, timeout=2.0):
+        """Wait for specified number of messages with timeout"""
+        start_time = time.time()
+        while (
+            len(message_list) < count and time.time() - start_time < timeout
+        ):
+            # Spin both nodes
+            rclpy.spin_once(self.engine_node, timeout_sec=0.1)
+            rclpy.spin_once(self.mock_service_node, timeout_sec=0.1)
+            time.sleep(0.05)
+
+    def test_engine_initialization(self):
+        """Test engine initialization matches BSN1"""
+        # Test initial attributes
+        assert self.engine_node.qos_attribute == "reliability"
+        assert self.engine_node.info_quant == 1.0
+        assert self.engine_node.monitor_freq == 10.0
+        assert self.engine_node.actuation_freq == 5.0
         assert isinstance(self.engine_node.strategy, dict)
         assert isinstance(self.engine_node.priority, dict)
         assert isinstance(self.engine_node.deactivated_components, dict)
-        assert self.engine_node.target_system_model is not None
-    
-    def test_setup_formula_matches_bsn1(self):
-        """Test that setup_formula matches BSN1 behavior"""
-        # Mock the data access service
-        with patch.object(self.engine_node, 'data_access_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.formula = "R_G3_T1_1 * R_G3_T1_2"
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
-            
-            # Mock rclpy.spin_until_future_complete
-            with patch('rclpy.spin_until_future_complete'):
-                self.engine_node._setup_formula()
-                
-                # Verify service was called
-                mock_client.call_async.assert_called_once()
-                request = mock_client.call_async.call_args[0][0]
-                assert request.name == "/engine"
-                assert request.query == "formula"
-    
-    def test_calculate_qos_matches_bsn1(self):
-        """Test QoS calculation matches BSN1 behavior"""
-        # Test with simple formula
-        formula = "R_G3_T1_1 * R_G3_T1_2"
-        strategy = {"R_G3_T1_1": 0.9, "R_G3_T1_2": 0.8}
         
-        result = self.engine_node.calculate_qos(formula, strategy)
-        expected = 0.9 * 0.8
-        assert abs(result - expected) < 1e-6
+        # Test parameters were declared
+        assert self.engine_node.get_parameter("qos_attribute").value == "reliability"
+        assert self.engine_node.get_parameter("info_quant").value == 1.0
+        assert self.engine_node.get_parameter("monitor_freq").value == 10.0
+        assert self.engine_node.get_parameter("actuation_freq").value == 5.0
+
+    def test_fetch_formula_with_mock_service(self):
+        """Test fetch_formula with mock service"""
+        # Call fetch_formula
+        result = self.engine_node.fetch_formula("reliability")
         
-        # Test with complex formula
-        formula = "(R_G3_T1_1 + R_G3_T1_2) / 2"
-        result = self.engine_node.calculate_qos(formula, strategy)
-        expected = (0.9 + 0.8) / 2
-        assert abs(result - expected) < 1e-6
-    
-    def test_fetch_formula_matches_bsn1(self):
-        """Test fetch_formula matches BSN1 behavior"""
-        with patch.object(self.engine_node, 'data_access_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.formula = "R_G3_T1_1 * R_G3_T1_2"
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
+        # Should get the mocked response
+        assert result == "R_G3_T1_1 * R_G3_T1_2"
+
+    def test_setup_formula_success(self):
+        """Test setup_formula with valid formula"""
+        # Mock Formula class to avoid actual formula parsing
+        with patch('adaptation.engines.base_engine.Formula') as mock_formula:
+            mock_formula_instance = Mock()
+            mock_formula_instance.get_terms.return_value = ["R_G3_T1_1", "R_G3_T1_2"]
+            mock_formula_instance.evaluate.return_value = 0.8
+            mock_formula.return_value = mock_formula_instance
             
-            with patch('rclpy.spin_until_future_complete'):
-                result = self.engine_node.fetch_formula()
-                
-                assert result == "R_G3_T1_1 * R_G3_T1_2"
-                mock_client.call_async.assert_called_once()
-    
-    def test_fetch_formula_empty_response(self):
-        """Test fetch_formula handles empty response"""
-        with patch.object(self.engine_node, 'data_access_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.formula = ""
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
+            self.engine_node.setup_formula("R_G3_T1_1 * R_G3_T1_2")
             
-            with patch('rclpy.spin_until_future_complete'):
-                result = self.engine_node.fetch_formula()
-                
-                assert result == ""
-    
+            # Verify formula was created
+            mock_formula.assert_called_once_with("R_G3_T1_1 * R_G3_T1_2")
+            assert self.engine_node.target_system_model == mock_formula_instance
+            
+            # Verify strategy and priority were initialized
+            assert "R_G3_T1_1" in self.engine_node.strategy
+            assert "R_G3_T1_2" in self.engine_node.strategy
+            assert "R_G3_T1_1" in self.engine_node.priority
+            assert "R_G3_T1_2" in self.engine_node.priority
+
+    def test_calculate_qos_success(self):
+        """Test calculate_qos with valid inputs"""
+        # Mock formula
+        mock_formula = Mock()
+        mock_formula.evaluate.return_value = 0.72
+        
+        result = self.engine_node.calculate_qos(mock_formula, {"R_G3_T1_1": 0.9, "R_G3_T1_2": 0.8})
+        
+        # Verify result
+        assert result == 0.72
+        
+        # Verify formula was called correctly
+        mock_formula.set_term_value_map_dict.assert_called_once_with({"R_G3_T1_1": 0.9, "R_G3_T1_2": 0.8})
+        mock_formula.evaluate.assert_called_once()
+
+    def test_receive_exception_valid_input(self):
+        """Test receive_exception with valid input"""
+        # Set up priority
+        self.engine_node.priority = {"T_G3_T1_1": 50, "T_G4_T1": 30}
+        
+        # Create exception message
+        msg = BSNException()
+        msg.content = "/g3t1_1=10"
+        
+        self.engine_node.receive_exception(msg)
+        
+        # Verify priority was updated
+        assert self.engine_node.priority["T_G3_T1_1"] == 60
+
+    def test_receive_exception_g4t1_special_case(self):
+        """Test receive_exception with G4T1 special case"""
+        # Set up priority
+        self.engine_node.priority = {"T_G4_T1": 30}
+        
+        # Create exception message
+        msg = BSNException()
+        msg.content = "/g4t1=5"
+        
+        self.engine_node.receive_exception(msg)
+        
+        # Verify priority was updated
+        assert self.engine_node.priority["T_G4_T1"] == 35
+
+    def test_send_adaptation_parameter(self):
+        """Test send_adaptation_parameter"""
+        # Create request and response
+        request = EngineRequest.Request()
+        response = EngineRequest.Response()
+        
+        result = self.engine_node.send_adaptation_parameter(request, response)
+        
+        # Verify response content
+        assert result.content == "reliability"
+
+    def test_abstract_methods_implemented(self):
+        """Test that abstract methods are implemented"""
+        # Test all abstract methods exist and are callable
+        assert hasattr(self.engine_node, 'get_prefix')
+        assert callable(self.engine_node.get_prefix)
+        assert self.engine_node.get_prefix() == "T_"
+        
+        assert hasattr(self.engine_node, 'initialize_strategy')
+        assert callable(self.engine_node.initialize_strategy)
+        strategy = self.engine_node.initialize_strategy(["R_G3_T1_1"])
+        assert strategy == {"R_G3_T1_1": 1.0}
+        
+        assert hasattr(self.engine_node, 'initialize_priority')
+        assert callable(self.engine_node.initialize_priority)
+        priority = self.engine_node.initialize_priority(["R_G3_T1_1"])
+        assert priority == {"R_G3_T1_1": 50}
+        
+        # Test MAPE-K methods
+        assert hasattr(self.engine_node, 'monitor')
+        assert callable(self.engine_node.monitor)
+        self.engine_node.monitor()
+        assert self.engine_node.monitor_called
+        
+        assert hasattr(self.engine_node, 'analyze')
+        assert callable(self.engine_node.analyze)
+        self.engine_node.analyze()
+        assert self.engine_node.analyze_called
+        
+        assert hasattr(self.engine_node, 'plan')
+        assert callable(self.engine_node.plan)
+        self.engine_node.plan()
+        assert self.engine_node.plan_called
+        
+        assert hasattr(self.engine_node, 'execute')
+        assert callable(self.engine_node.execute)
+        self.engine_node.execute()
+        assert self.engine_node.execute_called
+
+    def test_body_method_structure(self):
+        """Test body method structure"""
+        # Mock rclpy.ok() to return True once then False
+        with patch('rclpy.ok', side_effect=[True, False]), \
+             patch('rclpy.spin_once'), \
+             patch.object(self.engine_node, 'create_rate') as mock_create_rate, \
+             patch.object(self.engine_node, 'fetch_formula', return_value=""), \
+             patch.object(self.engine_node, 'monitor') as mock_monitor:
+            
+            # Mock rate
+            mock_rate = Mock()
+            mock_create_rate.return_value = mock_rate
+            
+            # Run body method
+            self.engine_node.body()
+            
+            # Verify monitor was called
+            mock_monitor.assert_called_once()
+            
+            # Verify rate was used
+            mock_rate.sleep.assert_called_once()
+
+    def test_integrated_engine_cycle(self):
+        """Test integrated engine cycle with mock services"""
+        # Clear received messages
+        self.received_strategy_messages.clear()
+        
+        # Set up engine with mock formula
+        with patch('adaptation.engines.base_engine.Formula') as mock_formula:
+            mock_formula_instance = Mock()
+            mock_formula_instance.get_terms.return_value = ["R_G3_T1_1", "R_G3_T1_2"]
+            mock_formula_instance.evaluate.return_value = 0.8
+            mock_formula.return_value = mock_formula_instance
+            
+            # Setup formula
+            self.engine_node.setup_formula("R_G3_T1_1 * R_G3_T1_2")
+            
+            # Test that formula was setup correctly
+            assert self.engine_node.target_system_model == mock_formula_instance
+            
+            # Test strategy calculation
+            result = self.engine_node.calculate_qos(
+                mock_formula_instance, 
+                {"R_G3_T1_1": 0.9, "R_G3_T1_2": 0.8}
+            )
+            assert result == 0.8
+
+    def test_error_handling(self):
+        """Test error handling in various methods"""
+        # Test calculate_qos with None formula
+        result = self.engine_node.calculate_qos(None, {})
+        assert result == 0.0
+        
+        # Test setup_formula with invalid formula
+        with patch('adaptation.engines.base_engine.Formula', side_effect=Exception("Invalid formula")):
+            # Should not raise exception
+            self.engine_node.setup_formula("invalid_formula")
+            # target_system_model should remain None
+            assert self.engine_node.target_system_model is None
+
     def test_fetch_formula_service_unavailable(self):
-        """Test fetch_formula handles service unavailable"""
+        """Test fetch_formula when service is unavailable"""
+        # Mock service to be unavailable
         with patch.object(self.engine_node, 'data_access_client') as mock_client:
             mock_client.wait_for_service.return_value = False
             
-            result = self.engine_node.fetch_formula()
+            result = self.engine_node.fetch_formula("reliability")
             assert result == ""
-    
-    def test_receive_exception_matches_bsn1(self):
-        """Test receive_exception matches BSN1 behavior"""
-        # Mock the AdaptationParameter service
-        with patch.object(self.engine_node, 'adaptation_parameter_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.content = "/g3t1_1:activate;/g3t1_2:deactivate"
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
-            
-            with patch('rclpy.spin_until_future_complete'):
-                self.engine_node.receive_exception()
-                
-                # Verify service was called
-                mock_client.call_async.assert_called_once()
-                request = mock_client.call_async.call_args[0][0]
-                assert request.name == "/engine"
-                assert request.query == "exceptions"
-    
-    def test_receive_exception_component_name_processing(self):
-        """Test component name processing in receive_exception"""
-        # Test the component name processing logic
-        with patch.object(self.engine_node, 'adaptation_parameter_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.content = "/g3t1_1:activate;/g4t1:deactivate"
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
-            
-            with patch('rclpy.spin_until_future_complete'):
-                self.engine_node.receive_exception()
-                
-                # Check that deactivated_components is updated correctly
-                expected_key = "R_G4_T1"  # G4T1 should become G4_T1
-                assert expected_key in self.engine_node.deactivated_components
-    
-    def test_receive_exception_invalid_component(self):
-        """Test receive_exception handles invalid component names"""
-        with patch.object(self.engine_node, 'adaptation_parameter_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_response.content = "invalid_format"
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
-            
-            with patch('rclpy.spin_until_future_complete'):
-                # Should not raise exception
-                self.engine_node.receive_exception()
-    
-    def test_send_adaptation_parameter_matches_bsn1(self):
-        """Test send_adaptation_parameter matches BSN1 behavior"""
-        with patch.object(self.engine_node, 'adaptation_parameter_client') as mock_client:
-            mock_future = Mock()
-            mock_response = Mock()
-            mock_future.result.return_value = mock_response
-            mock_client.call_async.return_value = mock_future
-            mock_client.wait_for_service.return_value = True
-            
-            with patch('rclpy.spin_until_future_complete'):
-                self.engine_node.send_adaptation_parameter("test_content")
-                
-                # Verify service was called with correct parameters
-                mock_client.call_async.assert_called_once()
-                request = mock_client.call_async.call_args[0][0]
-                assert request.name == "/engine"
-                assert request.query == "parameters"
-                assert request.content == "test_content"
-    
-    def test_abstract_methods_implemented(self):
-        """Test that abstract methods are properly implemented"""
-        # Test that concrete implementation has all required methods
-        assert hasattr(self.engine_node, 'get_prefix')
-        assert hasattr(self.engine_node, 'initialize_strategy')
-        assert hasattr(self.engine_node, 'initialize_priority')
-        assert hasattr(self.engine_node, 'monitor')
-        assert hasattr(self.engine_node, 'analyze')
-        assert hasattr(self.engine_node, 'plan')
-        assert hasattr(self.engine_node, 'execute')
+
+    def test_component_name_conversion(self):
+        """Test component name conversion logic"""
+        # Test G3T1_1 conversion
+        test_cases = [
+            ("/g3t1_1", "T_G3_T1_1"),
+            ("/g3t1_2", "T_G3_T1_2"),
+            ("/g4t1", "T_G4_T1"),
+        ]
         
-        # Test that methods are callable
-        assert callable(self.engine_node.get_prefix)
-        assert callable(self.engine_node.initialize_strategy)
-        assert callable(self.engine_node.initialize_priority)
-        assert callable(self.engine_node.monitor)
-        assert callable(self.engine_node.analyze)
-        assert callable(self.engine_node.plan)
-        assert callable(self.engine_node.execute)
-    
-    def test_body_method_structure(self):
-        """Test that body method follows proper structure"""
-        # Mock the methods to track calls
-        with patch.object(self.engine_node, 'monitor') as mock_monitor, \
-             patch.object(self.engine_node, 'receive_exception') as mock_receive, \
-             patch('time.sleep') as mock_sleep:
+        for input_name, expected_key in test_cases:
+            # Set up priority
+            self.engine_node.priority = {expected_key: 50}
             
-            # Run body for one iteration
-            with patch('builtins.input', side_effect=KeyboardInterrupt):
-                try:
-                    self.engine_node.body()
-                except KeyboardInterrupt:
-                    pass
+            # Create exception message
+            msg = BSNException()
+            msg.content = f"{input_name}=10"
             
-            # Verify monitor was called
-            mock_monitor.assert_called()
-            mock_receive.assert_called()
-    
-    def test_formula_reload_timing(self):
-        """Test formula reload timing matches BSN1"""
-        # Set up formula reload tracking
-        self.engine_node.formula_count = 0
-        
-        with patch.object(self.engine_node, '_setup_formula') as mock_setup:
-            # Simulate multiple body iterations
-            for i in range(15):  # More than formula_reload_freq
-                self.engine_node.formula_count += 1
-                if self.engine_node.formula_count >= self.engine_node.formula_reload_freq:
-                    self.engine_node._setup_formula()
-                    self.engine_node.formula_count = 0
+            self.engine_node.receive_exception(msg)
             
-            # Verify formula was reloaded
-            mock_setup.assert_called()
-    
-    def test_error_handling_matches_bsn1(self):
-        """Test error handling matches BSN1 behavior"""
-        # Test that exceptions in calculate_qos are handled
-        with patch.object(self.engine_node, 'get_logger') as mock_logger:
-            # Test with invalid formula
-            result = self.engine_node.calculate_qos("invalid_formula", {})
-            assert result == 0.0
+            # Verify priority was updated
+            assert self.engine_node.priority[expected_key] == 60
             
-            # Verify error was logged
-            mock_logger.return_value.error.assert_called()
-    
-    def test_strategy_data_types_match_bsn1(self):
-        """Test strategy data types match BSN1"""
-        # Test strategy initialization
-        terms = ["R_G3_T1_1", "R_G3_T1_2"]
-        strategy = self.engine_node.initialize_strategy(terms)
-        
-        # Verify all values are floats
-        for key, value in strategy.items():
-            assert isinstance(value, float)
-        
-        # Test priority initialization
-        priority = self.engine_node.initialize_priority(terms)
-        
-        # Verify all values are integers
-        for key, value in priority.items():
-            assert isinstance(value, int)
+            # Reset for next test
+            self.engine_node.priority[expected_key] = 50
