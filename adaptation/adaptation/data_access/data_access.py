@@ -26,8 +26,8 @@ from bsn_interfaces.srv import DataAccessRequest
 from std_msgs.msg import Header
 
 # BSN Model imports
-from adaptation.adaptation.model.formula import Formula, FormulaError
-from adaptation.adaptation.goal_model import GoalTree, Goal, Task, LeafTask, Context, Property
+from adaptation.model.formula import Formula, FormulaError
+from adaptation.goal_model import GoalTree, Goal, Task, LeafTask, Context, Property
 
 class DataMessage:
     """Base class for data messages"""

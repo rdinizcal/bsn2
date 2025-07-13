@@ -11,7 +11,7 @@ from unittest.mock import Mock
 from rclpy.node import Node
 from bsn_interfaces.srv import DataAccessRequest, EngineRequest
 from bsn_interfaces.msg import Exception as BSNException
-
+from collections import deque
 # Import TestEngine directly instead of relative import
 import sys
 import os
@@ -301,6 +301,122 @@ def reli_engine_node(request, rclpy_context):
         node.destroy_node()
     except Exception as e:
         node.get_logger().error(f"Exception during teardown: {e}")
+
+
+@pytest.fixture(scope="class")
+def data_access_node(request, rclpy_context):
+    """Create DataAccess node for testing with proper mock setup"""
+    from adaptation.data_access.data_access import DataAccess
+    
+    # Create executor
+    executor = rclpy.executors.SingleThreadedExecutor()
+    
+    # Start executor in separate thread
+    executor_thread = threading.Thread(target=executor.spin, daemon=True)
+    executor_thread.start()
+    
+    # Create DataAccess node
+    node = DataAccess()
+    node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+    
+    # Mock the publishers to avoid actual publishing
+    node.data_publisher = Mock()
+    
+    # Initialize with BSN goal model structure from existing goalModel.txt
+    # Use the ACTUAL goal model structure from resource/model/goalModel.txt
+    node.goal_model_components = {
+        # Based on your actual goal model structure
+        "G3_T1_1": {"sensor": "SaO2", "active": True},      # Collect SaO2 data
+        "G3_T1_2": {"sensor": "ECG", "active": True},       # Collect ECG data  
+        "G3_T1_3": {"sensor": "TEMP", "active": True},      # Collect TEMP data
+        "G3_T1_4": {"sensor": "ABP_Systolic", "active": True},  # Collect Systolic ABP
+        "G3_T1_5": {"sensor": "ABP_Diastolic", "active": True}, # Collect Diastolic ABP
+        "G3_T1_6": {"sensor": "Glucose", "active": True},   # Collect Glucose data
+        "G4_T1": {"type": "analyzer", "active": True},      # Analyze vital signs
+    }
+    
+    # Initialize component data matching your engine tests
+    node.components_reliabilities = {
+        "g3t1_1": 0,
+        "g3t1_2": 0,
+        "g3t1_3": 0,
+        "g3t1_4": 0,
+        "g3t1_5": 0,
+        "g3t1_6": 0,
+        "g4t1": 0,
+    }
+    
+    node.components_batteries = {
+        "g3t1_1": 100.0,
+        "g3t1_2": 100.0,
+        "g3t1_3": 100.0,
+        "g3t1_4": 100.0,
+        "g3t1_5": 100.0,
+        "g3t1_6": 100.0,
+        "g4t1": 100.0,
+    }
+    
+    node.contexts = {
+        "g3t1_1": 1,
+        "g3t1_2": 1,
+        "g3t1_3": 1,
+        "g3t1_4": 1,
+        "g3t1_5": 1,
+        "g3t1_6": 1,
+        "g4t1": 1,
+    }
+    
+    # Initialize data storage
+    node.status = {f"/g3t1_{i}": deque() for i in range(1, 7)}
+    node.status["/g4t1"] = deque()
+    node.events = {f"/g3t1_{i}": deque() for i in range(1, 7)}
+    node.events["/g4t1"] = deque()
+    
+    # Set up formula data matching your engine tests
+    node.reliability_formula_text = "((CTX_G3_T1_1*F_G3_T1_1*R_G3_T1_1*CTX_G3_T1_2*F_G3_T1_2*R_G3_T1_2*CTX_G3_T1_3*F_G3_T1_3*R_G3_T1_3*CTX_G3_T1_4*F_G3_T1_4*R_G3_T1_4*CTX_G3_T1_5*F_G3_T1_5*R_G3_T1_5*CTX_G3_T1_6*F_G3_T1_6*R_G3_T1_6)*CTX_G4_T1*F_G4_T1*R_G4_T1)"
+    node.cost_formula_text = "((CTX_G3_T1_1*W_G3_T1_1+CTX_G3_T1_2*W_G3_T1_2+CTX_G3_T1_3*W_G3_T1_3+CTX_G3_T1_4*W_G3_T1_4+CTX_G3_T1_5*W_G3_T1_5+CTX_G3_T1_6*W_G3_T1_6)+CTX_G4_T1*W_G4_T1)"
+    
+    # Mock formula objects
+    node.reliability_formula = Mock()
+    node.cost_formula = Mock()
+    
+    # Initialize timing and counters
+    node.logical_clock = 0
+    node.frequency = 1.0
+    node.buffer_size = 1000
+    node.time_window = 10.1
+    node.count_to_calc_and_reset = 0
+    node.count_to_fetch = 0
+    node.arrived_status = 0
+    
+    # Initialize message vectors
+    node.status_messages = []
+    node.event_messages = []
+    node.energy_messages = []
+    node.uncertainty_messages = []
+    node.adaptation_messages = []
+    
+    # Add to executor
+    executor.add_node(node)
+    
+    # Store in test class
+    request.cls.data_access_node = node
+    request.cls.executor = executor
+    request.cls.executor_thread = executor_thread
+    
+    # Give time for setup
+    time.sleep(1.0)
+    
+    yield node
+    
+    # Cleanup
+    try:
+        executor.shutdown()
+        if executor_thread.is_alive():
+            executor_thread.join(timeout=2.0)
+        node.destroy_node()
+    except Exception as e:
+        print(f"Exception during teardown: {e}")
 
 
 @pytest.fixture
