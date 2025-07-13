@@ -398,59 +398,74 @@ class DataAccess(Node):
         except Exception as e:
             self.get_logger().error(f"Error processing target system data: {e}")
     
-    def process_query(self, request: DataAccessRequest.Request, response: DataAccessRequest.Response):
-        """Process data access queries from engines and enactor"""
-        response.content = ""
-        
+    def process_query(self, request, response):
+        """Process query and return appropriate response"""
         try:
-            if request.name in ["/engine", "/enactor"]:
-                query_parts = request.query.split(':')
-                
-                if len(query_parts) == 1:
-                    if query_parts[0] == "reliability_formula":
-                        response.content = self.reliability_formula_text
-                    elif query_parts[0] == "cost_formula":
-                        response.content = self.cost_formula_text
-                
-                elif len(query_parts) > 1:
-                    if query_parts[1] == "reliability":
-                        self._apply_time_window()
-                        for component in self.status.keys():
-                            response.content += self._calculate_component_reliability(component)
-                            
-                    elif query_parts[1] == "event":
-                        num = int(query_parts[2]) if len(query_parts) > 2 else 1
-                        
-                        for source, event_deque in self.events.items():
-                            if event_deque:
-                                aux = f"{source}:"
-                                content = ""
-                                
-                                # Get last 'num' events
-                                events_to_process = list(event_deque)[-num:]
-                                
-                                for i, event in enumerate(events_to_process):
-                                    aux += event
-                                    content += event
-                                    if i < len(events_to_process) - 1:
-                                        aux += ","
-                                
-                                aux += ";"
-                                
-                                # Update context
-                                key = source.lstrip('/')
-                                self.contexts[key] = 1 if content == "activate" else 0
-                                response.content += aux
-                    
-                    elif query_parts[1] == "cost":
-                        self._apply_time_window()
-                        for component in self.status.keys():
-                            response.content += self._calculate_component_cost(component, request.name)
+            query_parts = request.query.split(":")
             
+            if request.query == "reliability_formula":
+                response.content = self.reliability_formula_text
+                return response
+                
+            elif request.query == "cost_formula":
+                response.content = self.cost_formula_text
+                return response
+                
+            elif query_parts[0] == "all" and query_parts[1] == "reliability":
+                # Build response in the format engine expects
+                result_parts = []
+                
+                for component_key in self.status.keys():
+                    if component_key in self.status and self.status[component_key]:
+                        # Get recent status entries
+                        status_entries = list(self.status[component_key])
+                        
+                        # Build status string (success,fail,success,...)
+                        status_strings = [entry[1] for entry in status_entries]  # Get status part
+                        
+                        # Calculate reliability
+                        if status_strings:
+                            success_count = status_strings.count("success")
+                            total_count = len(status_strings)
+                            reliability = success_count / total_count if total_count > 0 else 0.0
+                        else:
+                            reliability = 0.0
+                        
+                        # Format: "/g3t1_1:success,fail,success,0.666667"
+                        status_str = ",".join(status_strings)
+                        component_entry = f"{component_key}:{status_str},{reliability:.6f}"
+                        result_parts.append(component_entry)
+                    else:
+                        # No data for this component
+                        result_parts.append(f"{component_key}:0")
+                
+                response.content = ";".join(result_parts) + ";"
+                return response
+                
+            elif query_parts[0] == "all" and query_parts[1] == "event":
+                # Build event response
+                result_parts = []
+                
+                for component_key in self.events.keys():
+                    if component_key in self.events and self.events[component_key]:
+                        # Get most recent event
+                        recent_event = self.events[component_key][-1]
+                        result_parts.append(f"{component_key}:{recent_event}")
+                    else:
+                        # Default to activate if no events
+                        result_parts.append(f"{component_key}:activate")
+                
+                response.content = ";".join(result_parts) + ";"
+                return response
+                
+            else:
+                response.content = ""
+                return response
+                
         except Exception as e:
             self.get_logger().error(f"Error processing query: {e}")
-        
-        return response
+            response.content = ""
+            return response
     
     def _calculate_component_reliability(self, component: str) -> str:
         """Calculate and return component reliability"""

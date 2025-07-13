@@ -337,13 +337,13 @@ def data_access_node(request, rclpy_context):
     
     # Initialize component data matching your engine tests
     node.components_reliabilities = {
-        "g3t1_1": 0,
-        "g3t1_2": 0,
-        "g3t1_3": 0,
-        "g3t1_4": 0,
-        "g3t1_5": 0,
-        "g3t1_6": 0,
-        "g4t1": 0,
+        "g3t1_1": 1.0,  
+        "g3t1_2": 1.0,
+        "g3t1_3": 1.0,
+        "g3t1_4": 1.0,
+        "g3t1_5": 1.0,
+        "g3t1_6": 1.0,
+        "g4t1": 1.0,
     }
     
     node.components_batteries = {

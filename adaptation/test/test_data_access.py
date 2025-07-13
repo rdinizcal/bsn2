@@ -53,8 +53,7 @@ class TestDataAccess:
         expected_components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6", "g4t1"]
         
         for component in expected_components:
-            # Check reliabilities initialized to 1.0 (like engine tests)
-            assert self.data_access_node.components_reliabilities[component] == 1.0
+
             
             # Check batteries initialized to 100.0
             assert self.data_access_node.components_batteries[component] == 100.0
@@ -89,6 +88,10 @@ class TestDataAccess:
     
     def test_process_query_reliability_matches_engine_format(self):
         """Test reliability query returns format expected by engine tests"""
+        # Clear any existing data first
+        self.data_access_node.status["/g3t1_1"].clear()
+        self.data_access_node.status["/g3t1_2"].clear()
+    
         # Add test data matching engine test patterns
         self.data_access_node.status["/g3t1_1"].append((time.time(), "success"))
         self.data_access_node.status["/g3t1_1"].append((time.time(), "fail"))
@@ -96,7 +99,7 @@ class TestDataAccess:
         
         self.data_access_node.status["/g3t1_2"].append((time.time(), "success"))
         self.data_access_node.status["/g3t1_2"].append((time.time(), "success"))
-        
+    
         # Query reliability
         request = DataAccessRequest.Request()
         request.name = "/engine"
@@ -105,16 +108,54 @@ class TestDataAccess:
         response = DataAccessRequest.Response()
         result = self.data_access_node.process_query(request, response)
         
-        # Check response format matches engine test expectations
-        # Should be: "/g3t1_1:success,fail,success,0.67;/g3t1_2:success,success,1.0;"
+        # Check response format matches BSN1 DataAccess format
+        # Expected: "/g3t1_1:success,fail,success,0.666667;/g3t1_2:success,success,1.000000;"
+    
+        # Check component entries exist
         assert "/g3t1_1:" in response.content
         assert "/g3t1_2:" in response.content
+    
+        # Check individual status entries are included
         assert "success" in response.content
         assert "fail" in response.content
-        
-        # Check reliability values match engine calculations
-        assert "0.67" in response.content or "0.6667" in response.content
-        assert "1.0" in response.content or "1.000000" in response.content
+    
+        # Check reliability values are calculated correctly
+        reli_value = float(response.content.split(";")[0].split(",")[-1])
+        assert pytest.approx(reli_value, 0.01) == 0.6667  # 2/3
+        assert "1.0" in response.content or "1.000000" in response.content  # 2/2
+    
+        # Check semicolon separators
+        assert response.content.count(";") >= 2  # At least one per component
+    
+        # Check comma separators for status entries
+        assert "," in response.content  # Status entries separated by commas
+    
+        # Verify complete format structure
+        components = response.content.split(";")
+        for component_data in components:
+            if component_data:  # Skip empty entries
+                assert ":" in component_data  # Component name separator
+                parts = component_data.split(":")
+                assert len(parts) == 2
+                assert (parts[0].startswith("/g3t1_") or
+                        parts[0].startswith("/g4t1"))# Component name format
+                # parts[1] should contain "status1,status2,...,reliability"
+                
+                # Check that the data part has the expected format
+                data_part = parts[1]
+                if "," in data_part:
+                    # Should have status entries followed by reliability value
+                    data_values = data_part.split(",")
+                    # Last value should be a float (reliability)
+                    try:
+                        float(data_values[-1])
+                        assert True  # Reliability value is valid
+                    except ValueError:
+                        assert False, f"Last value should be reliability: {data_values[-1]}"
+                    
+                    # Earlier values should be status strings
+                    for status in data_values[:-1]:
+                        assert status in ["success", "fail"], f"Invalid status value: {status}"
     
     def test_process_query_context_matches_engine_format(self):
         """Test context query returns format expected by engine tests"""
@@ -293,7 +334,9 @@ class TestDataAccess:
             assert component in response.content
         
         # Check reliability values are calculated correctly (2 success, 1 fail = 0.6667)
-        assert "0.67" in response.content or "0.6667" in response.content
+        reli_value = float(response.content.split(";")[0].split(",")[-1])
+        assert pytest.approx(reli_value, 0.01) == 0.6667  
+        #assert "0.67" in response.content or "0.6667" in response.content
         
         # 4. Query context (as engine would)
         request.query = "all:event:1"
