@@ -74,6 +74,7 @@ class ReliabilityEngine(Engine):
             if term.startswith("R_"):
                 priority[term] = 50  # Default priority for R_ terms
         return priority
+    
 
     def monitor(self):
         """Monitor phase - matching ReliabilityEngine.cpp monitor()"""
