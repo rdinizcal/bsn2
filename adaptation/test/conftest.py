@@ -458,3 +458,88 @@ def sample_priority():
         "R_G3_T1_2": 70,
         "R_G4_T1": 30,
     }
+
+
+@pytest.fixture(scope="class")
+def enactor_node(request, rclpy_context):
+    """Create Controller node for testing with mock services (following engine_node pattern)"""
+    from adaptation.enactor.controller import Controller
+    
+    # Create a separate node for mock services (exactly like engine_node does)
+    mock_service_node = Node("mock_enactor_service_provider")
+
+    def mock_data_access_service(req, res):
+        mock_service_node.get_logger().info(f"Mock data access service called for {req.query}")
+        if "all:reliability:" in req.query:
+            res.content = "/g3t1_1:success,fail,success,0.67;/g3t1_2:success,success,0.85;"
+        elif "all:cost:" in req.query:
+            res.content = "/g3t1_1:15.5;/g3t1_2:22.3;"
+        elif "all:event:" in req.query:
+            res.content = "/g3t1_1:activate;/g3t1_2:activate;"
+        elif req.query == "reliability_formula":
+            res.content = "R_G3_T1_1 * R_G3_T1_2"
+        else:
+            res.content = ""
+        return res
+
+    def mock_engine_service(req, res):
+        mock_service_node.get_logger().info(f"Mock engine service called for {req.name}")
+        res.content = "reliability"
+        return res
+
+    # Create mock services (exactly like engine_node does)
+    data_access_service = mock_service_node.create_service(
+        DataAccessRequest, "data_access", mock_data_access_service
+    )
+    
+    engine_service = mock_service_node.create_service(
+        EngineRequest, "adaptation_parameter", mock_engine_service
+    )
+
+    # Create executor for mock services (exactly like engine_node does)
+    executor = rclpy.executors.SingleThreadedExecutor()
+    executor.add_node(mock_service_node)
+
+    # Start executor in a separate thread (exactly like engine_node does)
+    executor_thread = threading.Thread(target=executor.spin, daemon=True)
+    executor_thread.start()
+
+    # Give time for service registration (same as engine_node)
+    time.sleep(1.0)
+
+    # Create Controller node (same pattern as engine_node with TestEngine)
+    controller = Controller()
+    controller.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+
+    # Mock publishers to avoid actual publishing (same as engine_node)
+    controller.adapt = Mock()
+    controller.except_pub = Mock()
+
+    # Add the controller node to executor (same as engine_node)
+    executor.add_node(controller)
+
+    # Store everything in the test class (same as engine_node)
+    request.cls.controller = controller
+    request.cls.mock_service_node = mock_service_node
+    request.cls.data_access_service = data_access_service
+    request.cls.engine_service = engine_service
+    request.cls.executor = executor
+    request.cls.executor_thread = executor_thread
+    
+    # Give time for service registration (same as engine_node)
+    time.sleep(1.0)
+
+    yield controller
+
+    # Cleanup (exactly like engine_node)
+    try:
+        # Stop executor
+        executor.shutdown()
+        if executor_thread.is_alive():
+            executor_thread.join(timeout=2.0)
+        
+        # Destroy nodes
+        mock_service_node.destroy_node()
+        controller.destroy_node()
+    except Exception as e:
+        controller.get_logger().error(f"Exception during teardown: {e}")

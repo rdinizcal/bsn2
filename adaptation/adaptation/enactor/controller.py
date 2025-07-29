@@ -3,6 +3,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 import threading
 import time
+from bsn_interfaces.msg import Event, Strategy, AdaptationCommand, Exception as ExceptionMsg
 from collections import deque, defaultdict
 import math
 from .enactor import Enactor
@@ -52,7 +53,7 @@ class Controller(Enactor):
                 self.c_curr[component] = 0.0
                 self.c_ref[component] = 0.0
             
-            # CRITICAL: Use frequency from event message (matching C++ behavior)
+           
             self.freq[component] = msg.freq if hasattr(msg, 'freq') else 1.0
             self.kp_individual[component] = self.kp  # Individual KP per component
             self.replicate_task[component] = 1

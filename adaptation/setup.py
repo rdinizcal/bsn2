@@ -23,6 +23,8 @@ setup(
     entry_points={
         'console_scripts': [
             'enactor = adaptation.enactor.controller:main',
+            'data_access = adaptation.data_access.data_access:main',
+            'reli_engine = adaptation.engines.reli_engine:main',
         ],
     },
 )

@@ -13,21 +13,6 @@ def generate_launch_description():
     config_thermometer = os.path.join(
         get_package_share_directory("sensor"), "config", "thermometer.yaml"
     )
-    config_oximeter = os.path.join(
-        get_package_share_directory("sensor"), "config", "oximeter.yaml"
-    )
-    config_ecg = os.path.join(
-        get_package_share_directory("sensor"), "config", "ecg.yaml"
-    )
-    config_abps = os.path.join(
-        get_package_share_directory("sensor"), "config", "abps.yaml"
-    )
-    config_abpd = os.path.join(
-        get_package_share_directory("sensor"), "config", "abpd.yaml"
-    )
-    config_glucosemeter = os.path.join(
-        get_package_share_directory("sensor"), "config", "glucosemeter.yaml"
-    )
     config_monitor = os.path.join(
         get_package_share_directory('system_monitor'),
         'config',
@@ -56,46 +41,6 @@ def generate_launch_description():
                 output="screen",
                 emulate_tty=True,
                 parameters=[config_thermometer],
-            ),
-            launch_ros.actions.Node(
-                package="sensor",
-                executable="sensor",
-                name="oximeter_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[config_oximeter],
-            ),
-            launch_ros.actions.Node(
-                package="sensor",
-                executable="sensor",
-                name="ecg_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[config_ecg],
-            ),
-            launch_ros.actions.Node(
-                package="sensor",
-                executable="sensor",
-                name="abps_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[config_abps],
-            ),
-            launch_ros.actions.Node(
-                package="sensor",
-                executable="sensor",
-                name="abpd_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[config_abpd],
-            ),
-            launch_ros.actions.Node(
-                package="sensor",
-                executable="sensor",
-                name="glucosemeter_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[config_glucosemeter],
             ),
             launch_ros.actions.Node(
                 package="central_hub",
