@@ -1,5 +1,5 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data
+from utils.parsers import capture_topic_data, activate_node, deactivate_node
 from utils.asserts import count_matching_elements
 import subprocess
 
@@ -60,7 +60,18 @@ def step_then_sensors_process_data(context):
             assert (
                 "sensor_datapoint" in data and data["sensor_datapoint"]
             ), f"No sensor data detected in topic {topic}"
+@given("Central hub is inactive")
+def step_given_central_hub_inactive(context):
+    # Set the central hub node to inactive
+    assert deactivate_node("/central_hub_node")
 
+@when("I listen to ecg and thermometer data")
+def step_when_listen_to_ecg_and_thermometer_data(context):
+    # Capture data from ECG and thermometer topics
+    topics = ["/sensor_data/ecg", "/sensor_data/thermometer", "/target_system_data"]
+    line_limit = 10  # Optional line limit per topic
+    context.topic_data = context.topic_data if hasattr(context, "topic_data") else {}
+    capture_topic_data(context, topics, line_limit)
 
 @then("Central hub will receive data from sensors")
 def step_then_central_hub_receive_data(context):
@@ -76,3 +87,29 @@ def step_then_central_hub_receive_data(context):
     ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
 
     print(f"Central hub received data: {target_data}")
+
+@then("Central hub will not process the data")
+def step_then_central_hub_will_not_process_data(context):
+    # Check if the central hub does not process the data
+    topic_name = "/target_system_data"
+    assert (
+        topic_name not in context.topic_data
+    ), f"Central hub topic {topic_name} is still exists"
+    target_data = context.topic_data[topic_name]
+    assert not count_matching_elements(
+        context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
+        target_data["trm_data"],
+    ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
+    
+@then("Central hub will not process the risk")
+def step_then_central_hub_will_not_process_risk(context):
+    # Check if the central hub does not process the risk
+    topic_name = "/target_system_data"
+    assert (
+        topic_name in context.topic_data
+    ), f"Central hub topic {topic_name} is missing"
+    target_data = context.topic_data[topic_name]
+    assert not count_matching_elements(
+        context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
+        target_data["trm_risk"],
+    ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"

@@ -23,7 +23,7 @@ Feature: Check for bsn features
 		When I listen to ecg and thermometer data
 		Then Sensors will process the risks
 		But Central hub will not process the risk
-		
+
 	@inactive_central_hub
 	Scenario: BSN-P08 - Sad Path: central hub is inactive
 		# Scenario: central hub is inactive (Sad Path)

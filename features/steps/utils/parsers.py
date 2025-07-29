@@ -1,6 +1,7 @@
 import subprocess
 import importlib
 import concurrent.futures
+import time
 
 
 def format_entity(raw_string):
@@ -17,34 +18,46 @@ def format_entity(raw_string):
     return f"/{formatted_string}"
 
 
-def activate_node(node_name, package_name, executable_name):
+def activate_node(node_name):
     """
-    Activates a ROS 2 node by running it.
+    Activates a ROS 2 lifecycle node by setting it to active state.
 
     Args:
         node_name (str): The name of the node to activate.
-        package_name (str): The ROS 2 package containing the node.
-        executable_name (str): The executable name of the node.
 
     Returns:
-        subprocess.Popen: The process object for the activated node.
+        bool: True if the node was successfully activated, False otherwise.
     """
     try:
-        process = subprocess.Popen(
-            ["ros2", "run", package_name, executable_name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        print(f"Node {node_name} activated.")
-        return process
+        # Get current lifecycle state
+        current_state = get_node_lifecycle_state(node_name)
+        
+        if current_state is None:
+            print(f"Node {node_name} is not a lifecycle node or not available.")
+            return False
+        
+        print(f"Node {node_name} current state: {current_state}")
+                
+        if "inactive" in current_state.lower():
+            if set_node_lifecycle_state(node_name, "activate"):
+                print(f"Node {node_name} activated successfully.")
+                return True
+            else:
+                print(f"Failed to activate node {node_name}.")
+                return False
+                
+        elif "active" in current_state.lower():
+            print(f"Node {node_name} is already active.")
+            return True
+        
     except Exception as e:
         print(f"Failed to activate node {node_name}: {e}")
-        return None
+        return False
 
 
 def deactivate_node(node_name):
     """
-    Deactivates a ROS 2 node by killing it.
+    Deactivates a ROS 2 lifecycle node by setting it to inactive state.
 
     Args:
         node_name (str): The name of the node to deactivate.
@@ -53,17 +66,28 @@ def deactivate_node(node_name):
         bool: True if the node was successfully deactivated, False otherwise.
     """
     try:
-        result = subprocess.run(
-            ["ros2", "node", "kill", "--node-name", node_name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        if result.returncode == 0:
-            print(f"Node {node_name} deactivated.")
-            return True
-        else:
-            print(f"Failed to deactivate node {node_name}.")
+        # Get current lifecycle state
+        current_state = get_node_lifecycle_state(node_name)
+        
+        if current_state is None:
+            print(f"Node {node_name} is not a lifecycle node or not available.")
             return False
+        
+        print(f"Node {node_name} current state: {current_state}")
+        
+        if "active" in current_state.lower():
+            print(f"Deactivating node {node_name}...")
+            if set_node_lifecycle_state(node_name, "deactivate"):
+                print(f"Node {node_name} deactivated successfully.")
+                return True
+            else:
+                print(f"Failed to deactivate node {node_name}.")
+                return False
+                
+        elif "inactive" in current_state.lower():
+            print(f"Node {node_name} is already inactive.")
+            return True
+        
     except Exception as e:
         print(f"Error while deactivating node {node_name}: {e}")
         return False
@@ -244,3 +268,57 @@ def get_rosnode_info_ros2(lines):
             i += 1
 
     return node_info
+
+
+def get_node_lifecycle_state(node_name):
+    """
+    Get the current lifecycle state of a node.
+    
+    Args:
+        node_name (str): The name of the node.
+        
+    Returns:
+        str: The current state of the node, or None if not a lifecycle node.
+    """
+    try:
+        result = subprocess.run(
+            ["ros2", "lifecycle", "get", node_name],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            timeout=5
+        )
+        
+        if result.returncode == 0:
+            return result.stdout.decode().strip()
+        else:
+            return None
+            
+    except Exception as e:
+        print(f"Error getting lifecycle state for {node_name}: {e}")
+        return None
+
+
+def set_node_lifecycle_state(node_name, transition):
+    """
+    Set the lifecycle state of a node.
+    
+    Args:
+        node_name (str): The name of the node.
+        transition (str): The transition to perform (configure, activate, deactivate, cleanup, shutdown).
+        
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ["ros2", "lifecycle", "set", node_name, transition],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10
+        )
+        
+        return result.returncode == 0
+        
+    except Exception as e:
+        print(f"Error setting lifecycle state for {node_name}: {e}")
+        return False
