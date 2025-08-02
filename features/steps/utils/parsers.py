@@ -292,7 +292,9 @@ def get_node_lifecycle_state(node_name):
             return result.stdout.decode().strip()
         else:
             return None
-            
+    except subprocess.TimeoutExpired:
+        print(f"Timeout getting lifecycle state for {node_name}")
+        return None
     except Exception as e:
         print(f"Error getting lifecycle state for {node_name}: {e}")
         return None

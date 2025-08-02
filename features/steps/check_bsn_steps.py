@@ -92,6 +92,7 @@ def step_then_central_hub_receive_data(context):
 def step_then_central_hub_will_not_process_data(context):
     # Check if the central hub does not process the data
     topic_name = "/target_system_data"
+    print(context.topic_data)
     assert (
         topic_name not in context.topic_data
     ), f"Central hub topic {topic_name} is still exists"
