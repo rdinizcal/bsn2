@@ -96,7 +96,7 @@ class Engine(Node, ABC):
         )
 
     def fetch_formula(self, name: str) -> str:
-        """Fetch formula from DataAccess - matching Engine.cpp fetch_formula()"""
+        """Fetch formula from DataAccess"""
         try:
             if not self.data_access_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().warn("DataAccess service not available")

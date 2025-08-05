@@ -38,6 +38,16 @@ def generate_launch_description():
         'config',
         'enactor.yaml'
     )
+    config_data_access = os.path.join(
+        get_package_share_directory('adaptation'),
+        'config',
+        'data_access.yaml'
+    )
+    config_reli_engine = os.path.join(
+        get_package_share_directory('adaptation'),
+        'config',
+        'reli_engine.yaml'
+    )
 
     return launch.LaunchDescription(
         [
@@ -150,7 +160,7 @@ def generate_launch_description():
                 name='reli_engine',
                 output='screen',
                 emulate_tty=True,
-                #parameters=[config_reli_engine] if os.path.exists(config_reli_engine) else [],
+                parameters=[config_reli_engine] if os.path.exists(config_reli_engine) else [],
             ),
         ]
     )

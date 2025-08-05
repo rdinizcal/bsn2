@@ -17,23 +17,23 @@ Feature: Data Persistence (BSN-P08) - Whether the sensor node has collected some
 	#When collector receives collect_? topic
 	#Then the data will be received in logger
 	#And the data will be in persist topic
-		
+
 	@persistance_system
 	Scenario: Data Not Persisted (Sad Path)
 		Given that persistence system is online
 		When I listen to thermometer data
 		And I send data to collector
-		But a database error prevents persistence
+		But a database error prevents persistence # maybe simulate by data acess not receiving data
 		Then the system must log a persistence failure
-		#Given nodes are online:
-		#	| Nodes         |
-		#	| g4t1      	|
-		#	| g3t1_3     	|
-		#	| data access   |
-		#	| Logger     	|
-		#And the sensor node has collected data
-		#When collector receives collect_? topic
-		#And a database error prevents persistence
-		#Then the data will not be persisted
-		#And the system must log a persistence failure
-		#And the system may attempt a retry
+#Given nodes are online:
+#	| Nodes         |
+#	| g4t1      	|
+#	| g3t1_3     	|
+#	| data access   |
+#	| Logger     	|
+#And the sensor node has collected data
+#When collector receives collect_? topic
+#And a database error prevents persistence
+#Then the data will not be persisted
+#And the system must log a persistence failure
+#And the system may attempt a retry

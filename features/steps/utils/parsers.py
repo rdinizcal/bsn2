@@ -2,7 +2,7 @@ import subprocess
 import importlib
 import concurrent.futures
 import time
-
+from constants import SENSOR_TOPICS, NON_SENSOR_TOPICS
 
 def format_entity(raw_string):
     # Check if any words in the string start with an uppercase letter
@@ -324,3 +324,61 @@ def set_node_lifecycle_state(node_name, transition):
     except Exception as e:
         print(f"Error setting lifecycle state for {node_name}: {e}")
         return False
+
+def process_real_time_topics(context, capture_function, topics, duration=10):
+    """
+    Process topics concurrently and organize results into context categories.
+    ROS2 version of the original ROS1 function.
+
+    Args:
+        context: Behave context object to store categorized topic data
+        capture_function: Function to capture topic data (e.g., capture_csv_data)
+        topics: List of topic names to process
+        duration: Optional duration parameter
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    # Initialize context storage if not exists
+    if not hasattr(context, 'sensor_data'):
+        context.sensor_data = {}
+    if not hasattr(context, 'target_system_data'):
+        context.target_system_data = {}
+    if not hasattr(context, 'non_sensor'):
+        context.non_sensor = {}
+    
+    with ThreadPoolExecutor() as executor:
+        # Submit capture tasks for all topics
+        future_to_topic = {
+            executor.submit(capture_function, topic, 10): topic
+            for topic in topics
+        }
+        
+        for future in as_completed(future_to_topic):
+            topic = future_to_topic[future]
+            try:
+                parsed_data = future.result()
+                
+                # Categorize the data based on topic type
+                if topic == '/TargetSystemData':
+                    context.target_system_data[topic] = parsed_data
+                elif topic in NON_SENSOR_TOPICS:
+                    context.non_sensor[topic] = parsed_data
+                elif any(sensor_topic in topic for sensor_topic in SENSOR_TOPICS):
+                    context.sensor_data[topic] = parsed_data
+                    
+                    # Check for high-risk data in sensor topics
+                    if 'risk_level' in parsed_data:
+                        high_risk_found = any('high' in str(risk).lower() 
+                                            for risk in parsed_data['risk_level'])
+                        if high_risk_found:
+                            if not hasattr(context, 'found_high_risk'):
+                                context.found_high_risk = []
+                            context.found_high_risk.append(topic)
+                else:
+                    # Default to non_sensor for unknown topics
+                    context.non_sensor[topic] = parsed_data
+                    
+                print(f"Processed {topic}: {len(parsed_data) if parsed_data else 0} data points")
+                
+            except Exception as e:
+                print(f"Error processing topic {topic}: {e}")

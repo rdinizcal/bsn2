@@ -10,5 +10,5 @@ Feature: Patient Health Status (BSN-P10) - Whether the bodyhub has processed som
 	Scenario: Failure to Detect Health Status (Sad Path)
 		Given that nodes thermometer and central hub are online
 		When I listen to thermometer
-		But an internal processing error occurs in g4t1
+		But an internal processing error occurs in g4t1 # simulate an error in the health status processing
 		Then Central hub will fail to detect the new patient health status
