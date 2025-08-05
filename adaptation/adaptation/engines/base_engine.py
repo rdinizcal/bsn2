@@ -36,7 +36,7 @@ class Engine(Node, ABC):
         self.deactivated_components: Dict[str, int] = {}
 
         # ROS2 interfaces
-        self.data_access_client: Optional[rclpy.client.Client] = None
+        #self.data_access_client: Optional[rclpy.client.Client] = None
         self.exception_subscriber: Optional[rclpy.subscription.Subscription] = None
         self.enactor_server: Optional[rclpy.service.Service] = None
 
@@ -98,19 +98,19 @@ class Engine(Node, ABC):
     def fetch_formula(self, name: str) -> str:
         """Fetch formula from DataAccess"""
         try:
-            if not self.data_access_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().warn("DataAccess service not available")
-                return ""
+            #if not self.data_access_client.wait_for_service(timeout_sec=5.0):
+            #    self.get_logger().warn("DataAccess service not available")
+            #    return ""
 
             request = DataAccessRequest.Request()
             request.name = "/engine"
             request.query = f"{name}_formula"
 
             future = self.data_access_client.call_async(request)
-            rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
+            rclpy.spin_until_future_complete(self, future)
 
             if future.result():
-                formula_str = future.result().content
+                formula_str = future.result()
                 if not formula_str:
                     self.get_logger().error("ERROR: Empty formula string received.")
                 return formula_str

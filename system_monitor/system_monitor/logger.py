@@ -79,7 +79,7 @@ class Logger(Node):
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,
             history=HistoryPolicy.KEEP_LAST,
-            depth=1000,  # Matching C++ queue size
+            depth=1000,
             durability=DurabilityPolicy.VOLATILE
         )
         
@@ -130,7 +130,7 @@ class Logger(Node):
         self.uncertainty_sub = self.create_subscription(
             Uncertainty, 'log_uncertainty', self.receive_uncertainty, qos_profile)
         
-        self.get_logger().info('Subscribers initialized for log_* topics')
+        
     
     def now(self):
         """
@@ -155,6 +155,7 @@ class Logger(Node):
             msg (Status): Status message containing source, target, content,
                          and task information from a system component.
         """
+        
         # Create persist message
         persist_msg = Persist()
         persist_msg.source = msg.source
@@ -169,7 +170,6 @@ class Logger(Node):
         # Republish original message
         self.status_pub.publish(msg)
         
-        self.get_logger().debug(f"Logged status: {msg.source}: {msg.content}")
     
     def receive_event(self, msg):
         """
@@ -182,7 +182,7 @@ class Logger(Node):
             msg (Event): Event message containing source, target, and content
                         representing system events or state changes.
         """
-        # Create persist message
+
         persist_msg = Persist()
         persist_msg.source = msg.source
         persist_msg.target = msg.target
@@ -193,7 +193,6 @@ class Logger(Node):
         # Publish to persist (for DataAccess)
         self.persist_pub.publish(persist_msg)
         
-        # CRITICAL: Republish to 'event' topic (for Enactor)
         self.event_pub.publish(msg)
         
         self.get_logger().debug(

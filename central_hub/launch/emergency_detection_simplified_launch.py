@@ -18,11 +18,6 @@ def generate_launch_description():
         'config',
         'monitor_config.yaml'
     )
-    config_enactor = os.path.join(
-        get_package_share_directory('adaptation'),
-        'config',
-        'enactor.yaml'
-    )
     config_data_access = os.path.join(
         get_package_share_directory('adaptation'),
         'config',
@@ -61,7 +56,7 @@ def generate_launch_description():
             ),
             launch_ros.actions.Node(
                 package='system_monitor',
-                executable='system_monitor',
+                executable='logger',        
                 name='logger',
                 output='screen',
                 emulate_tty=True,
@@ -69,8 +64,8 @@ def generate_launch_description():
             ),
             launch_ros.actions.Node(
                 package='system_monitor',
-                executable='system_monitor',
-                name='node_monitor',
+                executable='system_monitor',       
+                name='node_monitor', 
                 output='screen',
                 emulate_tty=True,
                 parameters=[config_monitor]
@@ -88,8 +83,7 @@ def generate_launch_description():
                 executable='enactor',
                 name='enactor',
                 output='screen',
-                emulate_tty=True,
-                #parameters=[config_enactor]
+                emulate_tty=True
             ),
             launch_ros.actions.Node(
                 package='adaptation',
@@ -97,7 +91,7 @@ def generate_launch_description():
                 name='data_access',
                 output='screen',
                 emulate_tty=True,
-                #parameters=[config_data_access] if os.path.exists(config_data_access) else [],
+                parameters=[config_data_access],
             ),
             launch_ros.actions.Node(
                 package='adaptation',
@@ -105,10 +99,6 @@ def generate_launch_description():
                 name='reli_engine',
                 output='screen',
                 emulate_tty=True,
-                arguments=[
-                '--ros-args',
-                '--log-level', 'DEBUG'
-                ],
                 parameters=[config_reli_engine],
             ),
         ]

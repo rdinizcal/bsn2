@@ -90,16 +90,14 @@ class DataAccess(Node):
         self.declare_parameter('frequency', 1.0)
         self.declare_parameter('buffer_size', 1000)
         self.declare_parameter('time_window', 10.1)
-        self.declare_parameter('log_path', '/tmp/bsn_logs')
-        self.declare_parameter('models_path', '../../resource/model')
         self.declare_parameter('flush_interval', 30)
         
         # Get parameters
         self.frequency = self.get_parameter('frequency').value
         self.buffer_size = self.get_parameter('buffer_size').value
         self.time_window = self.get_parameter('time_window').value
-        self.log_path = self.get_parameter('log_path').value
-        self.models_path = self.get_parameter('models_path').value
+        self.log_path = 'src/adaptation/resource/log'
+        self.models_path = 'src/adaptation/resource/model'
         self.flush_interval = self.get_parameter('flush_interval').value
         
         # Initialize data structures
@@ -236,7 +234,8 @@ class DataAccess(Node):
                     except FormulaError as e:
                         self.get_logger().error(f"Error parsing reliability formula: {e}")
                         self.reliability_formula = None
-            
+            if self.reliability_formula is None:
+                self.get_logger().error("Did not load reliability formula")
             # Load cost formula
             cost_path = os.path.join(self.models_path, 'cost.formula')
             if os.path.exists(cost_path):
@@ -250,6 +249,8 @@ class DataAccess(Node):
             if os.path.exists(goal_model_path):
                 self._load_goal_model(goal_model_path)
                 self.get_logger().info("Loaded goal model")
+            else:
+                self.get_logger().error(f"Goal model file not found: {goal_model_path}")
                 
         except Exception as e:
             self.get_logger().error(f"Error loading models: {e}")
