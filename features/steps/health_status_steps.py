@@ -13,7 +13,7 @@ def step_given_nodes_online(context):
     node_list = result.stdout.decode("utf-8").splitlines()
     required_nodes = ["/thermometer_node", "/central_hub_node"]
     for node in required_nodes:
-        assert node in node_list, f"Node {node} is not online"
+        assert node in node_list, f"Node {node} is not online : {node_list}"
 
 
 @when("I listen to thermometer")

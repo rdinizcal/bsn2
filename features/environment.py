@@ -35,7 +35,7 @@ def launch_reduced_system(context):
         preexec_fn=os.setsid
     )
     context.system_type = "reduced"
-    time.sleep(15)  # Shorter wait for reduced system
+    time.sleep(25)  # Shorter wait for reduced system
 
 
 def launch_high_frequency_system(context):
@@ -43,7 +43,7 @@ def launch_high_frequency_system(context):
     print("Launching high frequency BSN system...")
     
     context.current_launch = subprocess.Popen(
-        ['ros2', 'launch', 'central_hub', 'high_frequency_launch.py'],
+        ['ros2', 'launch', 'central_hub', 'emergency_detection_simplified_launch.py'],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
         preexec_fn=os.setsid
@@ -57,7 +57,7 @@ def launch_persistence_system(context):
     print("Launching persistence BSN system...")
     
     context.current_launch = subprocess.Popen(
-        ['ros2', 'launch', 'central_hub', 'persistence_launch.py'],
+        ['ros2', 'launch', 'central_hub', 'emergency_detection_simplified_launch.py'],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
         preexec_fn=os.setsid

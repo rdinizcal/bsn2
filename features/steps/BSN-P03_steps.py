@@ -1,10 +1,9 @@
-from utils import node_is_active, capture_topic_data, check_time_performance
+from utils.parsers import capture_topic_data
+from utils.asserts import node_is_active, check_time_performance
 from behave import given, when, then
 @when('{sensor_name} sends data with high risk')
 def step_when_high_risk_data_sent(context, sensor_name):
     # implementation made by patient data service 
-    if sensor_name == 'thermometer':
-        pass
     node_is_active('/patient_data_service')
 @then('Central hub will detect an emergency in less than 250 ms')
 def step_then_g4t1_detects_emergency(context):
@@ -13,7 +12,7 @@ def step_then_g4t1_detects_emergency(context):
 @when('{node_name} sends low-risk data with high frequency')
 def step_when_overloaded_data_sent(context, node_name):
     topic = f'/{node_name}_data'
-    _, parsed_data, high_risk_detected = capture_topic_data(topic)
+    capture_topic_data(context, ['/thermometer_data'])
     context.overloaded = True
     context.high_risk_detected = high_risk_detected
     assert context.overloaded, "Sensor data overload did not occur"

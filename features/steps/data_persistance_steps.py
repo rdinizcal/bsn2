@@ -1,6 +1,6 @@
 from behave import given, when, then
 import subprocess
-from utils.parsers import process_real_time_topics, capture_topic_data, parse_topic_data, deactivate_node # , format_debug_data,
+from utils.parsers import process_real_time_topics, capture_topic_data, deactivate_node # , format_debug_data,
 from utils.constants import PERSISTENCE_NODES, PERSISTANCE_TOPICS
 from utils.asserts import node_is_active
 
@@ -65,10 +65,10 @@ def step_when_database_error_occurs(context):
 @then('the system must log a persistence failure')
 def step_then_system_logs_failure(context):
     """Ensure the system logs a persistence failure."""
-    energyStatus = parse_topic_data('/log_energy_status')
+    energyStatus = capture_topic_data('/log_energy_status')
     print(f'energyStatus: {energyStatus}')
     assert all(val == '' for val in energyStatus['target'])
-    persist_topic = parse_topic_data('/persist')
+    persist_topic = capture_topic_data('/persist')
     print(f'persist topic: {persist_topic}')
     assert persist_topic is None
 

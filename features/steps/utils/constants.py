@@ -1,22 +1,22 @@
 SENSOR_NODE = {  
-    'oximeter': '/g3t1_1',
-    'ecg': '/g3t1_2',
-    'thermometer': '/g3t1_3',
-    'abps': '/g3t1_4',
-    'abpd': '/g3t1_5',
-    'glucosemeter': '/g3t1_6'
-    }
+    'thermometer': '/thermometer_node',    # /g3t1_3
+    'oximeter': '/oximeter_node',          # /g3t1_1
+    'ecg': '/ecg_node',                    # /g3t1_2
+    'abps': '/abps_node',                  # /g3t1_4
+    'abpd': '/abpd_node',                  # /g3t1_5
+    'glucometer': '/glucometer_node'       # /g3t1_6
+}
 FULL_SYSTEM = ['/collector', '/param_adapter',
-               '/g3t1_1', '/g3t1_2', '/g3t1_3', 
-               '/g3t1_4', '/g3t1_5', '/g3t1_6', 
-               '/g4t1']
-REDUCED_SYSTEM = ['/collector', '/param_adapter','/g3t1_3', '/g4t1', '/patient_data_service']
+               '/thermometer_node', '/oximeter_node', '/ecg_node', 
+               '/abps_node', '/abpd_node', '/glucometer_node', 
+               '/central_hub_node']
+REDUCED_SYSTEM = ['/collector', '/param_adapter','/thermometer_node', '/central_hub_node', '/patient_data_service']
 
 PERSISTENCE_NODES = [
-    "/g4t1",
+    "/central_hub_node",
     "/collector",
     "/param_adapter",
-    "/g3t1_3",
+    "/thermometer_node",
     "/data_access",
     "/logger"
 ]
@@ -27,6 +27,14 @@ PERSISTANCE_TOPICS = [
         '/log_energy_status',
         '/TargetSystemData'
     ]
+SENSOR_TOPICS = [
+        '/thermometer_data',
+        '/oximeter_data',
+        '/ecg_data',
+        '/abps_data',
+        '/abpd_data',
+        '/glucometer_data',
+]
 NON_SENSOR_TOPICS = [
         '/collect_energy_status',
         '/persist',

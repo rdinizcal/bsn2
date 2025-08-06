@@ -2,7 +2,7 @@ import subprocess
 import importlib
 import concurrent.futures
 import time
-from constants import SENSOR_TOPICS, NON_SENSOR_TOPICS
+from utils.constants import SENSOR_TOPICS, NON_SENSOR_TOPICS
 
 def format_entity(raw_string):
     # Check if any words in the string start with an uppercase letter
