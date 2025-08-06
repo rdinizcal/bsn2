@@ -116,7 +116,7 @@ class ReliabilityEngine(Engine):
             rclpy.spin_until_future_complete(self, future, timeout_sec=2.0)
 
             if future.result():
-                response_content = future.result().content
+                response_content = future.result()
                 self._process_reliability_response(response_content)
             else:
                 self.get_logger().error("Failed to connect to data access node.")
@@ -182,7 +182,7 @@ class ReliabilityEngine(Engine):
             rclpy.spin_until_future_complete(self, future, timeout_sec=2.0)
 
             if future.result():
-                response_content = future.result().content
+                response_content = future.result()
                 self._process_context_response(response_content)
             else:
                 self.get_logger().error(
@@ -278,15 +278,15 @@ class ReliabilityEngine(Engine):
             f"Planning: setpoint={self.setpoint}, r_curr={r_curr}, error={error}"
         )
 
-        # Get R_ components (matching C++ logic)
+        # Get R_ components
         r_vec = []
         for key in self.strategy:
             if key.startswith("R_"):
-                task = key[2:]  # Remove "R_" prefix
+                task = key[2:]
                 ctx_key = f"CTX_{task}"
                 f_key = f"F_{task}"
 
-                # Check if component is active (matching C++ logic)
+                # Check if component is active
                 if (
                     self.strategy.get(ctx_key, 0) != 0
                     and self.strategy.get(f_key, 0) != 0
@@ -295,30 +295,30 @@ class ReliabilityEngine(Engine):
 
                     r_vec.append(key)
 
-                    # Reset strategy values (matching C++ logic)
+                    # Reset strategy values
                     if error > 0:
                         self.strategy[key] = r_curr
                     else:
                         self.strategy[key] = 1.0
 
-        # Reorder r_vec based on priority (matching C++ logic)
+        # Reorder r_vec based on priority
         r_vec.sort(key=lambda x: self.priority.get(x, 0))
 
-        # Generate solutions (simplified version of C++ algorithm)
+        # Generate solutions
         solutions = []
 
         for r_key in r_vec:
             # Create solution copy
             solution = self.strategy.copy()
 
-            # Apply offset (matching C++ logic)
+            # Apply offset
             if error > 0:
                 solution[r_key] = r_curr * (1 - self.offset) if self.offset else r_curr
             else:
                 new_val = r_curr * (1 + self.offset) if self.offset else r_curr
                 solution[r_key] = min(1.0, new_val)
 
-            # Apply gain-based adjustment (simplified)
+            # Apply gain-based adjustment
             if self.gain > 0:
                 if error > 0:
                     solution[r_key] += self.gain * error
@@ -330,7 +330,7 @@ class ReliabilityEngine(Engine):
 
             solutions.append(solution)
 
-        # Test solutions (matching C++ logic)
+        # Test solutions
         for solution in solutions:
             self.strategy = solution
             r_new = self.calculate_qos(self.target_system_model, self.strategy)

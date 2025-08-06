@@ -143,7 +143,7 @@ class Engine(Node, ABC):
             self.get_logger().info(f"Formula setup complete with {len(terms)} terms")
 
         except Exception as e:
-            self.get_logger().error(f"Error setting up formula: {e}")
+            self.get_logger().error(f"Error setting up formula: {e} \nFormula: {formula_str}")
 
     def calculate_qos(self, model: Formula, conf: Dict[str, float]) -> float:
         """Calculate QoS - matching Engine.cpp calculate_qos()"""
