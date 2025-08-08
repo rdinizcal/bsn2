@@ -9,7 +9,7 @@ import math
 from .enactor import Enactor
 class Controller(Enactor):
     """
-    Concrete implementation of Enactor (equivalent to Controller in C++)
+    Concrete implementation of Enactor
     Implements the specific adaptation strategies
     """
     

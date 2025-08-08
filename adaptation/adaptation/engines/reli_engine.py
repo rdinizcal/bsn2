@@ -12,7 +12,6 @@ from bsn_interfaces.msg import Strategy
 
 class ReliabilityEngine(Engine):
     """
-    ReliabilityEngine - ROS2 implementation matching BSN1 ReliabilityEngine
     Handles system reliability adaptation using MAPE-K loop
     """
 
@@ -39,7 +38,7 @@ class ReliabilityEngine(Engine):
         self.get_logger().info("ReliabilityEngine initialized")
 
     def setup(self):
-        """Setup ReliabilityEngine - matching ReliabilityEngine.cpp setUp()"""
+        """Setup ReliabilityEngine"""
         # Call parent setup
         super().setup()
 
@@ -57,18 +56,18 @@ class ReliabilityEngine(Engine):
         )
 
     def get_prefix(self) -> str:
-        """Get prefix - matching ReliabilityEngine.cpp get_prefix()"""
+        """Get prefix"""
         return self.prefix
 
     def initialize_strategy(self, terms: List[str]) -> Dict[str, float]:
-        """Initialize strategy - matching ReliabilityEngine.cpp initialize_strategy()"""
+        """Initialize strategy"""
         strategy = {}
         for term in terms:
             strategy[term] = 1.0  # Default value matching C++
         return strategy
 
     def initialize_priority(self, terms: List[str]) -> Dict[str, int]:
-        """Initialize priority - matching ReliabilityEngine.cpp initialize_priority()"""
+        """Initialize priority"""
         priority = {}
         for term in terms:
             if term.startswith("R_"):
@@ -77,11 +76,11 @@ class ReliabilityEngine(Engine):
     
 
     def monitor(self):
-        """Monitor phase - matching ReliabilityEngine.cpp monitor()"""
+        """Monitor phase"""
         self.get_logger().debug("Monitor phase started")
         self.cycles += 1
 
-        # Reset strategy values (matching C++ logic)
+        # Reset strategy values
         for key in self.strategy:
             if key.startswith("CTX_"):
                 self.strategy[key] = 0.0
@@ -100,7 +99,7 @@ class ReliabilityEngine(Engine):
         self.analyze()
 
     def _request_reliability_data(self):
-        """Request reliability data - matching ReliabilityEngine.cpp monitor()"""
+        """Request reliability data"""
         try:
             if not self.data_access_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().warn(
@@ -125,7 +124,7 @@ class ReliabilityEngine(Engine):
             self.get_logger().error(f"Error requesting reliability data: {e}")
 
     def _process_reliability_response(self, response_content: str):
-        """Process reliability response - matching ReliabilityEngine.cpp monitor()"""
+        """Process reliability response"""
         try:
             if not response_content:
                 return
@@ -166,7 +165,7 @@ class ReliabilityEngine(Engine):
             self.get_logger().error(f"Error processing reliability response: {e}")
 
     def _request_context_data(self):
-        """Request context data - matching ReliabilityEngine.cpp monitor()"""
+        """Request context data"""
         try:
             if not self.data_access_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().warn(
@@ -193,7 +192,7 @@ class ReliabilityEngine(Engine):
             self.get_logger().error(f"Error requesting context data: {e}")
 
     def _process_context_response(self, response_content: str):
-        """Process context response - matching ReliabilityEngine.cpp monitor()"""
+        """Process context response"""
         try:
             if not response_content:
                 return
@@ -243,7 +242,7 @@ class ReliabilityEngine(Engine):
             self.get_logger().error(f"Error processing context response: {e}")
 
     def analyze(self):
-        """Analyze phase - matching ReliabilityEngine.cpp analyze()"""
+        """Analyze phase"""
         self.get_logger().debug("Analyze phase started")
 
         # Calculate current reliability
@@ -267,7 +266,7 @@ class ReliabilityEngine(Engine):
                 self.plan()
 
     def plan(self):
-        """Plan phase - matching ReliabilityEngine.cpp plan()"""
+        """Plan phase"""
         self.get_logger().debug("Plan phase started")
 
         # Calculate current values
@@ -350,13 +349,13 @@ class ReliabilityEngine(Engine):
         """Execute phase - matching ReliabilityEngine.cpp execute()"""
         self.get_logger().debug("Execute phase started")
 
-        # Build content string (matching C++ format)
+        # Build content string
         content = ""
         flag = False
 
         for key, value in self.strategy.items():
             if key.startswith("R_"):
-                # Convert R_ term to component name (matching C++ logic)
+                # Convert R_ term to component name
                 aux = key.lower()  # Convert to lowercase
                 parts = aux.split("_")  # Split by underscore
 

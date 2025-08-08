@@ -72,6 +72,32 @@ class ParamAdapter(Node):
         self.registered_components = {}
         self._component_publishers = {}  # Changed variable name to avoid property conflict
         
+        # BSN to ROS2 node name mapping (including central hub)
+        self.bsn_to_ros_mapping = {
+            # Sensor components
+            '/g3t1_1': '/oximeter_node',
+            '/g3t1_2': '/ecg_node', 
+            '/g3t1_3': '/thermometer_node',
+            '/g3t1_4': '/abps_node',
+            '/g3t1_5': '/abpd_node',
+            '/g3t1_6': '/glucosemeter_node',
+            '/g4t1': '/central_hub_node',
+
+        }
+        
+        # Create publishers for actual ROS2 node names
+        self.expected_components = [
+            'thermometer_node', 'oximeter_node', 'ecg_node',
+            'abps_node', 'abpd_node', 'glucosemeter_node',
+            'central_hub_node'
+        ]
+        
+        for component in self.expected_components:
+            topic_name = f'reconfigure_{component}'
+            self._component_publishers[f'/{component}'] = self.create_publisher(
+                AdaptationCommand, topic_name, 10
+            )
+
         # Configure adapter parameters
         self.declare_parameter('check_interval', 10.0)  # Interval to check for stale components
         self.declare_parameter('debug_level', False)    # Enable debug logging
@@ -166,35 +192,23 @@ class ParamAdapter(Node):
         return response
 
     def receive_adaptation_command(self, msg):
-        """
-        Process and route adaptation commands to target components.
+        """Process and route adaptation commands with name translation"""
         
-        Receives adaptation commands from the enactor and routes them to
-        the appropriate registered components using dedicated communication
-        channels. Tracks command delivery and provides error handling for
-        unknown targets.
+        # Translate BSN component name to ROS2 node name
+        original_target = msg.target
+        translated_target = self.bsn_to_ros_mapping.get(original_target, original_target)
         
-        Args:
-            msg (AdaptationCommand): Adaptation command containing source,
-                target component name, and action to perform.
-        """
-        target = msg.target
-        
-        if target in self._component_publishers:  # Updated variable name
-            # Forward command to component's specific topic
-            self._component_publishers[target].publish(msg)  # Updated variable name
+        if translated_target in self._component_publishers:
+            # Update message target to actual ROS2 node name
+            msg.target = translated_target
             
-            # Update tracking
-            if target in self.registered_components:
-                self.registered_components[target]['last_command'] = {
-                    'timestamp': time.time(),
-                    'action': msg.action
-                }
+            # Forward to actual component
+            self._component_publishers[translated_target].publish(msg)
             
-            if self.debug:
-                self.get_logger().debug(f"Command routed to {target}: {msg.action}")
+            self.get_logger().info(f"Routed adaptation: {original_target} → {translated_target}")
+            self.get_logger().info(f"Command content: {msg.action}")
         else:
-            self.get_logger().warn(f"Received command for unknown component: {target}")
+            self.get_logger().warn(f"Unknown target after translation: {translated_target}")
             
             # Check if target has a similar name (might be naming inconsistency)
             for component in self.registered_components:

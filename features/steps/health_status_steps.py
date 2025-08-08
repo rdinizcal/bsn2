@@ -1,8 +1,8 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data
+from utils.parsers import capture_topic_data, capture_csv_data, restart_central_hub_node
 from utils.asserts import count_matching_elements
 import subprocess
-
+import time
 
 @given("that nodes thermometer and central hub are online")
 def step_given_nodes_online(context):
@@ -24,6 +24,12 @@ def step_when_listen_to_thermometer(context):
     context.topic_data = context.topic_data if hasattr(context, "topic_data") else {}
     capture_topic_data(context, topics, line_limit)
 
+@when('an internal processing error occurs in g4t1')
+def step_when_database_error_occurs(context):
+    """Simulate a database error preventing persistence."""
+    subprocess.run(['ros2', 'lifecycle', 'set', '/central_hub_node', 'shutdown'])
+    #deactivate_node('central_hub_node') 
+    time.sleep(5)
 
 @then("g4t1 will detect new patient health status")
 def step_then_detect_health_status(context):
@@ -60,6 +66,7 @@ def step_then_detect_health_status(context):
 @then("Central hub will fail to detect the new patient health status")
 def step_then_fail_to_detect_health_status(context):
     # Simulate a failure in detecting health status
-    print("Simulating a failure in detecting health status in the central hub.")
-    assert "internal_error" in context, "Internal processing error was not simulated"
-    assert context.internal_error, "Central hub did not fail as expected"
+    target_system = capture_csv_data('/target_system_data')
+    assert target_system is None or 'patient_status' not in target_system or not target_system['patient_status'], "Patient status should not be detected due to internal processing error."
+    success = restart_central_hub_node(context)
+    assert success, "Failed to restart the central hub node after processing error"

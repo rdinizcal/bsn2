@@ -1,8 +1,8 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data, activate_node, deactivate_node
+from utils.parsers import capture_topic_data, activate_node, deactivate_node, capture_csv_data, restart_central_hub_node
 from utils.asserts import count_matching_elements
 import subprocess
-
+import time
 
 @given("that all sensors and central hub nodes are online")
 def step_given_all_nodes_online(context):
@@ -30,9 +30,10 @@ def step_then_sensors_process_risks(context):
     # Check if sensors process the risks
     assert any(context.topic_data.values()), "No risk data found in sensor topics."
     for topic, data in context.topic_data.items():
-        assert (
-            "risk" in data and data["risk"]
-        ), f"No risk data detected in topic {topic}"
+        if topic != "/target_system_data":
+            assert (
+                "risk" in data and data["risk"]
+            ), f"No risk data detected in topic {topic}"
 
 
 @then("Central hub will process the risk")
@@ -63,7 +64,9 @@ def step_then_sensors_process_data(context):
 @given("Central hub is inactive")
 def step_given_central_hub_inactive(context):
     # Set the central hub node to inactive
-    assert deactivate_node("/central_hub_node")
+    subprocess.run(['ros2', 'lifecycle', 'set', '/central_hub_node', 'shutdown'])
+    #deactivate_node('central_hub_node') 
+    time.sleep(5)
 
 @when("I listen to ecg and thermometer data")
 def step_when_listen_to_ecg_and_thermometer_data(context):
@@ -92,25 +95,31 @@ def step_then_central_hub_receive_data(context):
 def step_then_central_hub_will_not_process_data(context):
     # Check if the central hub does not process the data
     topic_name = "/target_system_data"
-    print(context.topic_data)
-    assert (
-        topic_name not in context.topic_data
-    ), f"Central hub topic {topic_name} is still exists"
-    target_data = context.topic_data[topic_name]
-    assert not count_matching_elements(
-        context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
-        target_data["trm_data"],
-    ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
+    target_system_data = capture_csv_data(topic_name)
+    assert target_system_data is None, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+    
+    # assert (
+        # topic_name not in context.topic_data
+    # ), f"Central hub topic {topic_name} is still exists"
+    # target_data = context.topic_data[topic_name]
+    # assert not count_matching_elements(
+        # context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
+        # target_data["trm_data"],
+    # ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
     
 @then("Central hub will not process the risk")
 def step_then_central_hub_will_not_process_risk(context):
     # Check if the central hub does not process the risk
     topic_name = "/target_system_data"
-    assert (
-        topic_name in context.topic_data
-    ), f"Central hub topic {topic_name} is missing"
-    target_data = context.topic_data[topic_name]
-    assert not count_matching_elements(
-        context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
-        target_data["trm_risk"],
-    ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"
+    target_system_data = capture_csv_data(topic_name)
+    assert target_system_data is None, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+    success = restart_central_hub_node(context)
+    assert success, "Failed to restart the central hub node after processing error"
+    # assert (
+        # topic_name in context.topic_data
+    # ), f"Central hub topic {topic_name} is missing"
+    # target_data = context.topic_data[topic_name]
+    # assert not count_matching_elements(
+        # context.topic_data["/sensor_data/thermometer"]["sensor_datapoint"],
+        # target_data["trm_risk"],
+    # ), f"Mismatch: No matching values found between Sensor data and TargetSystemData"

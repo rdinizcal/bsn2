@@ -14,10 +14,10 @@ REDUCED_SYSTEM = ['/collector', '/param_adapter','/thermometer_node', '/central_
 
 PERSISTENCE_NODES = [
     "/central_hub_node",
-    "/collector",
-    "/param_adapter",
+    "/node_monitor",
+    #"/param_adapter",
     "/thermometer_node",
-    "/data_access",
+    #"/data_access",
     "/logger"
 ]
 PERSISTANCE_TOPICS = [

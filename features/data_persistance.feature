@@ -23,7 +23,7 @@ Feature: Data Persistence (BSN-P08) - Whether the sensor node has collected some
 		Given that persistence system is online
 		When I listen to thermometer data
 		And I send data to collector
-		But a database error prevents persistence # maybe simulate by data acess not receiving data
+		But a database error prevents persistence
 		Then the system must log a persistence failure
 #Given nodes are online:
 #	| Nodes         |

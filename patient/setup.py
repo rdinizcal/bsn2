@@ -23,6 +23,6 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": ["patient = patient.patient:main",
-                            "patient_data_service = patient.patient_data_service:main"],
+                            ],
     },
 )

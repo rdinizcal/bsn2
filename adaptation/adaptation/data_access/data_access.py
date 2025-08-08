@@ -86,6 +86,16 @@ class DataAccess(Node):
         super().__init__('data_access')
         self.get_logger().info("Starting DataAccess component")
         
+        # Component name mapping: ROS2 node names -> BSN component names
+        self.component_mapping = {
+            'thermometer_node': 'g3t1_3',
+            'oximeter_node': 'g3t1_1', 
+            'ecg_node': 'g3t1_2',
+            'abps_node': 'g3t1_4',
+            'abpd_node': 'g3t1_5',
+            'glucosemeter_node': 'g3t1_6',
+        }
+        
         # Initialize parameters
         self.declare_parameter('frequency', 1.0)
         self.declare_parameter('buffer_size', 1000)
@@ -156,10 +166,11 @@ class DataAccess(Node):
         self.get_logger().info("DataAccess initialized successfully")
     
     def _initialize_component_data(self):
-        """Initialize default component data"""
-        components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6"]
+        """Initialize default component data for BSN components only"""
+        # Only initialize BSN component names
+        bsn_components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6"]
         
-        for component in components:
+        for component in bsn_components:
             self.components_batteries[component] = 100.0
             self.components_costs_engine[component] = 0.0
             self.components_costs_enactor[component] = 0.0
@@ -328,36 +339,73 @@ class DataAccess(Node):
             self._flush_logs()
     
     def receive_persist_message(self, msg: Persist):
-        """Process incoming persist messages"""
+        """Process incoming persist messages with component redirection"""
         self.logical_clock += 1
         
         try:
             if msg.type == "Status":
                 self.arrived_status += 1
                 self._persist_status(msg.timestamp, msg.source, msg.target, msg.content)
-                self.status[msg.source].append((self.now_seconds(), msg.content))
+                
+                # Redirect to BSN component name
+                component_name = self._get_component_name(msg.source)
+                self.status[component_name].append((self.now_seconds(), msg.content))
                 
             elif msg.type == "EnergyStatus":
                 if msg.source != "/engine":
-                    component_name = msg.source.lstrip('/')
-                    cost = float(msg.content)
-                    self.components_costs_engine[component_name] += cost
-                    self.components_costs_enactor[component_name] += cost
+                    # Redirect to BSN component name
+                    component_name = self._get_component_name(msg.source)
+                    
+                    # Ensure component exists in dictionaries
+                    if component_name not in self.components_batteries:
+                        self.components_batteries[component_name] = 100.0
+                    if component_name not in self.components_costs_engine:
+                        self.components_costs_engine[component_name] = 0.0
+                    if component_name not in self.components_costs_enactor:
+                        self.components_costs_enactor[component_name] = 0.0
+                    
+                    # Parse energy status content: "energy:98.20:cost:0.00"
+                    try:
+                        parts = msg.content.split(':')
+                        if len(parts) >= 4 and parts[0] == "energy" and parts[2] == "cost":
+                            energy_level = float(parts[1])  # Extract energy value
+                            cost_value = float(parts[3])    # Extract cost value
+                            
+                            # Update component energy/battery level using BSN name
+                            self.components_batteries[component_name] = energy_level
+                            
+                            # Update costs using BSN name
+                            self.components_costs_engine[component_name] += cost_value
+                            self.components_costs_enactor[component_name] += cost_value
+                            
+                            # Persist the energy status (keep original source for logging)
+                            self._persist_energy_status(msg.timestamp, msg.source, msg.target, msg.content)
+                            
+                            self.get_logger().debug(f"Redirected {msg.source} -> {component_name}, energy: {energy_level}")
+                            
+                        else:
+                            self.get_logger().warn(f"Invalid energy status format: {msg.content}")
+                            
+                    except (ValueError, IndexError) as e:
+                        self.get_logger().error(f"Error parsing energy status '{msg.content}': {e}")
+            
                 else:
                     self._process_engine_energy_status(msg)
                     
             elif msg.type == "Event":
+                # Redirect to BSN component name
+                component_name = self._get_component_name(msg.source)
+                
                 self._persist_event(msg.timestamp, msg.source, msg.target, msg.content)
                 
-                if len(self.events[msg.source]) <= self.buffer_size:
-                    self.events[msg.source].append(msg.content)
+                if len(self.events[component_name]) <= self.buffer_size:
+                    self.events[component_name].append(msg.content)
                 else:
-                    self.events[msg.source].popleft()
-                    self.events[msg.source].append(msg.content)
+                    self.events[component_name].popleft()
+                    self.events[component_name].append(msg.content)
                 
-                # Update contexts
-                key = msg.source.lstrip('/')
-                self.contexts[key] = 1 if msg.content == "activate" else 0
+                # Update contexts using BSN component name
+                self.contexts[component_name] = 1 if msg.content == "activate" else 0
                 
             elif msg.type == "Uncertainty":
                 self._persist_uncertainty(msg.timestamp, msg.source, msg.target, msg.content)
@@ -369,7 +417,9 @@ class DataAccess(Node):
                 self.get_logger().warn(f"Unknown message type: {msg.type}")
                 
         except Exception as e:
-            self.get_logger().error(f"Error processing persist message: {e}")
+            self.get_logger().error(f"Error processing persist message from {msg.source}: {e}")
+            import traceback
+            self.get_logger().error(f"Traceback: {traceback.format_exc()}")
     
     def _process_engine_energy_status(self, msg: Persist):
         """Process energy status from engine with multiple components"""
@@ -469,13 +519,17 @@ class DataAccess(Node):
             return response
     
     def _calculate_component_reliability(self, component: str) -> str:
-        """Calculate and return component reliability"""
+        """Calculate and return component reliability using BSN component names"""
         try:
-            aux = f"{component}:"
+            # Convert to BSN component name if needed
+            bsn_component = self._get_component_name(component)
+            
+            aux = f"{bsn_component}:"
             success_count = 0
             total_count = 0
             
-            for _, status_content in self.status[component]:
+            # Use BSN component name for status lookup
+            for _, status_content in self.status[bsn_component]:
                 if status_content == "success":
                     success_count += 1
                     total_count += 1
@@ -488,13 +542,8 @@ class DataAccess(Node):
             reliability = success_count / total_count if total_count > 0 else 0
             aux += f"{reliability};"
             
-            # Update component reliability
-            key = component.lstrip('/')
-            self.components_reliabilities[key] = reliability
-            
-            # Update goal model property if available
-            if key in self.goal_model_properties and 'reliability' in self.goal_model_properties[key]:
-                self.goal_model_properties[key]['reliability'].set_value(reliability)
+            # Update component reliability using BSN name
+            self.components_reliabilities[bsn_component] = reliability
             
             return aux
             
@@ -622,6 +671,26 @@ class DataAccess(Node):
                 
         except Exception as e:
             self.get_logger().error(f"Error flushing logs: {e}")
+    
+    def _get_component_name(self, source: str) -> str:
+        """
+        Redirect ROS2 node names to BSN component names.
+        
+        Args:
+            source: Original source name (e.g., 'thermometer_node' or '/thermometer_node')
+            
+        Returns:
+            BSN component name (e.g., 'g3t1_3')
+        """
+        # Remove leading slash if present
+        clean_name = source.lstrip('/')
+        
+        # Redirect to BSN component name if mapping exists
+        if clean_name in self.component_mapping:
+            return self.component_mapping[clean_name]
+        
+        # Return original name if no mapping found
+        return clean_name
 
 
 def main(args=None):

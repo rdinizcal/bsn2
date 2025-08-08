@@ -18,7 +18,7 @@ class Enactor(Node):
     """
     Enactor component for BSN system
     
-    Base class following the original C++ architecture pattern
+   
     Receives adaptation strategies from engines
     Translates strategies into component-specific commands
     Sends adaptation commands to components via ParamAdapter
@@ -36,7 +36,6 @@ class Enactor(Node):
         self.frequency = self.get_parameter('frequency').value
         self.stability_margin = self.get_parameter('stability_margin').value
         
-        # Protected members (matching C++ original)
         self.invocations = {}  # Maps component name to deque of success/failure (1/0)
         self.exception_buffer = {}  # Track exceptions by component
         self.freq = {}  # Current frequency by component

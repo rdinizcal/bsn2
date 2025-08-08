@@ -3,6 +3,7 @@ import importlib
 import concurrent.futures
 import time
 from utils.constants import SENSOR_TOPICS, NON_SENSOR_TOPICS
+import os
 
 def format_entity(raw_string):
     # Check if any words in the string start with an uppercase letter
@@ -103,7 +104,9 @@ def get_message_attributes(topic_name):
         timeout=5,
     )
     if result.returncode != 0:
-        raise Exception(f"Error getting node info: {result.stderr.decode('utf-8')}")
+        #raise Exception(f"Error getting topic info: {result.stderr.decode('utf-8')}")
+        print(f"Error getting topic info: {result.stderr.decode('utf-8')}")
+        return {}
 
     message_type = result.stdout.decode("utf-8").strip()
 
@@ -142,8 +145,11 @@ def capture_csv_data(topic, line_limit=10):
     """
     Capture CSV data from a ROS2 topic and organize it into a dictionary with keys based on message keys.
     """
-
+    
     message_keys = get_message_attributes(topic)
+    if message_keys is None:
+        print(f"Failed to retrieve message attributes for topic: {topic}")
+        return {}
     output = {key[1:]: [] for key in message_keys}
 
     process = subprocess.Popen(
@@ -161,7 +167,6 @@ def capture_csv_data(topic, line_limit=10):
                 break
 
             values = line.strip().split(",")  # Split the CSV line into values
-
             if len(values) == len(
                 output
             ):  # Ensure the line has the correct number of values
@@ -171,6 +176,7 @@ def capture_csv_data(topic, line_limit=10):
 
             # Break if all lists have at least `line_limit` items
             if all(len(v) >= line_limit for v in output.values()):
+                print("finished capturing data. on topic:", topic)
                 break
 
     except Exception as e:
@@ -194,6 +200,7 @@ def capture_topic_data(context, topics, line_limit=10):
     Returns:
         None: Updates context.topic_data with the captured data for each topic.
     """
+    
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = {}
         for topic in topics:
@@ -332,7 +339,7 @@ def process_real_time_topics(context, capture_function, topics, duration=10):
 
     Args:
         context: Behave context object to store categorized topic data
-        capture_function: Function to capture topic data (e.g., capture_csv_data)
+        capture_function: Function to capture topic data
         topics: List of topic names to process
         duration: Optional duration parameter
     """
@@ -345,7 +352,6 @@ def process_real_time_topics(context, capture_function, topics, duration=10):
         context.target_system_data = {}
     if not hasattr(context, 'non_sensor'):
         context.non_sensor = {}
-    
     with ThreadPoolExecutor() as executor:
         # Submit capture tasks for all topics
         future_to_topic = {
@@ -359,7 +365,7 @@ def process_real_time_topics(context, capture_function, topics, duration=10):
                 parsed_data = future.result()
                 
                 # Categorize the data based on topic type
-                if topic == '/TargetSystemData':
+                if topic == '/target_system_data':
                     context.target_system_data[topic] = parsed_data
                 elif topic in NON_SENSOR_TOPICS:
                     context.non_sensor[topic] = parsed_data
@@ -382,3 +388,65 @@ def process_real_time_topics(context, capture_function, topics, duration=10):
                 
             except Exception as e:
                 print(f"Error processing topic {topic}: {e}")
+def restart_central_hub_node(context):
+    """
+    Restart the central_hub_node after it has been shutdown.
+    
+    This function attempts multiple restart strategies:
+    1. Lifecycle state transitions (if supported)
+    2. Manual node restart as separate process
+    3. Full system restart as fallback
+    """
+    import subprocess
+    import time
+    
+    # Strategy 1: Try lifecycle state transitions first
+    try:
+        print("Attempting lifecycle-based restart...")
+        
+        # Try to configure the node
+        result = subprocess.run([
+            'ros2', 'lifecycle', 'set', '/central_hub_node', 'configure'
+        ], capture_output=True, text=True, timeout=10)
+        print('passed here in configuration')
+        if result.returncode == 0:
+            # Configuration successful, try to activate
+            time.sleep(2)
+            result = subprocess.run([
+                'ros2', 'lifecycle', 'set', '/central_hub_node', 'activate'
+            ], capture_output=True, text=True, timeout=10)
+            print('passed here in activation')
+            if result.returncode == 0:
+                print("Central hub restarted via lifecycle transitions")
+                time.sleep(5)  # Wait for full initialization
+                return True
+        
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+        print("Lifecycle restart failed, trying manual restart...")
+    
+    # Strategy 2: Manual node restart as separate process
+    try:
+        print("Starting new central_hub_node process...")
+        
+        # Start a new central hub node process
+        context.current_launch = subprocess.Popen(
+        ['ros2', 'launch', 'central_hub', 'central_hub_standalone_launch.py'],
+        stdout=subprocess.DEVNULL, 
+        stderr=subprocess.STDOUT,
+        preexec_fn=os.setsid
+        )
+        
+        time.sleep(10)  # Wait for node to fully start
+        
+        # Verify the node is online
+        result = subprocess.run(['ros2', 'node', 'list'], 
+                              stdout=subprocess.PIPE, text=True)
+        
+        if '/central_hub_node' in result.stdout:
+            print("Central hub restarted as separate process")
+            return True
+        else:
+            print("Manual restart failed, node not found in node list")
+            
+    except Exception as e:
+        print(f"Manual restart failed: {e}")

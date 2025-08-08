@@ -124,8 +124,19 @@ class SystemMonitor(Node):
         self.event_sub = self.create_subscription(
             Event, 'collect_event', self.event_callback, 10)
             
-        self.energy_sub = self.create_subscription(
-            EnergyStatus, 'collect_energy_status', self.energy_callback, 10)
+        self.energy_subscribers = []
+        for node_name in self.node_list:
+            # Remove '_node' suffix to get sensor name
+            sensor_name = node_name.replace('_node', '') if node_name.endswith('_node') else node_name
+            energy_topic = f'collect_energy_status/{sensor_name}'
+            
+            try:
+                energy_sub = self.create_subscription(
+                    EnergyStatus, energy_topic, self.energy_callback, 10)
+                self.energy_subscribers.append(energy_sub)
+                self.get_logger().info(f"Subscribed to energy topic: {energy_topic}")
+            except Exception as e:
+                self.get_logger().warn(f"Failed to subscribe to {energy_topic}: {e}")
         
         # === TIMERS ===
         # Start heartbeat monitoring timer  

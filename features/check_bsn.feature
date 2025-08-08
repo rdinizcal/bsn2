@@ -15,7 +15,7 @@ Feature: Check for bsn features
 		Then Sensors will process the data
 		And Central hub will receive data from sensors
 
-	@inactive_central_hub
+	@full_system
 	Scenario: BSN-P09 - Sad Path: central hub is inactive
 		# Scenario: central hub is inactive (Sad Path)
 		Given that all sensors and central hub nodes are online
@@ -24,7 +24,7 @@ Feature: Check for bsn features
 		Then Sensors will process the risks
 		But Central hub will not process the risk
 
-	@inactive_central_hub
+	@full_system
 	Scenario: BSN-P08 - Sad Path: central hub is inactive
 		# Scenario: central hub is inactive (Sad Path)
 		Given that all sensors and central hub nodes are online
