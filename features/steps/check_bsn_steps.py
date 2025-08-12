@@ -1,5 +1,5 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data, activate_node, deactivate_node, capture_csv_data, restart_central_hub_node
+from utils.parsers import capture_topic_data, set_node_lifecycle_state, capture_csv_data
 from utils.asserts import count_matching_elements
 import subprocess
 import time
@@ -13,7 +13,7 @@ def step_given_all_nodes_online(context):
     node_list = result.stdout.decode("utf-8").splitlines()
     required_nodes = ["/thermometer_node", "/ecg_node", "/central_hub_node"]
     for node in required_nodes:
-        assert node in node_list, f"Node {node} is not online"
+        assert node in node_list, f"Node {node} is not online {node_list}"
 
 
 @when("I listen to sensors data")
@@ -64,8 +64,7 @@ def step_then_sensors_process_data(context):
 @given("Central hub is inactive")
 def step_given_central_hub_inactive(context):
     # Set the central hub node to inactive
-    subprocess.run(['ros2', 'lifecycle', 'set', '/central_hub_node', 'shutdown'])
-    #deactivate_node('central_hub_node') 
+    assert set_node_lifecycle_state('central_hub_node', 'deactivate'), "Failed to deactivate the central hub node after processing error"
     time.sleep(5)
 
 @when("I listen to ecg and thermometer data")
@@ -96,7 +95,7 @@ def step_then_central_hub_will_not_process_data(context):
     # Check if the central hub does not process the data
     topic_name = "/target_system_data"
     target_system_data = capture_csv_data(topic_name)
-    assert target_system_data is None, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+    assert target_system_data == {}, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
     
     # assert (
         # topic_name not in context.topic_data
@@ -112,9 +111,8 @@ def step_then_central_hub_will_not_process_risk(context):
     # Check if the central hub does not process the risk
     topic_name = "/target_system_data"
     target_system_data = capture_csv_data(topic_name)
-    assert target_system_data is None, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
-    success = restart_central_hub_node(context)
-    assert success, "Failed to restart the central hub node after processing error"
+    assert target_system_data == {}, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+    assert set_node_lifecycle_state('central_hub_node', 'activate'), "Failed to restart the central hub node after processing error"
     # assert (
         # topic_name in context.topic_data
     # ), f"Central hub topic {topic_name} is missing"

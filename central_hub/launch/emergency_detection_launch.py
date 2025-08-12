@@ -58,6 +58,7 @@ def generate_launch_description():
                 emulate_tty=True,
                 output="screen",
                 parameters=[config_patient],
+                on_exit=launch.actions.Shutdown()
             ),
             launch_ros.actions.Node(
                 package="sensor",

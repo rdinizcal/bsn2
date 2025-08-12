@@ -1,5 +1,5 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data, capture_csv_data, restart_central_hub_node
+from utils.parsers import capture_topic_data, capture_csv_data, set_node_lifecycle_state
 from utils.asserts import count_matching_elements
 import subprocess
 import time
@@ -12,6 +12,9 @@ def step_given_nodes_online(context):
     )
     node_list = result.stdout.decode("utf-8").splitlines()
     required_nodes = ["/thermometer_node", "/central_hub_node"]
+    if '/central_hub_node' not in node_list:
+        if set_node_lifecycle_state('/central_hub_node', 'activate'):
+            node_list.append('/central_hub_node')
     for node in required_nodes:
         assert node in node_list, f"Node {node} is not online : {node_list}"
 

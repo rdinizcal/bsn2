@@ -152,7 +152,7 @@ class PublisherManager:
             latest_risk (dict): Latest risk percentages from all sensors.
             sensor_battery_levels (dict): Current battery levels of all sensors.
         """
-        if self.target_system_publisher is None:
+        if self.target_system_publisher is None and not self.active:
             return
             
         # Use small battery for transmission

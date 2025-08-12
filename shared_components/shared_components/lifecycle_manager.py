@@ -114,8 +114,8 @@ class LifecycleManager:
         self.auto_configure_on_start = True
         self.auto_activate_after_configure = True
         self.battery_aware_deactivation = True
-        self.auto_recovery = True
-        
+        self.auto_recovery = False
+
         self.node.get_logger().info("Lifecycle Manager initialized")
     
     def start_auto_management(self):
@@ -146,10 +146,11 @@ class LifecycleManager:
         self.auto_manage = True
         
         # Create timer for periodic state monitoring
-        self.monitor_timer = self.node.create_timer(
-            self.state_check_interval, 
-            self.monitor_lifecycle_state
-        )
+        if self.auto_recovery:
+            self.monitor_timer = self.node.create_timer(
+                self.state_check_interval, 
+                self.monitor_lifecycle_state
+            )
         
         # Start initial configuration sequence
         if self.auto_configure_on_start:
@@ -211,9 +212,11 @@ class LifecycleManager:
             def activate_once():
                 # Assume node is now in inactive state after configuration
                 self.activate_node()
+                # Cancel the timer after first execution
+                activation_timer.cancel()
             
-            # Schedule activation after configuration
-            self.node.create_timer(self.auto_activate_delay, activate_once)
+         
+            activation_timer = self.node.create_timer(self.auto_activate_delay, activate_once)
     
     def monitor_lifecycle_state(self):
         """
@@ -546,7 +549,7 @@ class LifecycleManager:
         )
     
     def set_auto_management_flags(self, auto_configure=None, auto_activate=None, 
-                                 battery_aware=None, auto_recovery=None):
+                                 battery_aware=None, auto_recovery=False):
         """
         Configure automatic management behavior policies.
         

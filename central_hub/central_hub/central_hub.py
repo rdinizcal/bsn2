@@ -52,7 +52,7 @@ class CentralHub(LifecycleNode):
             auto_configure=True,
             auto_activate=True,
             battery_aware=True,
-            auto_recovery=True
+            auto_recovery=False
         )
         
         # Set battery thresholds for lifecycle decisions
@@ -110,7 +110,7 @@ class CentralHub(LifecycleNode):
             
             # Keep heartbeat timer running, but change content to "deactivate"
             # DO NOT cancel the timer
-            
+            self.get_logger().warn(f"activation state is {self.active}")
             # Publish deactivation events
             self.publisher_manager.publish_event("deactivate")
             self.publisher_manager.publish_status("deactivated", "idle")
@@ -151,7 +151,8 @@ class CentralHub(LifecycleNode):
             return TransitionCallbackReturn.FAILURE
 
     def is_active(self):
-        """Check if hub is active"""
+        """Check if hub is active using lifecycle state"""
+        self.get_logger().warn(f"Checking if hub is active: {self.active}")
         return self.active
 
     def detect(self):
@@ -173,14 +174,15 @@ class CentralHub(LifecycleNode):
             
             # Emit alerts for high/moderate risks
             self.risk_analyzer.emit_alert(patient_status)
-            
-            # Publish system data
-            self.publisher_manager.publish_system_data(
-                patient_status, 
-                self.sensor_handler.latest_data,
-                self.sensor_handler.latest_risk,
-                self.sensor_handler.sensor_battery_levels
-            )
+            self.get_logger().info(f"current state: {self.active}")
+            if self.active:
+                # Publish system data
+                self.publisher_manager.publish_system_data(
+                    patient_status, 
+                    self.sensor_handler.latest_data,
+                    self.sensor_handler.latest_risk,
+                    self.sensor_handler.sensor_battery_levels
+                )
             
             # Report energy status
             self.battery_manager.send_energy_status()

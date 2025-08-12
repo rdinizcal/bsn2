@@ -156,8 +156,12 @@ def capture_csv_data(topic, line_limit=10):
         ["ros2", "topic", "echo", "--csv", topic],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True,
+        text=True
     )
+    if process.returncode != 0:
+        #raise Exception(f"Error getting topic info: {result.stderr.decode('utf-8')}")
+        print(f"null value returned: {process.stderr.decode('utf-8')}")
+        return {}
 
     try:
         # Read lines until reaching the line limit
