@@ -56,6 +56,7 @@ def sensor_node(request):
 
     # Create node with a custom name to avoid conflicts
     node = Sensor("thermometer_test_node", parameters=params)
+    node.lifecycle_manager.auto_recovery = True
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
 
     # Log basic information without using get_parameter_names()

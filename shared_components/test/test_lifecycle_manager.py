@@ -125,7 +125,8 @@ class TestLifecycleManager:
         # Verify manager attributes
         assert hasattr(lifecycle_manager, 'node')
         assert lifecycle_manager.node == lifecycle_node
-        
+        lifecycle_manager.auto_recovery = True
+        assert lifecycle_manager.auto_recovery is True
         assert hasattr(lifecycle_manager, 'auto_manage')
         assert lifecycle_manager.auto_manage is True
         

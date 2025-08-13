@@ -168,8 +168,8 @@ class DataAccess(Node):
     def _initialize_component_data(self):
         """Initialize default component data for BSN components only"""
         # Only initialize BSN component names
-        bsn_components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6"]
-        
+        bsn_components = ['g3t1_1', 'g3t1_2', 'g3t1_3', 'g3t1_4', 'g3t1_5', 'g3t1_6', 'g4t1']
+
         for component in bsn_components:
             self.components_batteries[component] = 100.0
             self.components_costs_engine[component] = 0.0
@@ -439,12 +439,12 @@ class DataAccess(Node):
     def process_target_system_data(self, msg: TargetSystemData):
         """Process target system data to update battery levels"""
         try:
-            self.components_batteries["g3t1_1"] = msg.trm_batt
-            self.components_batteries["g3t1_2"] = msg.ecg_batt
-            self.components_batteries["g3t1_3"] = msg.oxi_batt
-            self.components_batteries["g3t1_4"] = msg.abps_batt
-            self.components_batteries["g3t1_5"] = msg.abpd_batt
-            self.components_batteries["g3t1_6"] = msg.glc_batt
+            self.components_batteries['g3t1_1'] = msg.trm_batt
+            self.components_batteries['g3t1_2'] = msg.ecg_batt
+            self.components_batteries['g3t1_3'] = msg.oxi_batt
+            self.components_batteries['g3t1_4'] = msg.abps_batt
+            self.components_batteries['g3t1_5'] = msg.abpd_batt
+            self.components_batteries['g3t1_6'] = msg.glc_batt
             
         except Exception as e:
             self.get_logger().error(f"Error processing target system data: {e}")
