@@ -12,7 +12,7 @@ node_monitor:
     ]
 
     # Timing parameters
-    heartbeat_timeout: 5.0  # Seconds before a node is considered offline
+    heartbeat_timeout: 3.0  # Seconds before a node is considered offline
     task_timeout: 30.0      # Seconds before a task is considered stuck
     check_interval: 2.0     # How often to poll node states
 

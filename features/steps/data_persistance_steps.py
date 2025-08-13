@@ -1,6 +1,6 @@
 from behave import given, when, then
 import subprocess
-from utils.parsers import process_real_time_topics, capture_topic_data,capture_csv_data, deactivate_node # , format_debug_data,,
+from utils.parsers import process_real_time_topics, capture_topic_data,capture_csv_data, deactivate_node, activate_node # , format_debug_data,,
 from utils.constants import PERSISTENCE_NODES, PERSISTANCE_TOPICS
 from utils.asserts import node_is_active
 import time
@@ -70,7 +70,7 @@ def step_then_system_logs_failure(context):
     status = capture_csv_data('/log_status')
     print(f'status: {status}')
     assert 'central_hub_node' not in status['source'], f'Status source should be empty due to persistence failure. {status}'
-    persist_topic = capture_csv_data('/persist')
+    persist_topic = capture_csv_data('/persist', 20, 30)
     print(f'persist topic: {persist_topic}')
     assert 'central_hub_node' not in persist_topic['source'], f'Persist topic source should be empty due to persistence failure. {persist_topic}'
     assert activate_node('central_hub_node'), f'node not reactivated'

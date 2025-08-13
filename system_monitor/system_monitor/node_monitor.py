@@ -71,7 +71,7 @@ class SystemMonitor(Node):
         
         # Configure parameters
         self.declare_parameter('monitored_nodes', ['thermometer_node', 'oximeter_node', 'central_hub_node'])
-        self.declare_parameter('heartbeat_timeout', 5.0)
+        self.declare_parameter('heartbeat_timeout', 3.0)
         self.declare_parameter('check_interval', 2.0) 
         self.declare_parameter('debug_level', False)
         self.declare_parameter('frequency', 1.0)
@@ -108,13 +108,6 @@ class SystemMonitor(Node):
         self.log_energy_pub = self.create_publisher(
             EnergyStatus, 'log_energy_status', 10)
             
-        # === MONITOR FUNCTIONALITY ===
-        # Publisher for monitor status
-        self.status_pub = self.create_publisher(
-            String,
-            'system_monitor/status',
-            10
-        )
         
         # === SHARED SUBSCRIPTIONS ===
         # Subscribe to all component messages
@@ -153,25 +146,27 @@ class SystemMonitor(Node):
         Process and forward status messages from system components.
         
         Handles incoming component status messages by forwarding them to the
-        Logger and updating internal node state tracking. Automatically updates
-        activation states and task information based on status content.
+        Logger and updating internal node state tracking. Also monitors for
+        missing heartbeats and publishes deactivation status when nodes go silent.
         
         Args:
             msg (Status): Status message containing source, target, content,
                          and task information from a system component.
         """
-        # Forward to Logger (Collector functionality)
-        msg.content = self.monitored_nodes[msg.source]['content']
-        self.log_status_pub.publish(msg)
-        
-        # Process for monitoring (NodeMonitor functionality)
+        # Process for monitoring (NodeMonitor functionality) FIRST
         node_name = msg.source
         content = msg.content
         task = msg.task
         
+        # Update heartbeat timestamp when we receive ANY status message
+        current_time = time.time()
+        
         # Update node in tracked list if it's one we care about
         for monitored_node in self.monitored_nodes:
             if node_name == monitored_node or node_name.endswith(monitored_node.split('/')[-1]):
+                # UPDATE HEARTBEAT - This is the key addition
+                self.monitored_nodes[monitored_node]['last_heartbeat'] = current_time
+                
                 # Update status info
                 self.monitored_nodes[monitored_node]['task'] = task
                 self.monitored_nodes[monitored_node]['content'] = content
@@ -197,6 +192,10 @@ class SystemMonitor(Node):
                 
                 break
     
+        # Forward to Logger (Collector functionality) - use ORIGINAL message
+        # Don't modify the original message content
+        self.log_status_pub.publish(msg)
+        
     def event_callback(self, msg):
         """
         Process and forward event messages from system components.
@@ -279,32 +278,22 @@ class SystemMonitor(Node):
 
     def publish_monitor_status(self):
         """
-        Publish current status of all monitored nodes.
-        
-        Generates and publishes comprehensive status reports for each monitored
-        node including activation state, current task, status content, and
-        recharging state. Provides real-time system overview for external
-        monitoring tools.
+        Publish current status of all monitored nodes to log_status.
         """
         for node_name, info in self.monitored_nodes.items():
-            # Create a detailed status message
-            status_msg = String()
+            # Create a Status message for each monitored node
+            status_msg = Status()
+            status_msg.source = node_name  # ← The node being reported on
+            status_msg.target = 'system'
+            status_msg.task = info.get('task', 'monitoring')  # ← The node's current task
             
-            # Add recharging state to status display
+            # Create detailed status content
             recharge_status = "RECHARGING" if info.get('is_recharging', False) else ""
             
-            status_msg.data = (
-                f"{node_name}: "
-                f"ACTIVE={info['active']}, "
-                f"TASK={info.get('task', 'idle')}, "
-                f"STATUS={info.get('content', 'unknown')} "
-                f"{recharge_status}"
-            )
-            self.status_pub.publish(status_msg)
+            status_msg.content = info.get('content', 'unknown')
             
-            # Log status periodically if debugging is enabled
-            if self.debug:
-                self.get_logger().debug(status_msg.data)
+            # Publish to log_status
+            self.log_status_pub.publish(status_msg)
 
 
 def main(args=None):
