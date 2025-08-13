@@ -70,7 +70,7 @@ class SystemMonitor(Node):
         self.get_logger().info("Starting Combined System Monitor")
         
         # Configure parameters
-        self.declare_parameter('monitored_nodes', ['thermometer_node', 'oximeter_node', 'central_hub'])
+        self.declare_parameter('monitored_nodes', ['thermometer_node', 'oximeter_node', 'central_hub_node'])
         self.declare_parameter('heartbeat_timeout', 5.0)
         self.declare_parameter('check_interval', 2.0) 
         self.declare_parameter('debug_level', False)
@@ -161,6 +161,7 @@ class SystemMonitor(Node):
                          and task information from a system component.
         """
         # Forward to Logger (Collector functionality)
+        msg.content = self.monitored_nodes[msg.source]['content']
         self.log_status_pub.publish(msg)
         
         # Process for monitoring (NodeMonitor functionality)

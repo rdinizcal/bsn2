@@ -1,6 +1,6 @@
 from behave import given, when, then
 import subprocess
-from utils.parsers import process_real_time_topics, capture_topic_data,capture_csv_data, set_node_lifecycle_state # , format_debug_data,,
+from utils.parsers import process_real_time_topics, capture_topic_data,capture_csv_data, deactivate_node # , format_debug_data,,
 from utils.constants import PERSISTENCE_NODES, PERSISTANCE_TOPICS
 from utils.asserts import node_is_active
 import time
@@ -61,16 +61,16 @@ def step_then_data_persisted(context):
 @when('a database error prevents persistence')
 def step_when_database_error_occurs(context):
     """Simulate a database error preventing persistence."""
-    assert set_node_lifecycle_state('central_hub_node', 'deactivate'), "Failed to deactivate the central hub node after processing error"
+    assert deactivate_node('central_hub_node')
     time.sleep(5)
 
 @then('the system must log a persistence failure')
 def step_then_system_logs_failure(context):
     """Ensure the system logs a persistence failure."""
-    energyStatus = capture_csv_data('/log_energy_status')
-    print(f'energyStatus: {energyStatus}')
-    assert 'central_hub_node' not in energyStatus['source'], f'Energy status source should be empty due to persistence failure. {energyStatus}'
+    status = capture_csv_data('/log_status')
+    print(f'status: {status}')
+    assert 'central_hub_node' not in status['source'], f'Status source should be empty due to persistence failure. {status}'
     persist_topic = capture_csv_data('/persist')
     print(f'persist topic: {persist_topic}')
     assert 'central_hub_node' not in persist_topic['source'], f'Persist topic source should be empty due to persistence failure. {persist_topic}'
-    assert set_node_lifecycle_state('central_hub_node', 'activate'), "Failed to activate the central hub node after processing error"
+    assert activate_node('central_hub_node'), f'node not reactivated'

@@ -117,7 +117,7 @@ def generate_launch_description():
             ),
             launch_ros.actions.Node(
                 package='system_monitor',
-                executable='system_monitor',
+                executable='logger',
                 name='logger',
                 output='screen',
                 emulate_tty=True,

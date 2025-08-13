@@ -1,5 +1,5 @@
 from behave import given, when, then
-from utils.parsers import capture_topic_data, set_node_lifecycle_state, capture_csv_data
+from utils.parsers import capture_topic_data, capture_csv_data, activate_node, deactivate_node
 from utils.asserts import count_matching_elements
 import subprocess
 import time
@@ -64,8 +64,8 @@ def step_then_sensors_process_data(context):
 @given("Central hub is inactive")
 def step_given_central_hub_inactive(context):
     # Set the central hub node to inactive
-    assert set_node_lifecycle_state('central_hub_node', 'deactivate'), "Failed to deactivate the central hub node after processing error"
-    time.sleep(5)
+    assert deactivate_node('central_hub_node'), "Failed to deactivate the central hub node after processing error"
+    
 
 @when("I listen to ecg and thermometer data")
 def step_when_listen_to_ecg_and_thermometer_data(context):
@@ -95,8 +95,8 @@ def step_then_central_hub_will_not_process_data(context):
     # Check if the central hub does not process the data
     topic_name = "/target_system_data"
     target_system_data = capture_csv_data(topic_name)
-    assert target_system_data == {}, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
-    
+    assert target_system_data['patient_status'] == [], f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+
     # assert (
         # topic_name not in context.topic_data
     # ), f"Central hub topic {topic_name} is still exists"
@@ -111,8 +111,8 @@ def step_then_central_hub_will_not_process_risk(context):
     # Check if the central hub does not process the risk
     topic_name = "/target_system_data"
     target_system_data = capture_csv_data(topic_name)
-    assert target_system_data == {}, f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
-    assert set_node_lifecycle_state('central_hub_node', 'activate'), "Failed to restart the central hub node after processing error"
+    assert target_system_data['patient_status'] == [], f"Central hub topic {topic_name} should not have processed data: {target_system_data}"
+    assert activate_node('central_hub_node')
     # assert (
         # topic_name in context.topic_data
     # ), f"Central hub topic {topic_name} is missing"

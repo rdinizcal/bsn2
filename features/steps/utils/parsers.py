@@ -141,15 +141,15 @@ def get_message_attributes(topic_name):
     ]
 
 
-def capture_csv_data(topic, line_limit=10):
+def capture_csv_data(topic, line_limit=10, timeout=10):
     """
-    Capture CSV data from a ROS2 topic and organize it into a dictionary with keys based on message keys.
+    Capture CSV data from a ROS2 topic in real-time with timeout support.
     """
-    
     message_keys = get_message_attributes(topic)
     if message_keys is None:
         print(f"Failed to retrieve message attributes for topic: {topic}")
         return {}
+    
     output = {key[1:]: [] for key in message_keys}
 
     process = subprocess.Popen(
@@ -158,36 +158,57 @@ def capture_csv_data(topic, line_limit=10):
         stderr=subprocess.PIPE,
         text=True
     )
-    if process.returncode != 0:
-        #raise Exception(f"Error getting topic info: {result.stderr.decode('utf-8')}")
-        print(f"null value returned: {process.stderr.decode('utf-8')}")
-        return {}
 
     try:
-        # Read lines until reaching the line limit
-        while True:
-            line = process.stdout.readline()  # Read one line at a time
-            if not line:  # Break if no more lines to read
-                break
-
-            values = line.strip().split(",")  # Split the CSV line into values
-            if len(values) == len(
-                output
-            ):  # Ensure the line has the correct number of values
-                # Map values to their respective keys in the output dictionary
-                for key, value in zip(output.keys(), values):
-                    output[key].append(value)
-
-            # Break if all lists have at least `line_limit` items
-            if all(len(v) >= line_limit for v in output.values()):
-                print("finished capturing data. on topic:", topic)
-                break
-
+        import time
+        start_time = time.time()
+        
+        while time.time() - start_time < timeout:
+            # Non-blocking read with timeout
+            import select
+            
+            # Wait up to 1 second for data to be available
+            ready, _, _ = select.select([process.stdout], [], [], 1.0)
+            
+            if ready:
+                line = process.stdout.readline()
+                if not line:  # Process ended
+                    break
+                
+                line = line.strip()
+                if line:  # Skip empty lines
+                    values = line.split(",")
+                    if len(values) == len(output):
+                        for key, value in zip(output.keys(), values):
+                            output[key].append(value)
+                        
+                        # Check if we have enough data
+                        if all(len(v) >= line_limit for v in output.values()):
+                            print(f"Finished capturing {line_limit} lines from {topic}")
+                            break
+            else:
+                # No data available in the last 1 second
+                # Check if we have any data yet
+                total_data = sum(len(v) for v in output.values())
+                if total_data == 0:
+                    continue  # Keep waiting if no data yet
+                else:
+                    # We have some data but no new data coming
+                    print(f"No new data from {topic}, stopping capture")
+                    break
+        
+        # Check final results
+        total_data = sum(len(v) for v in output.values())
+        if total_data == 0:
+            print(f"No data captured from {topic} within {timeout}s timeout")
+        else:
+            print(f"Captured {total_data} data columns from {topic}")
+            
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error capturing data from {topic}: {e}")
     finally:
-        process.terminate()  # Ensure the process exits properly
-        process.wait()  # Ensure the process exits properly
+        process.terminate()
+        process.wait()
 
     return output
 
@@ -300,7 +321,7 @@ def get_node_lifecycle_state(node_name):
         )
         
         if result.returncode == 0:
-            return result.stdout.decode().strip()
+            return result.stdout.decode().strip().split()[0]
         else:
             return None
     except subprocess.TimeoutExpired:
@@ -326,8 +347,7 @@ def set_node_lifecycle_state(node_name, transition):
         result = subprocess.run(
             ["ros2", "lifecycle", "set", node_name, transition],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=10
+            stderr=subprocess.DEVNULL
         )
         
         return result.returncode == 0
