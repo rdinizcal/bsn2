@@ -33,10 +33,12 @@ def step_when_overloaded_data_sent(context, node_name):
     topic = f'/{node_name}_data'
     capture_topic_data(context, ['sensor_data/thermometer'])
     print(context.topic_data['/sensor_data/thermometer'])
-    assert False
-
+    assert ('low' in context.topic_data['/sensor_data/thermometer']['risk_level'] 
+           or 'moderate' in context.topic_data['/sensor_data/thermometer']['risk_level'])
+    
 @then('Central Hub will experience delayed emergency detection')
 def step_then_g4t1_might_delay_detection(context):
     #detects no high emergency risk
-    print(context.topic_data['/target_system_data']['patient_status'])
-    assert False
+    capture_topic_data(context, ['target_system_data'])
+    assert any(50.0 > float(x) for x in context.topic_data['/target_system_data']['patient_status'])
+    

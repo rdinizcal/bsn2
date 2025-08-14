@@ -24,7 +24,7 @@ def ros_context():
 def lifecycle_sensor(ros_context):
     """Create a fresh sensor node for each test."""
     from sensor.sensor import Sensor
-    from bsn_interfaces.srv import PatientData
+    from bsn_interfaces.srv import PatientData, EffectorRegister
     from ament_index_python.packages import get_package_share_directory
     import os
     import yaml
@@ -42,9 +42,17 @@ def lifecycle_sensor(ros_context):
         mock_service_node.get_logger().info(f"Mock service called for {req.vital_sign}")
         res.datapoint = 37.0
         return res
+    def mock_effector_register_service(req, res):
+        mock_service_node.get_logger().info(f"Mock EffectorRegister called for {req.name}")
+        res.ack = True
+        return res
 
     test_service = mock_service_node.create_service(
         PatientData, "get_sensor_reading", mock_patient_service
+    )
+    
+    effector_service = mock_service_node.create_service(
+        EffectorRegister, 'EffectorRegister', mock_effector_register_service
     )
     
     # Load params from YAML file - we'll use thermometer for testing

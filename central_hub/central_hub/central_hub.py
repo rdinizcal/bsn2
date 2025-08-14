@@ -174,7 +174,7 @@ class CentralHub(LifecycleNode):
             
             # Emit alerts for high/moderate risks
             self.risk_analyzer.emit_alert(patient_status)
-            self.get_logger().info(f"current state: {self.active}")
+            
             if self.active:
                 # Publish system data
                 self.publisher_manager.publish_system_data(

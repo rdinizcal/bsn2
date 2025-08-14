@@ -6,7 +6,7 @@ import threading
 from ament_index_python.packages import get_package_share_directory
 from rclpy.parameter import Parameter
 from bsn_interfaces.msg import SensorData
-from bsn_interfaces.srv import PatientData
+from bsn_interfaces.srv import PatientData, EffectorRegister
 import rclpy
 from sensor.sensor import Sensor
 from rclpy.node import Node
@@ -14,10 +14,10 @@ from rclpy.node import Node
 
 @pytest.fixture(scope="class")
 def sensor_node(request):
-    """Create a sensor node for testing."""
+    """Create and manage sensor node for testing"""
     # Initialize ROS
     rclpy.init()
-
+    print(f'passed here in initializatiopn')
     # Create a separate node for the mock service
     mock_service_node = Node("mock_service_provider")
 
@@ -26,10 +26,21 @@ def sensor_node(request):
         res.datapoint = 37.0
         return res
 
-    test_service = mock_service_node.create_service(
-        PatientData, "get_sensor_reading", mock_patient_service
-    )
+    # Add the missing EffectorRegister mock service
+    def mock_effector_register_service(req, res):
+        mock_service_node.get_logger().info(f"Mock EffectorRegister called for {req.name}")
+        res.ack = True
+        return res
 
+    test_service = mock_service_node.create_service(
+        PatientData, 'get_sensor_reading', mock_patient_service
+    )
+    
+    # Add this line to mock the EffectorRegister service
+    effector_service = mock_service_node.create_service(
+        EffectorRegister, 'EffectorRegister', mock_effector_register_service
+    )
+    print(f'passed here in effector rtegistration')
     # We need to spin the mock service node to handle requests
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(mock_service_node)
@@ -56,7 +67,10 @@ def sensor_node(request):
 
     # Create node with a custom name to avoid conflicts
     node = Sensor("thermometer_test_node", parameters=params)
+    
+    # Enable auto_recovery for testing to prevent hanging
     node.lifecycle_manager.auto_recovery = True
+    
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
 
     # Log basic information without using get_parameter_names()
@@ -126,38 +140,27 @@ def sensor_node(request):
 
     yield node
 
-    # IMPORTANT: Properly deactivate and cleanup the node
+    # PROPER CLEANUP - This is what's missing!
     try:
-        # Check state before attempting transitions
-        state = node.get_current_state().label
-        node.get_logger().info(f"Current state before teardown: {state}")
+        # Shutdown the node first
+        if hasattr(node, 'lifecycle_manager'):
+            node.lifecycle_manager.shutdown_node()
         
-        # Only try to deactivate if in active state
-        if state == "active":
-            try:
-                node.trigger_deactivate()
-                time.sleep(0.1)
-            except Exception as e:
-                node.get_logger().warn(f"Deactivation failed: {e}")
+        # Remove node from executor
+        executor.remove_node(node)
         
-        # Only try to cleanup if in inactive state 
-        current_state = node.get_current_state().label
-        if current_state == "inactive":
-            try:
-                node.trigger_cleanup()
-                time.sleep(0.1)
-            except Exception as e:
-                node.get_logger().warn(f"Cleanup failed: {e}")
-        
-        # Always do these cleanup steps
+        # Shutdown executor
         executor.shutdown()
+        
+        # Destroy the node
+        node.destroy_node()
+        
+        # Wait for executor thread to finish
         if executor_thread.is_alive():
             executor_thread.join(timeout=2.0)
-        
-        mock_service_node.destroy_node()
-        node.destroy_node()
+            
     except Exception as e:
-        node.get_logger().error(f"Exception during teardown: {e}")
+        print(f"Error during sensor cleanup: {e}")
     finally:
         rclpy.shutdown()
 

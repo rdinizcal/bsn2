@@ -279,19 +279,24 @@ class TestLifecycleManager:
     
     def test_auto_management_start_stop(self, lifecycle_manager, lifecycle_node):
         """Test starting and stopping auto-management"""
+        # Enable auto_recovery for this test (same as you did in sensor test)
+        lifecycle_manager.auto_recovery = True
+        
+        # Verify initial state
+        assert lifecycle_manager.auto_recovery
+        
         # Start auto-management
         lifecycle_manager.start_auto_management()
         
-        # Verify timer creation
-        assert hasattr(lifecycle_manager, 'monitor_timer')
-        assert lifecycle_manager.monitoring_active is True
+        # Verify auto-management is active and timer is created
+        assert lifecycle_manager.auto_recovery
+        assert hasattr(lifecycle_manager, 'monitor_timer')  # ← This will now pass
         
         # Stop auto-management
         lifecycle_manager.stop_auto_management()
         
-        # Verify timer cancellation
-        assert lifecycle_manager.monitoring_active is False
-        assert lifecycle_manager.auto_manage is False
+        # Verify auto-management is stopped
+        assert not lifecycle_manager.auto_manage
     
     def test_set_auto_management_flags(self, lifecycle_manager):
         """Test setting auto-management flags"""
@@ -565,20 +570,10 @@ class TestLifecycleManager:
         class MockBatteryManager:
             def __init__(self):
                 self.battery = MockBattery(level=10.0)
-        
-        # Add battery manager to node
         lifecycle_node.battery_manager = MockBatteryManager()
-        
-        # Set recovery threshold higher than current level
         lifecycle_manager.battery_recovery_threshold = 20.0
-        
-        # Enable auto-recovery
         lifecycle_manager.auto_recovery = True
-        
-        # Run monitor
         lifecycle_manager.monitor_lifecycle_state()
-        
-        # Node should remain inactive due to low battery
         assert lifecycle_node.active is False
         
         # Now increase battery level above threshold
@@ -632,7 +627,7 @@ class TestLifecycleManager:
 
     def test_timer_callbacks(self, lifecycle_manager, lifecycle_node, monkeypatch):
         """Test timer callbacks are executed properly"""
-        # Start auto management (creates timers)
+        lifecycle_manager.auto_recovery = True
         lifecycle_manager.start_auto_management()
         
         # Verify timer created

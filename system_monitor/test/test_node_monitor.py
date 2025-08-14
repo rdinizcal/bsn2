@@ -50,10 +50,7 @@ class TestSystemMonitor:
         assert hasattr(monitor_node, 'log_energy_pub')
         assert hasattr(monitor_node, 'status_sub')
         assert hasattr(monitor_node, 'event_sub')
-        assert hasattr(monitor_node, 'energy_sub')
-        
-        # Check for status publisher
-        assert hasattr(monitor_node, 'status_pub')
+        assert hasattr(monitor_node, 'energy_subscribers')
         
         # Check for monitored_nodes dictionary
         assert hasattr(monitor_node, 'monitored_nodes')
@@ -97,9 +94,12 @@ class TestSystemMonitor:
             # Wait for discovery
             time.sleep(2.0)
             
+            # Clear any initial messages from monitor's internal status publishing
+            received_messages.clear()
+            
             # Create and publish test message
             msg = Status()
-            msg.source = "test_sensor"
+            msg.source = "thermometer_node"
             msg.target = "test_target"
             msg.content = "activated"
             msg.task = "measuring"
@@ -112,11 +112,20 @@ class TestSystemMonitor:
             # Wait for message forwarding with timeout
             result = wait_for(lambda: len(received_messages) > 0, 3.0)
             
-            # Verify message was forwarded
-            assert len(received_messages) > 0, "No status messages forwarded"
-            assert received_messages[0].source == "test_sensor"
-            assert received_messages[0].content == "activated"
-            assert received_messages[0].task == "measuring"
+            # Fix: Find the message we actually sent instead of checking first message
+            test_message = None
+            for received_msg in received_messages:
+                if (received_msg.source == "thermometer_node" and 
+                    received_msg.content == "activated" and 
+                    received_msg.task == "measuring"):
+                    test_message = received_msg
+                    break
+            
+            # Verify our specific message was forwarded
+            assert test_message is not None, f"Test message not found in received messages: {[msg.content for msg in received_messages]}"
+            assert test_message.source == "thermometer_node"
+            assert test_message.content == "activated"
+            assert test_message.task == "measuring"
             
         finally:
             # Clean up
@@ -190,9 +199,9 @@ class TestSystemMonitor:
         test_node = rclpy.create_node("test_energy_sender")
         monitor = SystemMonitor()
         
-        # Create mock publisher and subscriber
+        # Fix: Subscribe to the correct topic that your node monitor publishes to
         energy_pub = test_node.create_publisher(
-            EnergyStatus, 'collect_energy_status', 10)
+            EnergyStatus, 'collect_energy_status/thermometer', 10)  # ← Specific sensor topic
         
         # Track forwarded messages
         received_messages = []
@@ -201,6 +210,7 @@ class TestSystemMonitor:
             test_node.get_logger().info(f"Received forwarded energy status: {msg.content}")
             received_messages.append(msg)
         
+        # Fix: Make sure this matches where your node monitor publishes energy messages
         energy_sub = test_node.create_subscription(
             EnergyStatus, 'log_energy_status', energy_callback, 10)
         
@@ -328,13 +338,13 @@ class TestSystemMonitor:
             monitor.destroy_node()
     
     def test_status_publishing(self, setup_ros):
-        """Test publishing of monitor status"""
+        """Test publishing of monitor status to log_status"""
         # Create test node and monitor
         test_node = rclpy.create_node("test_status_receiver")
         monitor = SystemMonitor()
         
         # Clear existing monitored nodes and add only our test node
-        monitor.monitored_nodes = {}  # Add this line to clear existing nodes
+        monitor.monitored_nodes = {}
         
         test_node_name = "test_sensor"
         monitor.monitored_nodes[test_node_name] = {
@@ -350,12 +360,13 @@ class TestSystemMonitor:
         received_messages = []
         
         def status_callback(msg):
-            test_node.get_logger().info(f"Received status: {msg.data}")
+            test_node.get_logger().info(f"Received log_status: {msg.source} - {msg.content}")
             received_messages.append(msg)
         
+        # Fix: Change from String and system_monitor/status to Status and log_status
         status_sub = test_node.create_subscription(
-            String, 'system_monitor/status', status_callback, 10)
-        
+            Status, 'log_status', status_callback, 10)  # ← Change message type and topic
+    
         # Create executor and spin in separate thread
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(test_node)
@@ -374,13 +385,12 @@ class TestSystemMonitor:
             # Wait for message with timeout
             result = wait_for(lambda: len(received_messages) > 0, 3.0)
             
-            # Verify status message content
+            # Fix: Update assertions to match Status message structure
             assert len(received_messages) > 0, "No status messages received"
-            assert test_node_name in received_messages[0].data
-            assert "ACTIVE=True" in received_messages[0].data
-            assert "TASK=measuring" in received_messages[0].data
-            
-            
+            assert received_messages[0].source == test_node_name  # ← Check source field
+            assert received_messages[0].content == 'activated'    # ← Check content field
+            assert received_messages[0].task == 'measuring'       # ← Check task field
+            assert received_messages[0].target == 'system'       # ← Check target field
             
         finally:
             # Clean up

@@ -13,6 +13,47 @@ from bsn_interfaces.msg import Event, Strategy, AdaptationCommand, Exception as 
 from bsn_interfaces.srv import DataAccessRequest, EngineRequest
 
 
+@pytest.fixture(scope="class")
+def enactor_node(request):
+    """Create enactor node with mocked services"""
+    
+    # Mock all service waits to prevent hanging
+    with patch('rclpy.client.Client.wait_for_service') as mock_wait:
+        with patch('rclpy.client.Client.service_is_ready') as mock_ready:
+            mock_wait.return_value = True
+            mock_ready.return_value = True
+            
+            # Create the controller
+            controller = Controller()
+            
+            # Mock the service clients to prevent actual service calls
+            mock_response = Mock()
+            mock_response.success = True
+            mock_response.result = "success"
+            mock_response.data = "test_data"
+            
+            mock_future = Mock()
+            mock_future.result.return_value = mock_response
+            
+            # Mock service client calls
+            controller.data_access_client.call_async = Mock(return_value=mock_future)
+            controller.engine_client.call_async = Mock(return_value=mock_future)
+            
+            # Mock publishers
+            controller.adapt = Mock()
+            controller.except_pub = Mock()
+            
+            # Set the controller in the test class
+            request.cls.controller = controller
+            
+            yield controller
+            
+            # Cleanup
+            try:
+                controller.destroy_node()
+            except:
+                pass
+
 @pytest.mark.usefixtures("enactor_node")
 class TestEnactor:
     """Test Enactor/Controller functionality following data_access pattern"""

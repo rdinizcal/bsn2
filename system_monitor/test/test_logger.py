@@ -307,7 +307,7 @@ class TestLogger:
             assert len(received_messages) > 0, "No persist messages received"
             assert received_messages[0].source == "test_source"
             assert received_messages[0].target == "test_target"
-            assert received_messages[0].type == "Adaptation"
+            assert received_messages[0].type == "AdaptationCommand"
             assert received_messages[0].content == "test_action"
             
         finally:
@@ -499,7 +499,7 @@ class TestLogger:
             energy_msg.content = "energy:50.0:cost:0.1"
             
             # Direct call to test coverage
-            logger.receive_energy(energy_msg)
+            logger.receive_energy_status(energy_msg)
             
         finally:
             # Restore original time_ref
