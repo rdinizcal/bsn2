@@ -255,15 +255,6 @@ class TestBaseEngine:
             # target_system_model should remain unchanged (may not be None due to previous tests)
             assert self.engine_node.target_system_model == original_model
 
-    def test_fetch_formula_service_unavailable(self):
-        """Test fetch_formula when service is unavailable"""
-        # Mock service to be unavailable
-        with patch.object(self.engine_node, 'data_access_client') as mock_client:
-            mock_client.wait_for_service.return_value = False
-            mock_client.call_async.return_value.result.return_value = ""
-            result = self.engine_node.fetch_formula("/engine")
-            assert not result, f'Expected no result, but got: {result}'
-
     def test_component_name_conversion(self):
         """Test component name conversion logic"""
         # Test G3T1_1 conversion

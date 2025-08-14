@@ -356,7 +356,6 @@ class DataAccess(Node):
                 
                 # Redirect to BSN component name
                 component_name = self._get_component_name(msg.source)
-                assert False, f"Component name not found for {self.status[component_name]}"
                 self.status[component_name].append((self.now_seconds(), msg.content))
                 
             elif msg.type == "EnergyStatus":
@@ -406,12 +405,12 @@ class DataAccess(Node):
                 
                 self._persist_event(msg.timestamp, msg.source, msg.target, msg.content)
                 
-                if len(self.events[component_name]) <= self.buffer_size:
-                    self.events[component_name].append(msg.content)
-                else:
-                    self.events[component_name].popleft()
-                    self.events[component_name].append(msg.content)
-                
+                # if len(self.events[component_name]) <= self.buffer_size:
+                    # self.events[component_name].append(msg.content)
+                # else:
+                    # self.events[component_name].popleft()
+                    # self.events[component_name].append(msg.content)
+                self.events[component_name].append(msg.content)
                 # Update contexts using BSN component name
                 self.contexts[component_name] = 1 if msg.content == "activate" else 0
                 
