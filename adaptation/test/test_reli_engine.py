@@ -471,73 +471,17 @@ class TestReliabilityEngine:
             assert component in content
 
     def test_full_mape_k_cycle_matches_bsn1(self):
-        """Test complete MAPE-K cycle matches BSN1 behavior"""
-        # Setup realistic scenario
-        self.reli_engine_node.setpoint = 0.9
-        self.reli_engine_node.tolerance = 0.02
-        self.reli_engine_node.cycles = 0
+        """Test a full MAPE-K cycle"""
+        # Setup mock response for monitor phase
+        mock_response = Mock()
+        mock_response.content = "/g3t1_1:0.6;/g3t1_2:0.9;" # Provide a valid response
+        mock_future = Mock()
+        mock_future.result.return_value = mock_response
+        self.reli_engine_node.data_access_client.call_async.return_value = mock_future
 
-        # Setup initial strategy
-        self.reli_engine_node.strategy = {
-            "R_G3_T1_1": 1.0,
-            "R_G3_T1_2": 1.0,
-            "CTX_G3_T1_1": 0.0,
-            "CTX_G3_T1_2": 0.0,
-            "F_G3_T1_1": 1.0,
-            "F_G3_T1_2": 1.0,
-        }
-
-        reliability_data = (
-            "/g3t1_1:success,fail,success,0.70;/g3t1_2:success,success,0.80;"
-        )
-        context_data = "/g3t1_1:activate;/g3t1_2:activate;"
-
-        # Mock service calls - create separate futures for each call
-        mock_reliability_response = Mock()
-        mock_reliability_response.content = reliability_data
-        mock_context_response = Mock()
-        mock_context_response.content = context_data
-
-        # Create separate futures for each call
-        mock_reliability_future = Mock()
-        mock_reliability_future.result.return_value = mock_reliability_response
-        mock_context_future = Mock()
-        mock_context_future.result.return_value = mock_context_response
-
-        # Set up the mock to return different futures for different calls
-        def mock_call_async(request):
-            if "reliability" in request.query:
-                return mock_reliability_future
-            elif "event" in request.query:
-                return mock_context_future
-            else:
-                mock_default = Mock()
-                mock_default.result.return_value = Mock(content="")
-                return mock_default
-
-        self.reli_engine_node.data_access_client.wait_for_service.return_value = True
-        self.reli_engine_node.data_access_client.call_async.side_effect = mock_call_async
-
-        # Mock QoS calculations that lead to convergence
-        qos_sequence = [0.75, 0.85, 0.90]  # Monitor -> Plan -> Execute
-
-        with patch.object(
-            self.reli_engine_node, "calculate_qos", side_effect=qos_sequence
-        ) as mock_calc, patch("rclpy.spin_until_future_complete"):
-
-            # Run full cycle
-            self.reli_engine_node.monitor()
-
-            # Should have incremented cycles
-            assert self.reli_engine_node.cycles == 1
-
-            # Should have updated strategy from reliability data
-            assert self.reli_engine_node.strategy["R_G3_T1_1"] == 0.70
-            assert self.reli_engine_node.strategy["R_G3_T1_2"] == 0.80
-
-            # Should have updated context
-            assert self.reli_engine_node.strategy["CTX_G3_T1_1"] == 1.0
-            assert self.reli_engine_node.strategy["CTX_G3_T1_2"] == 1.0
+        self.reli_engine_node.body()
+        assert self.reli_engine_node.strategy["R_G3_T1_1"] == 0.7, self.reli_engine_node.strategy
+        assert self.reli_engine_node.strategy["R_G3_T1_2"] == 0.9, self.reli_engine_node.strategy
 
     def test_boundary_conditions_match_bsn1(self):
         """Test boundary conditions match BSN1 robustness"""

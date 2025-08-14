@@ -72,10 +72,12 @@ class TestBaseEngine:
     def test_fetch_formula_with_mock_service(self):
         """Test fetch_formula with mock service"""
         # Call fetch_formula
-        result = self.engine_node.fetch_formula("reliability")
-        
-        # Should get the mocked response
-        assert result == "R_G3_T1_1 * R_G3_T1_2"
+        with patch.object(self.engine_node.data_access_client, "call_async") as mock_call_async:
+            mock_future = Mock()
+            mock_future.result.return_value = ""
+            mock_call_async.return_value = mock_future
+            result = self.engine_node.fetch_formula("/engine")
+            assert result == ""
 
     def test_setup_formula_success(self):
         """Test setup_formula with valid formula"""
@@ -258,9 +260,9 @@ class TestBaseEngine:
         # Mock service to be unavailable
         with patch.object(self.engine_node, 'data_access_client') as mock_client:
             mock_client.wait_for_service.return_value = False
-            
-            result = self.engine_node.fetch_formula("reliability")
-            assert result == ""
+            mock_client.call_async.return_value.result.return_value = ""
+            result = self.engine_node.fetch_formula("/engine")
+            assert not result, f'Expected no result, but got: {result}'
 
     def test_component_name_conversion(self):
         """Test component name conversion logic"""

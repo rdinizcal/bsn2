@@ -94,6 +94,15 @@ class DataAccess(Node):
             'abps_node': 'g3t1_4',
             'abpd_node': 'g3t1_5',
             'glucosemeter_node': 'g3t1_6',
+            'central_hub_node': 'g4t1',
+            # Add BSN names for test compatibility
+            'g3t1_1': 'g3t1_1',  # oximeter
+            'g3t1_2': 'g3t1_2',  # ecg  
+            'g3t1_3': 'g3t1_3',  # thermometer
+            'g3t1_4': 'g3t1_4',  # abps
+            'g3t1_5': 'g3t1_5',  # abpd
+            'g3t1_6': 'g3t1_6',  # glucosemeter
+            'g4t1': 'g4t1',      # central hub task
         }
         
         # Initialize parameters
@@ -169,12 +178,14 @@ class DataAccess(Node):
         """Initialize default component data for BSN components only"""
         # Only initialize BSN component names
         bsn_components = ['g3t1_1', 'g3t1_2', 'g3t1_3', 'g3t1_4', 'g3t1_5', 'g3t1_6', 'g4t1']
-
         for component in bsn_components:
             self.components_batteries[component] = 100.0
             self.components_costs_engine[component] = 0.0
             self.components_costs_enactor[component] = 0.0
             self.components_reliabilities[component] = 1.0
+            self.status[component] = deque(maxlen=self.buffer_size)
+            self.events[component] = deque(maxlen=self.buffer_size)
+            self.contexts[component] = 1
     
     def _setup_ros_interfaces(self):
         """Setup ROS2 publishers, subscribers, and services"""
@@ -309,10 +320,6 @@ class DataAccess(Node):
         except Exception as e:
             self.get_logger().error(f"Error loading goal model: {e}")
     
-    def now_nanoseconds(self) -> int:
-        """Get current time in nanoseconds"""
-        return int(time.time() * 1_000_000_000)
-    
     def now_seconds(self) -> float:
         """Get current time in seconds"""
         return time.time()
@@ -349,6 +356,7 @@ class DataAccess(Node):
                 
                 # Redirect to BSN component name
                 component_name = self._get_component_name(msg.source)
+                assert False, f"Component name not found for {self.status[component_name]}"
                 self.status[component_name].append((self.now_seconds(), msg.content))
                 
             elif msg.type == "EnergyStatus":
@@ -439,9 +447,9 @@ class DataAccess(Node):
     def process_target_system_data(self, msg: TargetSystemData):
         """Process target system data to update battery levels"""
         try:
-            self.components_batteries['g3t1_1'] = msg.trm_batt
+            self.components_batteries['g3t1_1'] = msg.oxi_batt
             self.components_batteries['g3t1_2'] = msg.ecg_batt
-            self.components_batteries['g3t1_3'] = msg.oxi_batt
+            self.components_batteries['g3t1_3'] = msg.trm_batt
             self.components_batteries['g3t1_4'] = msg.abps_batt
             self.components_batteries['g3t1_5'] = msg.abpd_batt
             self.components_batteries['g3t1_6'] = msg.glc_batt

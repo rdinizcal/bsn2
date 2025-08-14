@@ -9,8 +9,9 @@ from collections import deque
 
 from adaptation.enactor.enactor import Enactor
 from adaptation.enactor.controller import Controller
-from bsn_interfaces.msg import Event, Strategy, AdaptationCommand, Exception as ExceptionMsg
+from bsn_interfaces.msg import Event, Strategy, AdaptationCommand, Exception as BSNException
 from bsn_interfaces.srv import DataAccessRequest, EngineRequest
+
 
 
 @pytest.fixture(scope="class")
@@ -199,7 +200,7 @@ class TestEnactor:
         
         assert "/g3t1_1" in self.controller.r_ref
         assert "/g3t1_2" in self.controller.r_ref
-        assert self.controller.r_ref["/g3t1_1"] == 0.85
+        assert self.controller.r_ref["/g3t1_1"] == 0.85, f'self.controller.r_ref'
         assert self.controller.r_ref["/g3t1_2"] == 0.92
     
     def test_receive_strategy_cost(self):
@@ -220,6 +221,7 @@ class TestEnactor:
     
     def test_receive_status_data_access_query(self):
         """Test status query to DataAccess service"""
+        self.controller.adaptation_parameter = "reliability"
         self.controller.receive_status()
         
         # Check service was called
@@ -371,7 +373,7 @@ class TestEnactor:
         # Verify message format
         published_msg = self.controller.adapt.publish.call_args[0][0]
         assert published_msg.source == self.controller.get_name()
-        assert published_msg.target == component
+        assert published_msg.component == component
         assert published_msg.action == action
     
     def test_publish_exception_format(self):
@@ -387,7 +389,7 @@ class TestEnactor:
         # Verify message format
         published_msg = self.controller.except_pub.publish.call_args[0][0]
         assert published_msg.source == self.controller.get_name()
-        assert published_msg.target == "/engine"
+        assert published_msg.component == "/engine"
         assert published_msg.content == f"{component}={value}"
     
     def test_receive_adaptation_parameter_query(self):
@@ -400,7 +402,7 @@ class TestEnactor:
         # Verify request format
         call_args = self.controller.engine_client.call_async.call_args
         request = call_args[0][0]
-        assert request.name == "/enactor"
+        assert request.source == "/enactor"
     
     def test_tear_down_cleanup(self):
         """Test tearDown cleanup functionality"""
@@ -472,7 +474,7 @@ class TestEnactor:
             self.controller.apply_reli_strategy(component)
             
             # Verify workflow
-            assert self.controller.r_ref[component] == 0.85
+            assert self.controller.r_ref[component] == 0.85, f'{self.controller.r_ref}'
             assert self.controller.r_curr[component] == 0.75
             mock_send.assert_called_once()
         
@@ -541,3 +543,4 @@ class TestEnactor:
             
             # G4T1 should have different frequency behavior
             assert self.controller.freq[component] > 40.0
+        
