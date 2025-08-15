@@ -95,14 +95,6 @@ class DataAccess(Node):
             'abpd_node': 'g3t1_5',
             'glucosemeter_node': 'g3t1_6',
             'central_hub_node': 'g4t1',
-            # Add BSN names for test compatibility
-            'g3t1_1': 'g3t1_1',  # oximeter
-            'g3t1_2': 'g3t1_2',  # ecg  
-            'g3t1_3': 'g3t1_3',  # thermometer
-            'g3t1_4': 'g3t1_4',  # abps
-            'g3t1_5': 'g3t1_5',  # abpd
-            'g3t1_6': 'g3t1_6',  # glucosemeter
-            'g4t1': 'g4t1',      # central hub task
         }
         
         # Initialize parameters
@@ -175,18 +167,19 @@ class DataAccess(Node):
         self.get_logger().info("DataAccess initialized successfully")
     
     def _initialize_component_data(self):
-        """Initialize default component data for BSN components only"""
-        # Only initialize BSN component names
-        bsn_components = ['g3t1_1', 'g3t1_2', 'g3t1_3', 'g3t1_4', 'g3t1_5', 'g3t1_6', 'g4t1']
-        for component in bsn_components:
-            self.components_batteries[component] = 100.0
-            self.components_costs_engine[component] = 0.0
-            self.components_costs_enactor[component] = 0.0
-            self.components_reliabilities[component] = 1.0
-            self.status[component] = deque(maxlen=self.buffer_size)
-            self.events[component] = deque(maxlen=self.buffer_size)
-            self.contexts[component] = 1
-    
+        """Initialize data structures for each component."""
+        # Get unique component names from the mapping
+        unique_components = set(self.component_mapping.values())
+        
+        for component in unique_components:
+            key = component.lstrip('/')
+            self.get_logger().info(f"Initializing component in status and events: {key}")
+            self.status[key] = deque(maxlen=self.buffer_size)
+            self.events[key] = deque(maxlen=self.buffer_size)
+            self.contexts[key] = 1  # Default context is active
+            self.components_reliabilities[key] = 1.0
+            self.components_batteries[key] = 100.0
+
     def _setup_ros_interfaces(self):
         """Setup ROS2 publishers, subscribers, and services"""
         
@@ -350,14 +343,12 @@ class DataAccess(Node):
         self.logical_clock += 1
         
         try:
+            component_name = self._get_component_name(msg.source)
             if msg.type == "Status":
                 self.arrived_status += 1
                 self._persist_status(msg.timestamp, msg.source, msg.target, msg.content)
-                
-                # Redirect to BSN component name
-                component_name = self._get_component_name(msg.source)
+                # This now works because component_name has no slash.
                 self.status[component_name].append((self.now_seconds(), msg.content))
-                
             elif msg.type == "EnergyStatus":
                 if msg.source != "/engine":
                     # Redirect to BSN component name
@@ -400,20 +391,10 @@ class DataAccess(Node):
                     self._process_engine_energy_status(msg)
                     
             elif msg.type == "Event":
-                # Redirect to BSN component name
-                component_name = self._get_component_name(msg.source)
-                
                 self._persist_event(msg.timestamp, msg.source, msg.target, msg.content)
-                
-                # if len(self.events[component_name]) <= self.buffer_size:
-                    # self.events[component_name].append(msg.content)
-                # else:
-                    # self.events[component_name].popleft()
-                    # self.events[component_name].append(msg.content)
+                # This now works because component_name has no slash.
                 self.events[component_name].append(msg.content)
-                # Update contexts using BSN component name
                 self.contexts[component_name] = 1 if msg.content == "activate" else 0
-                
             elif msg.type == "Uncertainty":
                 self._persist_uncertainty(msg.timestamp, msg.source, msg.target, msg.content)
                 
@@ -470,13 +451,11 @@ class DataAccess(Node):
                 return response
                 
             elif query_parts[0] == "all" and query_parts[1] == "reliability":
-                # Build response in the format engine expects
                 result_parts = []
-                
-                for component_key in self.status.keys():
-                    if component_key in self.status and self.status[component_key]:
+                for component_key, status_deque in self.status.items():
+                    if status_deque:
                         # Get recent status entries
-                        status_entries = list(self.status[component_key])
+                        status_entries = list(status_deque)
                         
                         # Build status string (success,fail,success,...)
                         status_strings = [entry[1] for entry in status_entries]  # Get status part
@@ -491,28 +470,22 @@ class DataAccess(Node):
                         
                         # Format: "/g3t1_1:success,fail,success,0.666667"
                         status_str = ",".join(status_strings)
-                        component_entry = f"{component_key}:{status_str},{reliability:.6f}"
+                        # FIX: Add the leading slash ONLY when creating the response.
+                        component_entry = f"/{component_key}:{status_str},{reliability:.6f}"
                         result_parts.append(component_entry)
                     else:
-                        # No data for this component
-                        result_parts.append(f"{component_key}:0")
-                
+                        result_parts.append(f"/{component_key}:0")
                 response.content = ";".join(result_parts) + ";"
                 return response
-                
             elif query_parts[0] == "all" and query_parts[1] == "event":
-                # Build event response
                 result_parts = []
-                
-                for component_key in self.events.keys():
-                    if component_key in self.events and self.events[component_key]:
-                        # Get most recent event
-                        recent_event = self.events[component_key][-1]
-                        result_parts.append(f"{component_key}:{recent_event}")
+                for component_key, event_deque in self.events.items():
+                    if event_deque:
+                        recent_event = event_deque[-1]
+                        # FIX: Add the leading slash ONLY when creating the response.
+                        result_parts.append(f"/{component_key}:{recent_event}")
                     else:
-                        # Default to activate if no events
-                        result_parts.append(f"{component_key}:activate")
-                
+                        result_parts.append(f"/{component_key}:activate")
                 response.content = ";".join(result_parts) + ";"
                 return response
                 
@@ -531,7 +504,7 @@ class DataAccess(Node):
             # Convert to BSN component name if needed
             bsn_component = self._get_component_name(component)
             
-            aux = f"{bsn_component}:"
+            aux = f"/{bsn_component}:"
             success_count = 0
             total_count = 0
             
@@ -555,7 +528,7 @@ class DataAccess(Node):
             return aux
             
         except Exception as e:
-            self.get_logger().error(f"Error calculating reliability for {component}: {e}")
+            self.get_logger().error(f"Error calculating reliability for {component}: {e}  status { self.status}")
             return f"{component}:0;"
     
     def _calculate_component_cost(self, component: str, requester: str) -> str:
@@ -679,25 +652,10 @@ class DataAccess(Node):
         except Exception as e:
             self.get_logger().error(f"Error flushing logs: {e}")
     
-    def _get_component_name(self, source: str) -> str:
-        """
-        Redirect ROS2 node names to BSN component names.
-        
-        Args:
-            source: Original source name (e.g., 'thermometer_node' or '/thermometer_node')
-            
-        Returns:
-            BSN component name (e.g., 'g3t1_3')
-        """
-        # Remove leading slash if present
-        clean_name = source.lstrip('/')
-        
-        # Redirect to BSN component name if mapping exists
-        if clean_name in self.component_mapping:
-            return self.component_mapping[clean_name]
-        
-        # Return original name if no mapping found
-        return clean_name
+    def _get_component_name(self, component_path):
+        """Get the BSN component name from the full ROS2 node name."""
+        lookup_key = component_path.lstrip('/')
+        return self.component_mapping.get(lookup_key, lookup_key)
 
 
 def main(args=None):

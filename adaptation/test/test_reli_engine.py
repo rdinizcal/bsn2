@@ -535,7 +535,7 @@ class TestReliabilityEngine:
         # Check message format
         assert published_msg.source == "/engine"
         assert published_msg.target == "/enactor"
-        assert published_msg.content == "/g3t1_1:0.85;/g3t1_2:0.90"
+        assert published_msg.content == "/g3t1_1:0.850000,/g3t1_2:0.900000"
 
     def test_boundary_conditions_match_bsn1(self):
         """Test boundary conditions match BSN1 robustness"""

@@ -107,13 +107,13 @@ class Controller(Enactor):
                 self.get_logger().debug(
                     f"Adapted {component}: error={error:.4f}, new_freq={new_freq:.2f}")
         else:
-            # Decrement exception buffer if error is within margin (matching C++ logic)
+            # Decrement exception buffer if error is within margin
             if self.exception_buffer[component] > 0:
                 self.exception_buffer[component] = 0
             else:
                 self.exception_buffer[component] -= 1
         
-        # Manage exceptions (matching C++ logic)
+        # Manage exceptions
         if self.exception_buffer[component] > 4:
             self._publish_exception(component, "1")  # Positive exception
             self.exception_buffer[component] = 0
@@ -121,7 +121,7 @@ class Controller(Enactor):
             self._publish_exception(component, "-1")  # Negative exception
             self.exception_buffer[component] = 0
         
-        # Clear invocations (matching C++ behavior)
+        # Clear invocations
         if component in self.invocations:
             self.invocations[component].clear()
     
@@ -181,31 +181,30 @@ class Controller(Enactor):
         command.target = component
         command.action = action
         
-        # Publish to reconfigure topic for ParamAdapter
+       
         self.adapt.publish(command)
         
         self.get_logger().info(f"Sent adaptation to {component}: {action}")
     
     def _publish_exception(self, component, value):
-        """Publish exception message (matching C++ format)"""
+        """Publish an exception message"""
         exception_msg = ExceptionMsg()
         exception_msg.source = self.get_name()
-        exception_msg.target = "/engine"
-        exception_msg.content = f"{component}={value}"
-        
+        exception_msg.content = f"Component {component} has {value} exceptions"
         self.except_pub.publish(exception_msg)
-        
-        self.get_logger().warn(f"Published exception for {component}: {value}")
+        self.get_logger().warn(f'Published exception for {component}: {value}')
+
+    def tear_down(self):
+        self.get_logger().info('Tearing down controller')
 
 
 def main(args=None):
     rclpy.init(args=args)
     
     try:
-        # Create Controller instance (concrete implementation of Enactor)
-        controller = Controller()
         
-        # Use MultiThreadedExecutor for handling callbacks
+        controller = Controller()
+
         executor = rclpy.executors.MultiThreadedExecutor()
         executor.add_node(controller)
         

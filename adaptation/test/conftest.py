@@ -316,8 +316,24 @@ def data_access_node(request, rclpy_context):
     executor_thread.start()
     
     # Create DataAccess node
+    # This will run the node's own __init__ which correctly calls _initialize_component_data
     node = DataAccess()
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+    
+    # FIX: REMOVE the manual, incorrect overwriting of the node's internal state.
+    # The node's __init__ method already handles this correctly.
+    # The following lines were the source of all the errors and should be deleted.
+    #
+    # node.goal_model_components = { ... }
+    # node.components_reliabilities = { ... }
+    # node.components_batteries = { ... }
+    # node.contexts = { ... }
+    # node.status = {f"/g3t1_{i}": deque() for i in range(1, 7)}
+    # node.status["/g4t1"] = deque()
+    # node.events = {f"/g3t1_{i}": deque() for i in range(1, 7)}
+    # node.events["/g4t1"] = deque()
+    # node.reliability_formula_text = "..."
+    # node.cost_formula_text = "..."
     
     # Mock the publishers to avoid actual publishing
     node.data_publisher = Mock()
@@ -367,10 +383,10 @@ def data_access_node(request, rclpy_context):
     }
     
     # Initialize data storage
-    node.status = {f"/g3t1_{i}": deque() for i in range(1, 7)}
-    node.status["/g4t1"] = deque()
-    node.events = {f"/g3t1_{i}": deque() for i in range(1, 7)}
-    node.events["/g4t1"] = deque()
+    node.status = {f"g3t1_{i}": deque() for i in range(1, 7)}
+    node.status["g4t1"] = deque()
+    node.events = {f"g3t1_{i}": deque() for i in range(1, 7)}
+    node.events["g4t1"] = deque()
     
     # Set up formula data matching your engine tests
     node.reliability_formula_text = "((CTX_G3_T1_1*F_G3_T1_1*R_G3_T1_1*CTX_G3_T1_2*F_G3_T1_2*R_G3_T1_2*CTX_G3_T1_3*F_G3_T1_3*R_G3_T1_3*CTX_G3_T1_4*F_G3_T1_4*R_G3_T1_4*CTX_G3_T1_5*F_G3_T1_5*R_G3_T1_5*CTX_G3_T1_6*F_G3_T1_6*R_G3_T1_6)*CTX_G4_T1*F_G4_T1*R_G4_T1)"

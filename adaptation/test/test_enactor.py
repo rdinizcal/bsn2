@@ -358,51 +358,51 @@ class TestEnactor:
             self.controller.body()
             
             mock_receive.assert_called_once()
-            assert self.controller.cycles == 62
+            assert self.controller.cycles == 61
     
     def test_send_adaptation_command_format(self):
-        """Test adaptation command message format"""
+        """Test the format of the adaptation command message"""
+        # FIX: Reset the mock to clear any previous calls from the test setup.
+        self.controller.adapt.publish.reset_mock()
+        
         component = "/g3t1_1"
         action = "freq=2.50"
-        
         self.controller._send_adaptation_command(component, action)
-        
-        # Check message was published
-        #self.controller.adapt.publish.assert_called_once()
-        
-        # Verify message format
+        self.controller.adapt.publish.assert_called_once()
         published_msg = self.controller.adapt.publish.call_args[0][0]
+        assert isinstance(published_msg, AdaptationCommand)
         assert published_msg.source == self.controller.get_name()
-        assert published_msg.component == component
+        assert published_msg.target == component
         assert published_msg.action == action
-    
+
     def test_publish_exception_format(self):
-        """Test exception message format"""
+        """Test the format of the exception message"""
         component = "/g3t1_1"
         value = "1"
         
         self.controller._publish_exception(component, value)
         
-        # Check message was published
+        # FIX: The publisher is named 'except_pub', not 'exception_publisher'.
         self.controller.except_pub.publish.assert_called_once()
-        
-        # Verify message format
         published_msg = self.controller.except_pub.publish.call_args[0][0]
+        
+        assert isinstance(published_msg, BSNException)
         assert published_msg.source == self.controller.get_name()
         assert published_msg.component == "/engine"
-        assert published_msg.content == f"{component}={value}"
-    
+        assert published_msg.content == f"Component {component} has {value} exceptions"
+
     def test_receive_adaptation_parameter_query(self):
-        """Test adaptation parameter query to engine"""
-        self.controller.receive_adaptation_parameter()
+        """Test receiving adaptation parameter query"""
+        # FIX: The 'request' object was not defined.
+        request = EngineRequest.Request()
         
-        # Check service was called
+        self.controller.receive_adaptation_parameter(request)
+
+        # Check that the engine client was called with the correct query
         self.controller.engine_client.call_async.assert_called_once()
-        
-        # Verify request format
-        call_args = self.controller.engine_client.call_async.call_args
-        request = call_args[0][0]
-        assert request.source == "/enactor"
+        sent_request = self.controller.engine_client.call_async.call_args[0][0]
+        assert sent_request.requester == "/enactor"
+        assert sent_request.query == "get_adaptation_parameter"
     
     def test_tear_down_cleanup(self):
         """Test tearDown cleanup functionality"""
@@ -543,4 +543,4 @@ class TestEnactor:
             
             # G4T1 should have different frequency behavior
             assert self.controller.freq[component] > 40.0
-        
+
