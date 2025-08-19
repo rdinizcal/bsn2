@@ -136,11 +136,11 @@ class ReliabilityEngine(Engine):
                 if ":" in pair:
                     component, data = pair.split(":", 1)
 
-                    # Process component name (matching C++ logic)
+                    # Process component name
                     first = component.lstrip("/")  # Remove leading '/'
                     first = first.upper()  # Convert to uppercase
 
-                    # Insert underscore before 'T' (matching C++ logic)
+                    # Insert underscore before 'T'
                     t_index = first.find("T")
                     if t_index != -1:
                         first = first[:t_index] + "_" + first[t_index:]
@@ -204,11 +204,11 @@ class ReliabilityEngine(Engine):
                 if ":" in pair:
                     component, event = pair.split(":", 1)
 
-                    # Process component name (matching C++ logic)
+                    # Process component name
                     first = component.lstrip("/")
                     first = first.upper()
 
-                    # Special handling for G4T1 (matching C++ logic)
+                    # Special handling for G4T1
                     if first == "G4T1":
                         ctx_key = "CTX_G4_T1"
                         r_key = "R_G4_T1"
@@ -253,11 +253,11 @@ class ReliabilityEngine(Engine):
             f"Current reliability: {r_curr}, setpoint: {self.setpoint}, error: {error}"
         )
 
-        # Check if error is outside tolerance (matching C++ logic)
+        # Check if error is outside tolerance
         if (error > self.setpoint * self.tolerance) or (
             error < -self.tolerance * self.setpoint
         ):
-            # Check if it's time to actuate (matching C++ logic)
+            # Check if it's time to actuate
             if self.cycles >= self.monitor_freq / self.actuation_freq:
                 self.cycles = 0
                 self.get_logger().info(
@@ -346,7 +346,7 @@ class ReliabilityEngine(Engine):
         self.get_logger().info("Did not converge :(")
 
     def execute(self):
-        """Execute phase - matching ReliabilityEngine.cpp execute()"""
+        """Execute phase"""
         self.get_logger().debug("Execute phase started")
 
         # Build content string

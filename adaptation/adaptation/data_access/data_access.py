@@ -280,8 +280,7 @@ class DataAccess(Node):
             actor = data.get('actors', [{}])[0].get('text', 'BSN')
             self.goal_tree = GoalTree(actor)
             
-            # Parse nodes and create goal hierarchy
-            # This is a simplified version - you may need to adapt based on your JSON structure
+            
             nodes_data = data.get('actors', [{}])[0].get('nodes', [])
             
             # Create nodes
@@ -304,7 +303,7 @@ class DataAccess(Node):
                     else:
                         nodes[node_id] = Task(node_id, text)
             
-            # Add root goal (simplified - you may need more complex hierarchy building)
+            
             for node in nodes.values():
                 if isinstance(node, Goal) and 'G1' in node.get_id():
                     self.goal_tree.add_root_goal(node)
@@ -470,7 +469,6 @@ class DataAccess(Node):
                         
                         # Format: "/g3t1_1:success,fail,success,0.666667"
                         status_str = ",".join(status_strings)
-                        # FIX: Add the leading slash ONLY when creating the response.
                         component_entry = f"/{component_key}:{status_str},{reliability:.6f}"
                         result_parts.append(component_entry)
                     else:
@@ -482,7 +480,6 @@ class DataAccess(Node):
                 for component_key, event_deque in self.events.items():
                     if event_deque:
                         recent_event = event_deque[-1]
-                        # FIX: Add the leading slash ONLY when creating the response.
                         result_parts.append(f"/{component_key}:{recent_event}")
                     else:
                         result_parts.append(f"/{component_key}:activate")

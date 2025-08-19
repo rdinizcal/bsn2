@@ -36,7 +36,6 @@ class Engine(Node, ABC):
         self.deactivated_components: Dict[str, int] = {}
 
         # ROS2 interfaces
-        #self.data_access_client: Optional[rclpy.client.Client] = None
         self.exception_subscriber: Optional[rclpy.subscription.Subscription] = None
         self.enactor_server: Optional[rclpy.service.Service] = None
 
@@ -80,17 +79,14 @@ class Engine(Node, ABC):
             depth=1000,
         )
 
-        # DataAccess client
+
         self.data_access_client = self.create_client(
             DataAccessRequest, "DataAccessRequest"
         )
-
-        # Exception subscriber matching Engine.cpp body()
         self.exception_subscriber = self.create_subscription(
             BSNException, "exception", self.receive_exception, qos_profile
         )
 
-        # Engine service matching Engine.cpp setUp()
         self.enactor_server = self.create_service(
             EngineRequest, "EngineRequest", self.send_adaptation_parameter
         )
@@ -98,9 +94,6 @@ class Engine(Node, ABC):
     def fetch_formula(self, name: str) -> str:
         """Fetch formula from DataAccess"""
         try:
-            #if not self.data_access_client.wait_for_service(timeout_sec=5.0):
-            #    self.get_logger().warn("DataAccess service not available")
-            #    return ""
 
             request = DataAccessRequest.Request()
             request.name = "/engine"
@@ -125,28 +118,27 @@ class Engine(Node, ABC):
             return ""
 
     def setup_formula(self, formula_str: str):
-        """Setup formula - matching Engine.cpp setUp_formula()"""
+        """Setup formula"""
         try:
-            # Create Formula object (already implemented in BSN2)
+            
             self.target_system_model = Formula(formula_str)
 
-            # Extract terms that will compose the strategy
+
             terms = self.target_system_model.get_terms()
 
             # Initialize strategy and priority
             self.strategy = self.initialize_strategy(terms)
             self.priority = self.initialize_priority(terms)
 
-            # Initialize the target system model
-            self.calculate_qos(self.target_system_model, self.strategy)
+            initial_qos = self.calculate_qos(self.target_system_model, self.strategy)
 
             self.get_logger().info(f"Formula setup complete with {len(terms)} terms")
-
+            self.get_logger().info(f"Initial QoS: {initial_qos}")
         except Exception as e:
             self.get_logger().error(f"Error setting up formula: {e} \nFormula: {formula_str}")
 
     def calculate_qos(self, model: Formula, conf: Dict[str, float]) -> float:
-        """Calculate QoS - matching Engine.cpp calculate_qos()"""
+        """Calculate QoS"""
         try:
             model.set_term_value_map_dict(conf)
             return model.evaluate()
@@ -155,15 +147,15 @@ class Engine(Node, ABC):
             return 0.0
 
     def receive_exception(self, msg: BSNException):
-        """Receive exception - matching Engine.cpp receiveException()"""
+        """Receive exception"""
         try:
             content = msg.content
             if "=" in content:
                 param = content.split("=", 1)
 
-                # Process component name (matching C++ logic)
+                # Process component name
                 first = param[0].upper().lstrip("/")
-                # Insert underscore before 'T' (matching C++ logic)
+                # Insert underscore before 'T'
                 t_index = first.find("T")
                 if t_index != -1:
                     first = first[:t_index] + "_" + first[t_index:]
@@ -185,7 +177,7 @@ class Engine(Node, ABC):
     def send_adaptation_parameter(
         self, request: EngineRequest.Request, response: EngineRequest.Response
     ):
-        """Send adaptation parameter - matching Engine.cpp sendAdaptationParameter()"""
+        """Send adaptation parameter"""
         try:
             response.content = self.qos_attribute
             return response
@@ -195,7 +187,7 @@ class Engine(Node, ABC):
             return response
 
     def body(self):
-        """Main execution loop - matching Engine.cpp body()"""
+        """Main execution loop"""
         rate = self.create_rate(self.monitor_freq)
         update_counter = 0
 
@@ -205,7 +197,7 @@ class Engine(Node, ABC):
             while rclpy.ok():
                 update_counter += 1
 
-                # Reload formula every 10 seconds (matching C++ logic)
+                # Reload formula every 10 seconds
                 if update_counter >= self.monitor_freq * 10:
                     update_counter = 0
                     formula_str = self.fetch_formula(self.qos_attribute)
@@ -229,35 +221,35 @@ class Engine(Node, ABC):
 
     @abstractmethod
     def get_prefix(self) -> str:
-        """Get engine prefix - matching Engine.cpp get_prefix()"""
+        """Get engine prefix"""
         pass
 
     @abstractmethod
     def initialize_strategy(self, terms: List[str]) -> Dict[str, float]:
-        """Initialize strategy - matching Engine.cpp initialize_strategy()"""
+        """Initialize strategy"""
         pass
 
     @abstractmethod
     def initialize_priority(self, terms: List[str]) -> Dict[str, int]:
-        """Initialize priority - matching Engine.cpp initialize_priority()"""
+        """Initialize priority"""
         pass
 
     @abstractmethod
     def monitor(self):
-        """MAPE-K Monitor phase - matching Engine.cpp monitor()"""
+        """MAPE-K Monitor phase"""
         pass
 
     @abstractmethod
     def analyze(self):
-        """MAPE-K Analyze phase - matching Engine.cpp analyze()"""
+        """MAPE-K Analyze phase"""
         pass
 
     @abstractmethod
     def plan(self):
-        """MAPE-K Plan phase - matching Engine.cpp plan()"""
+        """MAPE-K Plan phase"""
         pass
 
     @abstractmethod
     def execute(self):
-        """MAPE-K Execute phase - matching Engine.cpp execute()"""
+        """MAPE-K Execute phase"""
         pass
