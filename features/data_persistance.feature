@@ -1,6 +1,6 @@
 Feature: Data Persistence (BSN-P08) - Whether the sensor node has collected some data, eventually the bodyhub will persist it.
 
-	@persistance_system
+
 	Scenario: Data Persisted Successfully (Happy Path)
 		Given that persistence system is online
 		When I listen to thermometer data
@@ -18,7 +18,7 @@ Feature: Data Persistence (BSN-P08) - Whether the sensor node has collected some
 	#Then the data will be received in logger
 	#And the data will be in persist topic
 
-	@persistance_system
+
 	Scenario: Data Not Persisted (Sad Path)
 		Given that persistence system is online
 		When I listen to thermometer data

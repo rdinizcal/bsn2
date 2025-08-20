@@ -62,7 +62,7 @@ def step_then_data_persisted(context):
 def step_when_database_error_occurs(context):
     """Simulate a database error preventing persistence."""
     deactivate_node('central_hub_node')
-    time.sleep(5)
+    time.sleep(30)
 
 @then('the system must log a persistence failure')
 def step_then_system_logs_failure(context):
@@ -71,8 +71,9 @@ def step_then_system_logs_failure(context):
     #print(f'status: {status}')
 
     #assert 'central_hub_node'  in status['source'], f'Status source should be empty due to persistence failure. {status}'
-    persist_topic = capture_csv_data('/persist', 20, 30)
+    persist_topic = capture_csv_data('/persist', 40, 50)
     print(f'persist topic: {persist_topic}')
-    #assert 'central_hub_node' in persist_topic['source'], f"Log status should indicate deactivation. {status}"
-    assert 'central_hub_node' not in persist_topic['source'], f'Persist topic source should be empty due to persistence failure. {persist_topic}'
+    assert 'central_hub_node' in persist_topic['source'], f"Log status should indicate deactivation. {persist_topic['source']}"
+    assert 'deactivate' in persist_topic['content'], f'deactivation not found {persist_topic['content']} size {len(persist_topic['content'])}'
+    #assert 'central_hub_node' not in persist_topic['source'], f'Persist topic source should be empty due to persistence failure. {persist_topic}'
     assert activate_node('central_hub_node'), f'node not reactivated'

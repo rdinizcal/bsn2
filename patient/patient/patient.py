@@ -237,6 +237,8 @@ class Patient(Node):
                 self.get_logger().debug(
                     f"transition matrix: {self.transition_matrix_states[vital_sign]}, curr_state: {curr_state}"
                 )
+                if self.transition_matrix_states[vital_sign][curr_state] != self.get_parameter(f"{vital_sign}_State{curr_state}").value:
+                    self.transition_matrix_states[vital_sign][curr_state] = self.get_parameter(f"{vital_sign}_State{curr_state}").value
                 probs = self.transition_matrix_states[vital_sign][curr_state]
 
                 if probs is None:
