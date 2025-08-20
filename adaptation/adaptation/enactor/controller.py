@@ -20,7 +20,7 @@ class Controller(Enactor):
         self.declare_parameter('kp', 0.5)  # Proportional gain for control
         self.kp = self.get_parameter('kp').value
         
-        # Individual KP values per component (matching C++ behavior)
+        # Individual KP values per component
         self.kp_individual = {}
         
         # Subscribe to events (specific to Controller)
@@ -37,12 +37,12 @@ class Controller(Enactor):
         self.get_logger().info(f'Controller initialized with kp={self.kp}')
     
     def receive_event(self, msg):
-        """Process lifecycle events from components (matching C++ Controller logic)"""
+        """Process lifecycle events from components"""
         component = msg.source
         content = msg.content
         
         if content == "activate":
-            # Initialize component data structures (matching C++ logic)
+            # Initialize component data structures
             self.invocations[component] = deque(maxlen=100)
             self.exception_buffer[component] = 0
             
@@ -62,7 +62,7 @@ class Controller(Enactor):
                 f"Component {component} activated with freq={self.freq[component]}")
             
         elif content == "deactivate":
-            # Remove all component data structures (matching C++ logic)
+            # Remove all component data structures
             attributes = ['invocations', 'exception_buffer', 'freq', 'r_curr', 
                          'c_curr', 'r_ref', 'c_ref', 'replicate_task', 'kp_individual']
             
@@ -72,27 +72,27 @@ class Controller(Enactor):
             self.get_logger().info(f"Component {component} deactivated")
     
     def apply_reli_strategy(self, component):
-        """Apply reliability strategy to component (matching C++ Controller logic)"""
+        """Apply reliability strategy to component"""
         if component not in self.r_curr or component not in self.r_ref:
             return
         
         error = self.r_ref[component] - self.r_curr[component]
         
-        # Check if error exceeds stability margin (matching C++ logic)
+        # Check if error exceeds stability margin
         stability_threshold = self.stability_margin * self.r_ref[component]
         
         if abs(error) > stability_threshold:
-            # Increment exception buffer (matching C++ logic)
+            # Increment exception buffer
             if self.exception_buffer[component] < 0:
                 self.exception_buffer[component] = 0
             else:
                 self.exception_buffer[component] += 1
             
-            # Calculate new frequency using proportional control (matching C++ logic)
+            # Calculate new frequency using proportional control
             kp_component = self.kp_individual.get(component, self.kp)
             new_freq = self.freq[component] + ((kp_component / 100) * error)
             
-            # Apply component-specific frequency limits (matching C++ logic)
+            # Apply component-specific frequency limits
             if component == "/g4t1":  # Central Hub
                 min_freq = 0.1
                 max_freq = float('inf')  # No upper limit for central hub
@@ -126,7 +126,7 @@ class Controller(Enactor):
             self.invocations[component].clear()
     
     def apply_cost_strategy(self, component):
-        """Apply cost strategy to component (matching C++ Controller logic)"""
+        """Apply cost strategy to component"""
         if component not in self.c_curr or component not in self.c_ref:
             return
         
