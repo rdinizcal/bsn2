@@ -444,7 +444,7 @@ class DataAccess(Node):
                 self._persist_event(msg.timestamp, msg.source, msg.target, msg.content)
                 # This now works because component_name has no slash.
                 self.events[component_name].append(msg.content)
-                self.contexts[component_name] = 1 if msg.content == "activate" else 0
+                self.contexts[component_name] = 1 if (msg.content == "activate" or msg.content == "activated") else 0
             elif msg.type == "Uncertainty":
                 self._persist_uncertainty(
                     msg.timestamp, msg.source, msg.target, msg.content

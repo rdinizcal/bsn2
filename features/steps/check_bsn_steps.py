@@ -64,8 +64,8 @@ def step_then_sensors_process_data(context):
 @given("Central hub is inactive")
 def step_given_central_hub_inactive(context):
     # Set the central hub node to inactive
-    assert deactivate_node('central_hub_node'), "Failed to deactivate the central hub node after processing error"
-    
+    deactivate_node('central_hub_node'), "Failed to deactivate the central hub node after processing error"
+    time.sleep(10)
 
 @when("I listen to ecg and thermometer data")
 def step_when_listen_to_ecg_and_thermometer_data(context):

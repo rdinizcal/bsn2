@@ -44,7 +44,7 @@ def launch_reduced_system(context):
         '[0.3, 0.0, 0.0, 0.0, 0.7]',
         '[0.5, 0.0, 0.0, 0.0, 0.5]',
         '[0.0, 0.0, 0.1, 0.4, 0.5]',
-        '[0.0, 0.0, 0.0, 0.2, 0.8]',
+        '[0.0, 0.0, 0.0, 0.6, 0.4]',
         '[0.0, 0.0, 0.0, 0.1, 0.9]'
     ])
     time.sleep(10)
@@ -100,7 +100,7 @@ def launch_high_frequency_system(context):
 # 
 def after_scenario(context, scenario):
     """Cleanup after each scenario"""
-    if "High_frequency_sensor_system" in scenario.tags or "reduced_system" in scenario.tags:
+    if "High_frequency_sensor_system" in scenario.tags:
         set_parameters("patient_node", [
             "temperature_State0",
             "temperature_State1",
