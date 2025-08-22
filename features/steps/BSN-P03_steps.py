@@ -38,4 +38,4 @@ def step_then_g4t1_might_delay_detection(context):
     #detects no high emergency risk
 
     target_system_topic = capture_csv_data('/target_system_data', line_limit=10, timeout=30)
-    assert any(50.0 < float(x) for x in target_system_topic['patient_status']), f'no low or moderate risk data found: {target_system_topic}'
+    assert any(50.0 > float(x) for x in target_system_topic['patient_status']), f'no low or moderate risk data found: {target_system_topic}'
