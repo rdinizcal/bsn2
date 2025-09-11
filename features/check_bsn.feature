@@ -1,6 +1,6 @@
 Feature: Check for bsn features
 	@full_system
-	Scenario: BSN-P09 If data has been sent by the sensor node, the BodyHub is able to process it as low, moderate or high risk vital sign data.
+	Scenario: BSN-P11 If data has been sent by the sensor node, the BodyHub is able to process it as low, moderate or high risk vital sign data.
 		# Scenario: sucessful process
 		Given that all sensors and central hub nodes are online
 		When I listen to sensors data
@@ -8,7 +8,7 @@ Feature: Check for bsn features
 		And Central hub will process the risk
 
 	@full_system
-	Scenario: BSN-P08 If data has been sent by the sensor node, the BodyHub is able to process it
+	Scenario: BSN-P07 If data has been sent by the sensor node, the BodyHub is able to process it
 		# Scenario: sucessful process
 		Given that all sensors and central hub nodes are online
 		When I listen to sensors data
@@ -16,7 +16,7 @@ Feature: Check for bsn features
 		And Central hub will receive data from sensors
 
 	@full_system
-	Scenario: BSN-P09 - Sad Path: central hub is inactive
+	Scenario: BSN-P11 - Sad Path: central hub is inactive
 		# Scenario: central hub is inactive (Sad Path)
 		Given that all sensors and central hub nodes are online
 		And Central hub is inactive
@@ -25,7 +25,7 @@ Feature: Check for bsn features
 		But Central hub will not process the risk
 
 	@full_system
-	Scenario: BSN-P08 - Sad Path: central hub is inactive
+	Scenario: BSN-P07 - Sad Path: central hub is inactive
 		# Scenario: central hub is inactive (Sad Path)
 		Given that all sensors and central hub nodes are online
 		And Central hub is inactive

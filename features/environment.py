@@ -122,4 +122,7 @@ def set_parameters(node_name, params, values):
     for param, value in zip(params, values):
         subprocess.run([
             "ros2", "param", "set", f"/{node_name}", param, value
-        ], check=False)
+        ], 
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False)
