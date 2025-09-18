@@ -1,36 +1,10 @@
 import pytest
 from patient.patient import Patient
-import yaml
-from rclpy.parameter import Parameter
-from ament_index_python.packages import get_package_share_directory
-import os
 import random
 from bsn_interfaces.srv import PatientData
 from unittest.mock import patch
+from fixtures import patient_node
 
-
-@pytest.fixture(scope="class")
-def patient_node(request):
-    import rclpy
-
-    rclpy.init()
-
-    # Load YAML params
-    params_path = os.path.join(
-        get_package_share_directory("patient"), "config", "patient_test_params.yaml"
-    )
-    with open(params_path, "r") as f:
-        full_params = yaml.safe_load(f)
-
-    ros_params = full_params["patient_node"]["ros__parameters"]
-    params = [Parameter(name=k, value=v) for k, v in ros_params.items()]
-
-    # Create node and assign to class
-    node = Patient(parameters=params)
-    request.cls.patient_node = node
-    yield node
-    node.destroy_node()
-    rclpy.shutdown()
 
 
 @pytest.mark.usefixtures("patient_node")

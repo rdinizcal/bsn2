@@ -1,5 +1,6 @@
 #!/bin/bash
 sudo apt install -y pipx
+sudo apt install python3-pytest-bdd // For BDD testing if doesn work, use pipx
 pipx install mkdocs
 pipx inject mkdocs mkdocs-material mkdocstrings mkdocstrings-python pymdown-extensions
 pipx install behave

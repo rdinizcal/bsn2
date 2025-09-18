@@ -290,7 +290,7 @@ class Sensor(LifecycleNode):
                 # Handle recharging while inactive or in recharge mode
                 self.battery_manager.recharge()
                 
-            rate.sleep()
+            rate.sleep()  
 
 
 def main(args=None):
