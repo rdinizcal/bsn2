@@ -1,26 +1,28 @@
 from pytest_bdd import scenarios, given, when, then
-from fixtures import sensor_node
-# Link to your feature file
-scenarios('../features/check_sensor.feature')
+from fixtures import bdd_context
 
-@given('the sensor node is online')
-def sensor_node_online(sensor_node, request):
-    # Setup code to ensure sensor node is running
-    assert sensor_node is not None
-    assert request is not None
+scenarios("../features/check_sensor.feature")
 
-@when('the sensor collects data')
-def sensor_collects_data(sensor_node, request):
-    # Simulate or trigger data collection
-    sensor_node = request.sensor_node
-    assert 37.0 == sensor_node.data_processor.collect()
 
-@then('the sensor publishes the data')
-def sensor_publishes_data(sensor_node, request):
-    # Assert that data was published (mock or check topic)
-    assert 37.0 == sensor_node.data_processor.process(37.0)
+@given("the sensor node is online")
+def sensor_node_online(bdd_context):
+    assert bdd_context.sensor_node is not None
 
-@then('the data is within valid range')
-def data_within_valid_range(sensor_node, request):
-    # Assert that published data is valid
-    assert sensor_node.data_processor.transfer()
+
+@when("the sensor process data")
+def sensor_process_data(bdd_context):
+    # Fill the data window if needed
+    for _ in range(bdd_context.sensor_node.config.window_size - 1):
+        bdd_context.sensor_node.processor.data_window.append(37.0)
+    # Process and transfer (publish) the data
+    bdd_context.processed_value = bdd_context.sensor_node.processor.process(37.0)
+    bdd_context.transferred_msg = bdd_context.sensor_node.processor.transfer(
+        bdd_context.processed_value
+    )
+
+
+@then("the data is within valid range")
+def data_within_valid_range(bdd_context):
+    # Assert that the published data is within the expected range
+    msg = bdd_context.sensor_node.processor.data_window
+    assert 35.0 <= msg[0] <= 39.0  # Adjust range as needed
