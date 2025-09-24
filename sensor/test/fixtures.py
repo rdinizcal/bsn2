@@ -223,9 +223,8 @@ def bdd_context():
     print(f"passed here in effector registration")
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(mock_service_node)
-    executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    executor_thread.start()
-
+    
+    
     params_path = os.path.join(
         get_package_share_directory("sensor"), "config", "thermometer.yaml"
     )
@@ -241,23 +240,14 @@ def bdd_context():
     node.lifecycle_manager.auto_recovery = True
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
     node.get_logger().info("Node created, attempting configuration...")
+    executor.add_node(node)
+    executor_thread = threading.Thread(target=executor.spin, daemon=True)
+    executor_thread.start()
 
-    try:
-        result = node.trigger_configure()
-        node.get_logger().info(f"Configuration result: {result.value}")
-        if result.value != 1:
-            node.get_logger().error(f"Configuration failed with result {result}")
-        else:
-            node.get_logger().info("Configuration successful")
-            act_result = node.trigger_activate()
-            if act_result.value != 1:
-                node.get_logger().error(f"Activation failed with result {act_result}")
-            else:
-                node.get_logger().info("Activation successful")
-        executor.add_node(node)
-    except Exception as e:
-        node.get_logger().error(f"Exception during configuration: {e}")
-
+    if hasattr(node, "trigger_configure"):
+        node.trigger_configure()
+    time.sleep(0.5)  # Give time for configuration
+    node.trigger_activate()
     # Attach received_messages directly to the node for BDD
     node.received_messages = []
 

@@ -7,7 +7,8 @@ scenarios("../features/check_sensor.feature")
 @given("the sensor node is online")
 def sensor_node_online(bdd_context):
     assert bdd_context.sensor_node is not None
-
+    datapoint = bdd_context.sensor_node.processor.collect()
+    assert datapoint == 37.0
 
 @when("the sensor process data")
 def sensor_process_data(bdd_context):
