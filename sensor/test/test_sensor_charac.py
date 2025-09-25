@@ -1,16 +1,6 @@
 import pytest
-import yaml
-import os
 import time
-import threading
-from ament_index_python.packages import get_package_share_directory
-from rclpy.parameter import Parameter
-from bsn_interfaces.msg import SensorData
-from bsn_interfaces.srv import PatientData, EffectorRegister
 import rclpy
-from sensor.sensor import Sensor
-from rclpy.node import Node
-from fixtures import sensor_node
 
 @pytest.mark.usefixtures("sensor_node")
 class TestSensorBehavior:
@@ -26,7 +16,6 @@ class TestSensorBehavior:
         if hasattr(self.sensor_node, 'processor') and hasattr(self.sensor_node.processor, 'data_window'):
             self.sensor_node.processor.data_window.clear()
 
-        # Force node to active state for testing - FIXED: use sensor_node instead of node
         self.sensor_node.active = True
         
         # Remove test mode flag since it's not needed

@@ -50,18 +50,6 @@ def get_param(package, node_name, yaml_file):
         full_params = yaml.safe_load(f)
     ros_params = full_params[node_name]["ros__parameters"]
     return [Parameter(name=k, value=v) for k, v in ros_params.items()]
-@pytest.fixture(scope="module")
-def ros_context():
-    """Initialize ROS once for all tests in this module."""
-    # Check if ROS is already initialized to avoid errors
-    try:
-        if not rclpy.ok():
-            rclpy.init()
-    except:
-        # Already initialized
-        pass
-
-    yield
 
 
 @pytest.fixture(scope="class")
@@ -187,7 +175,7 @@ class SensorTestContext:
 
 
 @pytest.fixture(scope="function")
-def bdd_context():
+def context():
     """Create and manage sensor node for BDD testing (no request.cls)."""
     if not rclpy.ok():
         rclpy.init()

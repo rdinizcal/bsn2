@@ -1,5 +1,5 @@
 from pytest_bdd import scenarios, given, when, then
-from fixtures import bdd_context
+from fixtures import context
 import time
 import rclpy
 from bsn_interfaces.msg import SensorData
@@ -8,86 +8,86 @@ scenarios("../../features/BSN-P03.feature")
 
 
 @given("that nodes thermometer and central hub are online")
-def nodes_online(bdd_context):
+def nodes_online(context):
     """Ensure both thermometer sensor and central hub nodes are active."""
-    assert bdd_context.sensor_node is not None
-    assert bdd_context.central_hub_node is not None
+    assert context.sensor_node is not None
+    assert context.central_hub_node is not None
     
 
 
 @when("I listen to thermometer")
-def listen_to_thermometer(bdd_context):
+def listen_to_thermometer(context):
     """Set up listening to thermometer data."""
     # Clear any existing messages
-    bdd_context.sensor_node.received_messages = []
-    bdd_context.central_hub_node.received_messages = []
+    context.sensor_node.received_messages = []
+    context.central_hub_node.received_messages = []
     # Store start time for timing measurements
-    bdd_context.listen_start_time = time.time()
+    context.listen_start_time = time.time()
 
 
 @when("thermometer sends data with high risk")
-def thermometer_sends_high_risk_data(bdd_context):
+def thermometer_sends_high_risk_data(context):
     """Send high-risk temperature data that should trigger emergency detection."""
     # Fill data window with normal values first
-    for _ in range(bdd_context.sensor_node.config.window_size - 1):
-        bdd_context.sensor_node.processor.data_window.append(37.0)
+    for _ in range(context.sensor_node.config.window_size - 1):
+        context.sensor_node.processor.data_window.append(37.0)
 
     # Send high-risk temperature (e.g., 42°C fever)
     high_risk_temp = 42.0
-    bdd_context.emergency_trigger_time = time.time()
+    context.emergency_trigger_time = time.time()
 
-    processed = bdd_context.sensor_node.processor.process(high_risk_temp)
-    bdd_context.sensor_node.processor.transfer(processed)
+    processed = context.sensor_node.processor.process(high_risk_temp)
+    context.sensor_node.processor.transfer(processed)
 
     # Spin nodes to ensure message delivery
     for _ in range(20):
-        rclpy.spin_once(bdd_context.sensor_node, timeout_sec=0.01)
-        rclpy.spin_once(bdd_context.central_hub_node, timeout_sec=0.01)
+        rclpy.spin_once(context.sensor_node, timeout_sec=0.01)
+        rclpy.spin_once(context.central_hub_node, timeout_sec=0.01)
         time.sleep(0.005)
 
 
 @when("thermometer sends low-risk data with high frequency")
-def thermometer_sends_low_risk_high_frequency(bdd_context):
+def thermometer_sends_low_risk_high_frequency(context):
     """Send multiple low-risk readings rapidly to simulate system load."""
     # Fill data window
-    for _ in range(bdd_context.sensor_node.config.window_size - 1):
-        bdd_context.sensor_node.processor.data_window.append(37.0)
+    for _ in range(context.sensor_node.config.window_size - 1):
+        context.sensor_node.processor.data_window.append(37.0)
 
     # Send 50 low-risk readings rapidly
     for i in range(50):
         low_risk_temp = 36.5 + (i % 3) * 0.1  # 36.5-36.7°C range
-        processed = bdd_context.sensor_node.processor.process(low_risk_temp)
-        bdd_context.sensor_node.processor.transfer(processed)
+        processed = context.sensor_node.processor.process(low_risk_temp)
+        context.sensor_node.processor.transfer(processed)
 
         # Minimal spinning to process messages
-        rclpy.spin_once(bdd_context.sensor_node, timeout_sec=0.001)
-        rclpy.spin_once(bdd_context.central_hub_node, timeout_sec=0.001)
+        rclpy.spin_once(context.sensor_node, timeout_sec=0.001)
+        rclpy.spin_once(context.central_hub_node, timeout_sec=0.001)
         time.sleep(0.001)  # High frequency = 1ms delay
 
 
 @when("thermometer sends data with high risk", target_fixture="second_high_risk")
-def thermometer_sends_second_high_risk_data(bdd_context):
+def thermometer_sends_second_high_risk_data(context):
     """Send high-risk data after the system has been overloaded."""
     high_risk_temp = 41.5
-    bdd_context.emergency_trigger_time = time.time()
+    context.emergency_trigger_time = time.time()
 
-    processed = bdd_context.sensor_node.processor.process(high_risk_temp)
-    bdd_context.sensor_node.processor.transfer(processed)
+    processed = context.sensor_node.processor.process(high_risk_temp)
+    context.sensor_node.processor.transfer(processed)
 
     # Spin nodes to process the high-risk message
     for _ in range(30):
-        rclpy.spin_once(bdd_context.sensor_node, timeout_sec=0.01)
-        rclpy.spin_once(bdd_context.central_hub_node, timeout_sec=0.01)
+        rclpy.spin_once(context.sensor_node, timeout_sec=0.01)
+        rclpy.spin_once(context.central_hub_node, timeout_sec=0.01)
         time.sleep(0.005)
 
 
 @then("Central hub will detect an emergency in less than 250 ms")
-def central_hub_detects_emergency_quickly(bdd_context):
+def central_hub_detects_emergency_quickly(context):
     """Verify emergency detection happens within 250ms."""
     # Check central hub received emergency notification
     emergency_messages = [
         msg
-        for msg in bdd_context.central_hub_node.received_messages
+        for msg in context.central_hub_node.received_messages
         if hasattr(msg, "risk_level") and msg.risk_level == "high"
     ]
 
@@ -97,7 +97,7 @@ def central_hub_detects_emergency_quickly(bdd_context):
     emergency_msg = emergency_messages[0]
     detection_time = (
         getattr(emergency_msg, "timestamp", time.time())
-        - bdd_context.emergency_trigger_time
+        - context.emergency_trigger_time
     )
     detection_time_ms = detection_time * 1000
 
@@ -110,12 +110,12 @@ def central_hub_detects_emergency_quickly(bdd_context):
 
 
 @then("Central Hub will experience delayed emergency detection")
-def central_hub_delayed_emergency_detection(bdd_context):
+def central_hub_delayed_emergency_detection(context):
     """Verify that system overload causes delayed emergency detection."""
     # Check that emergency was eventually detected
     emergency_messages = [
         msg
-        for msg in bdd_context.central_hub_node.received_messages
+        for msg in context.central_hub_node.received_messages
         if hasattr(msg, "risk_level") and msg.risk_level == "high"
     ]
 
@@ -127,7 +127,7 @@ def central_hub_delayed_emergency_detection(bdd_context):
     emergency_msg = emergency_messages[-1]  # Get the latest emergency message
     detection_time = (
         getattr(emergency_msg, "timestamp", time.time())
-        - bdd_context.emergency_trigger_time
+        - context.emergency_trigger_time
     )
     detection_time_ms = detection_time * 1000
 
@@ -142,18 +142,18 @@ def central_hub_delayed_emergency_detection(bdd_context):
     )
 
 
-def wait_for_emergency_detection(bdd_context, timeout=1.0):
+def wait_for_emergency_detection(context, timeout=1.0):
     """Helper function to wait for emergency detection with timeout."""
     start_time = time.time()
     while time.time() - start_time < timeout:
         # Spin both nodes
-        rclpy.spin_once(bdd_context.sensor_node, timeout_sec=0.01)
-        rclpy.spin_once(bdd_context.central_hub_node, timeout_sec=0.01)
+        rclpy.spin_once(context.sensor_node, timeout_sec=0.01)
+        rclpy.spin_once(context.central_hub_node, timeout_sec=0.01)
 
         # Check for emergency messages
         emergency_messages = [
             msg
-            for msg in bdd_context.central_hub_node.received_messages
+            for msg in context.central_hub_node.received_messages
             if hasattr(msg, "risk_level") and msg.risk_level == "high"
         ]
 
