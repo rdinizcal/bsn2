@@ -14,8 +14,42 @@ from rclpy.node import Node
 # from shared_components.test_components.shared_fixtures import ros_context
 import pytest
 import time
+class ExecutorThread(threading.Thread):
+    def __init__(self, nodes):
+        super().__init__(daemon=True)
+        self.executor = SingleThreadedExecutor()
+        self.nodes = nodes
+        for node in self.nodes:
+            self.executor.add_node(node)
+        self.executor_thread = threading.Thread(target=self.executor.spin, daemon=True)
+    def run(self):
+        self.executor_thread.start()
 
+    def clean_up(self):
+        for node in self.nodes:
+            if hasattr(node, "lifecycle_manager"):
+                node.lifecycle_manager.shutdown_node()
+            self.executor.remove_node(node)
+        self.executor.shutdown()
+        for node in self.nodes:
+            if hasattr(node, "lifecycle_manager"):
+                node.lifecycle_manager.shutdown_node()
+        self.executor.remove_node(node)
 
+        self.executor.shutdown()
+        for node in self.nodes:
+            node.destroy_node()
+        if self.executor_thread.is_alive():
+            self.executor_thread.join(timeout=2.0)
+            
+def get_param(package, node_name, yaml_file):
+    params_path = os.path.join(
+        get_package_share_directory(package), "config", yaml_file
+    )
+    with open(params_path, "r") as f:
+        full_params = yaml.safe_load(f)
+    ros_params = full_params[node_name]["ros__parameters"]
+    return [Parameter(name=k, value=v) for k, v in ros_params.items()]
 @pytest.fixture(scope="module")
 def ros_context():
     """Initialize ROS once for all tests in this module."""
@@ -63,29 +97,7 @@ def sensor_node(request):
     )
     print(f"passed here in effector registration")
     # spin the mock service node to handle requests
-    executor = rclpy.executors.SingleThreadedExecutor()
-    executor.add_node(mock_service_node)
-
-    # Start executor in a separate thread
-    executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    executor_thread.start()
-
-    # Load params from YAML file - we'll use thermometer for testing
-    params_path = os.path.join(
-        get_package_share_directory("sensor"), "config", "thermometer.yaml"
-    )
-    with open(params_path, "r") as f:
-        full_params = yaml.safe_load(f)
-
-    # Prepare parameters
-    ros_params = full_params["thermometer_node"]["ros__parameters"]
-    params = [Parameter(name=k, value=v) for k, v in ros_params.items()]
-
-    # Log the parameters we're using
-    print("\nUsing parameters:")
-    for p in params:
-        print(f"  {p.name}: {p.value}")
-
+    params = get_param("sensor", "thermometer_node", "thermometer.yaml")
     # Create node with a custom name to avoid conflicts
     node = Sensor("thermometer_test_node", parameters=params)
 
@@ -94,8 +106,8 @@ def sensor_node(request):
 
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
 
-    # Log basic information without using get_parameter_names()
-    node.get_logger().info("Node created, attempting configuration...")
+    threads = ExecutorThread([node, mock_service_node])
+    threads.run()
 
     # Try configuration and capture the result
     try:
@@ -115,9 +127,6 @@ def sensor_node(request):
                 node.get_logger().error(f"Activation failed with result {act_result}")
             else:
                 node.get_logger().info("Activation successful")
-
-        # Add the node to executor regardless
-        executor.add_node(node)
     except Exception as e:
         node.get_logger().error(f"Exception during configuration: {e}")
         # Continue with setup to see what else might be wrong
@@ -153,8 +162,6 @@ def sensor_node(request):
     request.cls.mock_service_node = mock_service_node
     request.cls.test_service = test_service
     request.cls.test_sub = sub
-    request.cls.executor = executor
-    request.cls.executor_thread = executor_thread
 
     # Make sure the service can be discovered before proceeding
     time.sleep(1.0)  # Give time for service registration
@@ -162,22 +169,7 @@ def sensor_node(request):
     yield node
 
     try:
-        # Shutdown the node first
-        if hasattr(node, "lifecycle_manager"):
-            node.lifecycle_manager.shutdown_node()
-
-        # Remove node from executor
-        executor.remove_node(node)
-
-        # Shutdown executor
-        executor.shutdown()
-
-        # Destroy the node
-        node.destroy_node()
-
-        # Wait for executor thread to finish
-        if executor_thread.is_alive():
-            executor_thread.join(timeout=2.0)
+        threads.clean_up()
 
     except Exception as e:
         print(f"Error during sensor cleanup: {e}")
@@ -200,6 +192,7 @@ def bdd_context():
     if not rclpy.ok():
         rclpy.init()
     print(f"passed here in initialization")
+    
     mock_service_node = Node("mock_service_provider")
 
     def mock_patient_service(req, res):
@@ -221,33 +214,22 @@ def bdd_context():
         EffectorRegister, "EffectorRegister", mock_effector_register_service
     )
     print(f"passed here in effector registration")
-    executor = rclpy.executors.SingleThreadedExecutor()
-    executor.add_node(mock_service_node)
     
-    
-    params_path = os.path.join(
-        get_package_share_directory("sensor"), "config", "thermometer.yaml"
-    )
-    with open(params_path, "r") as f:
-        full_params = yaml.safe_load(f)
-    ros_params = full_params["thermometer_node"]["ros__parameters"]
-    params = [Parameter(name=k, value=v) for k, v in ros_params.items()]
-    print("\nUsing parameters:")
-    for p in params:
-        print(f"  {p.name}: {p.value}")
-
+    params = get_param("sensor", "thermometer_node", "thermometer.yaml")
     node = Sensor("thermometer_test_node", parameters=params)
     node.lifecycle_manager.auto_recovery = True
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
     node.get_logger().info("Node created, attempting configuration...")
-    executor.add_node(node)
-    executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    executor_thread.start()
+
+    # Use ExecutorThread instead of manual threading
+    threads = ExecutorThread([mock_service_node, node])
+    threads.run()
 
     if hasattr(node, "trigger_configure"):
         node.trigger_configure()
-    time.sleep(0.5)  # Give time for configuration
+    time.sleep(0.5)
     node.trigger_activate()
+
     # Attach received_messages directly to the node for BDD
     node.received_messages = []
 
@@ -274,14 +256,9 @@ def bdd_context():
 
     yield SensorTestContext(node, mock_service_node)
 
+    # Use ExecutorThread cleanup
     try:
-        if hasattr(node, "lifecycle_manager"):
-            node.lifecycle_manager.shutdown_node()
-        executor.remove_node(node)
-        executor.shutdown()
-        node.destroy_node()
-        if executor_thread.is_alive():
-            executor_thread.join(timeout=2.0)
+        threads.clean_up()
     except Exception as e:
         print(f"Error during sensor cleanup: {e}")
     finally:
@@ -292,12 +269,10 @@ def bdd_context():
 @pytest.fixture(scope="class")
 def lifecycle_sensor():
     """Create a fresh sensor node for each test."""
-    # Create a unique node name for each test to avoid conflicts
     if not rclpy.ok():
         rclpy.init()
 
     import random
-
     random_suffix = str(random.randint(1000, 9999))
 
     # Create a separate node for the mock service
@@ -323,60 +298,28 @@ def lifecycle_sensor():
         EffectorRegister, "EffectorRegister", mock_effector_register_service
     )
 
-    params_path = os.path.join(
-        get_package_share_directory("sensor"), "config", "thermometer.yaml"
-    )
-    with open(params_path, "r") as f:
-        full_params = yaml.safe_load(f)
-
-    # Prepare parameters
-    ros_params = full_params["thermometer_node"]["ros__parameters"]
-
-    # Fix any topic names that could have trailing slashes
-    for key, value in ros_params.items():
-        if isinstance(value, str) and value.endswith("/"):
-            ros_params[key] = value[:-1]
-
-    params = [Parameter(name=k, value=v) for k, v in ros_params.items()]
+    params = get_param("sensor", "thermometer_node", "thermometer.yaml")
 
     # Create node with a unique name to avoid conflicts
     sensor_name = f"lifecycle_test_node_{random_suffix}"
     node = Sensor(sensor_name, parameters=params)
 
-    # Set up executor
-    executor = SingleThreadedExecutor()
-    executor.add_node(mock_service_node)
-    executor.add_node(node)
-
-    # Start executor in a separate thread
-    executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    executor_thread.start()
+    # Use ExecutorThread instead of manual threading
+    threads = ExecutorThread([mock_service_node, node])
+    threads.run()
 
     # Configure the node and wait a bit
     if hasattr(node, "trigger_configure"):
         node.trigger_configure()
-    time.sleep(0.5)  # Give time for configuration
+    time.sleep(0.5)
 
-    # Store services and nodes as attributes for cleanup
-    node.mock_service_node = mock_service_node
-    node.test_service = test_service
-    node.executor_thread = executor_thread
-    node.executor = executor
-
-    # Yield the sensor node for testing
     yield node
 
-    # Always clean up properly
+    # Use ExecutorThread cleanup
     try:
-        # Shutdown executor first
-        executor.shutdown()
-        if executor_thread.is_alive():
-            executor_thread.join(timeout=1.0)
-
-        # Always destroy nodes
-        mock_service_node.destroy_node()
-        node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        threads.clean_up()
     except Exception as e:
         print(f"Error during lifecycle node cleanup: {e}")
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
