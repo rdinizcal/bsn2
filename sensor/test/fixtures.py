@@ -14,6 +14,8 @@ from rclpy.node import Node
 # from shared_components.test_components.shared_fixtures import ros_context
 import pytest
 import time
+
+
 class ExecutorThread(threading.Thread):
     def __init__(self, nodes):
         super().__init__(daemon=True)
@@ -22,6 +24,7 @@ class ExecutorThread(threading.Thread):
         for node in self.nodes:
             self.executor.add_node(node)
         self.executor_thread = threading.Thread(target=self.executor.spin, daemon=True)
+
     def run(self):
         self.executor_thread.start()
 
@@ -41,7 +44,8 @@ class ExecutorThread(threading.Thread):
             node.destroy_node()
         if self.executor_thread.is_alive():
             self.executor_thread.join(timeout=2.0)
-            
+
+
 def get_param(package, node_name, yaml_file):
     params_path = os.path.join(
         get_package_share_directory(package), "config", yaml_file
@@ -119,12 +123,8 @@ def sensor_node(request):
         node.get_logger().error(f"Exception during configuration: {e}")
         # Continue with setup to see what else might be wrong
 
-    # Create a subscription to capture published data
-    request.cls.received_messages = []
-
     def sensor_data_callback(msg):
         node.get_logger().info(f"Received message: {msg.sensor_datapoint}")
-        request.cls.received_messages.append(msg)
 
     # Create subscription - try to handle both component and non-component versions
     try:
@@ -180,7 +180,7 @@ def context():
     if not rclpy.ok():
         rclpy.init()
     print(f"passed here in initialization")
-    
+
     mock_service_node = Node("mock_service_provider")
 
     def mock_patient_service(req, res):
@@ -202,7 +202,7 @@ def context():
         EffectorRegister, "EffectorRegister", mock_effector_register_service
     )
     print(f"passed here in effector registration")
-    
+
     params = get_param("sensor", "thermometer_node", "thermometer.yaml")
     node = Sensor("thermometer_test_node", parameters=params)
     node.lifecycle_manager.auto_recovery = True
@@ -261,6 +261,7 @@ def lifecycle_sensor():
         rclpy.init()
 
     import random
+
     random_suffix = str(random.randint(1000, 9999))
 
     # Create a separate node for the mock service
