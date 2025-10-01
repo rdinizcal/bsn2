@@ -2,6 +2,7 @@ import pytest
 import time
 import rclpy
 from fixtures import sensor_node
+from shared_test_methods import SharedSensorTests
 
 
 @pytest.mark.usefixtures("sensor_node")
@@ -20,97 +21,67 @@ class TestSensorBehavior:
 
     def test_collect_with_mock_service(self):
         """Test the collect method with our mock service"""
-        datapoint = self.sensor_node.processor.collect()
-        assert datapoint == 37.0
+        # Use shared method
+        SharedSensorTests.assert_collect_works(self.sensor_node)
 
-        # Verify consistent results from the mock service
+        # Additional characteristic-specific test
         for _ in range(3):
-            data_point = self.sensor_node.processor.collect()
-            assert data_point == 37.0, "Collect method should return consistent results"
+            datapoint = self.sensor_node.processor.collect()
+            assert datapoint == 37.0, "Collect method should return consistent results"
 
     def test_process_with_filled_window(self):
         """Test the process method with a filled data window"""
-        # Clear the window and fill it with known values
-        self.sensor_node.processor.data_window.clear()
-        test_values = [36.5, 36.7, 36.9, 37.1, 37.3]
-        for val in test_values:
-            self.sensor_node.processor.data_window.append(val)
+        # Use shared method
+        processed = SharedSensorTests.assert_process_with_filled_window_works(
+            self.sensor_node
+        )
 
-        # Process the data using processor component
-        processed = self.sensor_node.processor.process(37.0)
-
-        # Expected average is the average of the window contents
-        expected_avg = sum(test_values) / len(test_values)
-        assert abs(processed - expected_avg) < 0.11
+        # Additional verification specific to this test
+        assert processed == pytest.approx(36.9, abs=0.11)
 
     def test_process_with_incomplete_window(self):
         """Test process method with incomplete window"""
-        # Clear the window
-        self.sensor_node.processor.data_window.clear()
-
-        # Add just one value
-        self.sensor_node.processor.data_window.append(36.5)
-
-        # Process should return -1 for insufficient data
-        result = self.sensor_node.processor.process(36.5)
-        assert result == -1.0
+        # Use shared method
+        SharedSensorTests.assert_process_with_incomplete_window_fails(self.sensor_node)
 
     def test_transfer_creates_valid_message_data(self):
         """Test that transfer creates message with correct internal data"""
-        # Test the transfer method's internal behavior
-        test_value = 37.0
-
-        # Check that the sensor has the necessary components
-        assert hasattr(self.sensor_node, "processor")
-        assert hasattr(self.sensor_node.processor, "transfer")
-
-        # Call transfer - it should not raise exceptions
-        try:
-            result = self.sensor_node.processor.transfer(test_value)
-            # If transfer returns something, verify it's valid
-            if result is not None:
-                assert isinstance(result, (int, float, bool))
-        except Exception as e:
-            pytest.fail(f"Transfer method failed with exception: {e}")
+        # Use shared method
+        SharedSensorTests.assert_transfer_works(self.sensor_node, 37.0)
 
     def test_sensor_data_flow(self):
         """Test the complete data flow: collect -> process -> transfer"""
-        # Pre-fill the data window to ensure process works
-        for _ in range(self.sensor_node.config.window_size - 1):
-            self.sensor_node.processor.data_window.append(37.0)
+        # Use shared method
+        processed_data = SharedSensorTests.assert_sensor_data_flow_works(
+            self.sensor_node
+        )
 
-        # Step 1: Collect data
-        collected_data = self.sensor_node.processor.collect()
-        assert collected_data == 37.0
+        # Additional verification
+        assert processed_data == 37.0
 
-        # Step 2: Process the data
-        processed_data = self.sensor_node.processor.process(collected_data)
-        assert processed_data == 37.0  # Should be average of window
+    def test_processor_components_exist(self):
+        """Test that all required processor components exist"""
+        # Use shared method
+        SharedSensorTests.assert_processor_components_exist(self.sensor_node)
 
-        # Step 3: Transfer the processed data
-        # This should complete without errors
-        try:
-            self.sensor_node.processor.transfer(processed_data)
-        except Exception as e:
-            pytest.fail(f"Data flow failed at transfer step: {e}")
-
+    # Keep your existing risk evaluation tests that are more detailed
     def test_risk_evaluation_low_risk(self):
         """Test risk evaluation for values in low risk range"""
         ranges = self.sensor_node.risk_manager.evaluator.sensor_ranges[
             self.sensor_node.config.sensor
         ]
         low_range = ranges["low_risk"]
-
-        # Create a value in the middle of low risk range
         test_value = (low_range[0] + low_range[1]) / 2
 
-        # Evaluate risk through risk manager
-        risk_value = self.sensor_node.risk_manager.evaluate_risk(test_value)
+        # Use shared method for basic verification
+        SharedSensorTests.assert_risk_evaluation_works(
+            self.sensor_node, test_value, "low"
+        )
 
-        # Check that risk is in low risk percentage range
+        # Additional detailed verification
+        risk_value = self.sensor_node.risk_manager.evaluate_risk(test_value)
         evaluator = self.sensor_node.risk_manager.evaluator
         assert evaluator.is_low_risk(risk_value)
-        assert evaluator.risk_label(risk_value) == "low"
 
     def test_risk_evaluation_medium_risk(self):
         """Test risk evaluation for values in medium risk range"""
