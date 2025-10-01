@@ -3,62 +3,7 @@ import rclpy
 import threading
 import time
 from rclpy.executors import SingleThreadedExecutor
-
-# Import fixtures from the existing test
-from test_central_hub_charac import ros_context
-
-
-@pytest.fixture(scope="function")
-def direct_central_hub(ros_context):
-    """Create a fresh central hub node for direct testing"""
-    from central_hub.central_hub import CentralHub
-    
-    # Create node
-    node = CentralHub()
-    node.get_logger().info("Direct test: Creating Central Hub node")
-    
-    # Create executor
-    executor = SingleThreadedExecutor()
-    executor.add_node(node)
-    
-    # Start executor thread
-    executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    executor_thread.start()
-    
-    # Store executor and thread for cleanup
-    node.executor = executor
-    node.executor_thread = executor_thread
-    
-    yield node
-    
-    # Cleanup
-    node.get_logger().info("Direct test: Cleaning up Central Hub node")
-    
-    # Clean shutdown
-    try:
-        # Deactivate if active
-        if hasattr(node, 'active') and node.active:
-            node.get_logger().info("Deactivating node")
-            node.trigger_deactivate()
-            time.sleep(0.2)
-        
-        # Finalize explicitly to test finalization
-        if hasattr(node, 'trigger_cleanup'):
-            node.get_logger().info("Cleaning up node")
-            node.trigger_cleanup()
-            time.sleep(0.2)
-    except Exception as e:
-        node.get_logger().error(f"Error in lifecycle transitions: {e}")
-    
-    # Stop executor and join thread
-    executor.shutdown()
-    if executor_thread.is_alive():
-        executor_thread.join(timeout=1.0)
-    
-    # Destroy node
-    node.destroy_node()
-
-
+from fixtures import direct_central_hub
 class TestCentralHubDirect:
     """Direct tests targeting uncovered code in central_hub.py"""
     
