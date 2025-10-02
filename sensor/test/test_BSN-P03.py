@@ -1,5 +1,7 @@
 from pytest_bdd import scenarios, given, when, then
 from fixtures import context
+from shared_test_methods import SharedSensorTests
+from central_hub.test.shared_test_methods import SharedCentralHubTests
 import time
 import rclpy
 from bsn_interfaces.msg import SensorData
@@ -13,6 +15,13 @@ def nodes_online(context):
     assert context.sensor_node is not None
     assert context.central_hub_node is not None
     
+    # Use shared sensor methods to verify sensor is working
+    SharedSensorTests.assert_collect_works(context.sensor_node)
+    SharedSensorTests.assert_processor_components_exist(context.sensor_node)
+    
+    # Use shared central hub methods to verify central hub is working
+    SharedCentralHubTests.assert_components_exist(context.central_hub_node)
+    SharedCentralHubTests.assert_receive_datapoint_works(context.central_hub_node)
 
 
 @when("I listen to thermometer")
@@ -28,16 +37,20 @@ def listen_to_thermometer(context):
 @when("thermometer sends data with high risk")
 def thermometer_sends_high_risk_data(context):
     """Send high-risk temperature data that should trigger emergency detection."""
-    # Fill data window with normal values first
-    for _ in range(context.sensor_node.config.window_size - 1):
-        context.sensor_node.processor.data_window.append(37.0)
-
+    # Use shared sensor method to verify risk evaluation for high temp
+    SharedSensorTests.assert_risk_evaluation_works(context.sensor_node, 42.0, "high")
+    
+    # Use shared sensor method to verify processing with filled window works
+    processed_value = SharedSensorTests.assert_process_with_filled_window_works(context.sensor_node)
+    
     # Send high-risk temperature (e.g., 42°C fever)
     high_risk_temp = 42.0
     context.emergency_trigger_time = time.time()
 
     processed = context.sensor_node.processor.process(high_risk_temp)
-    context.sensor_node.processor.transfer(processed)
+    
+    # Use shared sensor method to verify transfer works
+    SharedSensorTests.assert_transfer_works(context.sensor_node, processed)
 
     # Spin nodes to ensure message delivery
     for _ in range(20):
@@ -49,6 +62,12 @@ def thermometer_sends_high_risk_data(context):
 @when("thermometer sends low-risk data with high frequency")
 def thermometer_sends_low_risk_high_frequency(context):
     """Send multiple low-risk readings rapidly to simulate system load."""
+    # Use shared sensor method to verify normal temperature risk evaluation
+    SharedSensorTests.assert_risk_evaluation_works(context.sensor_node, 36.5, "low")
+    
+    # Use shared sensor method to verify data flow works
+    SharedSensorTests.assert_sensor_data_flow_works(context.sensor_node)
+    
     # Fill data window
     for _ in range(context.sensor_node.config.window_size - 1):
         context.sensor_node.processor.data_window.append(37.0)
@@ -68,11 +87,16 @@ def thermometer_sends_low_risk_high_frequency(context):
 @when("thermometer sends data with high risk", target_fixture="second_high_risk")
 def thermometer_sends_second_high_risk_data(context):
     """Send high-risk data after the system has been overloaded."""
+    # Use shared sensor method to verify risk evaluation for high temp
+    SharedSensorTests.assert_risk_evaluation_works(context.sensor_node, 41.5, "high")
+    
     high_risk_temp = 41.5
     context.emergency_trigger_time = time.time()
 
     processed = context.sensor_node.processor.process(high_risk_temp)
-    context.sensor_node.processor.transfer(processed)
+    
+    # Use shared sensor method to verify transfer works
+    SharedSensorTests.assert_transfer_works(context.sensor_node, processed)
 
     # Spin nodes to process the high-risk message
     for _ in range(30):
@@ -84,6 +108,10 @@ def thermometer_sends_second_high_risk_data(context):
 @then("Central hub will detect an emergency in less than 250 ms")
 def central_hub_detects_emergency_quickly(context):
     """Verify emergency detection happens within 250ms."""
+    # Use shared central hub methods to verify detection works
+    SharedCentralHubTests.assert_detect_abnormal_conditions_works(context.central_hub_node)
+    SharedCentralHubTests.assert_data_fusion_works(context.central_hub_node)
+    
     # Check central hub received emergency notification
     emergency_messages = [
         msg
@@ -112,6 +140,13 @@ def central_hub_detects_emergency_quickly(context):
 @then("Central Hub will experience delayed emergency detection")
 def central_hub_delayed_emergency_detection(context):
     """Verify that system overload causes delayed emergency detection."""
+    # Use shared central hub methods to verify detection still works under load
+    SharedCentralHubTests.assert_detect_abnormal_conditions_works(context.central_hub_node)
+    SharedCentralHubTests.assert_data_fusion_works(context.central_hub_node)
+    
+    # Use shared central hub method to verify components remain functional
+    SharedCentralHubTests.assert_components_exist(context.central_hub_node)
+    
     # Check that emergency was eventually detected
     emergency_messages = [
         msg

@@ -20,7 +20,8 @@ from shared_components.test_components.node_setups import (
 
 
 class SensorTestContext:
-    def __init__(self, sensor_node, mock_service_node):
+    def __init__(self, central_hub_node, sensor_node, mock_service_node):
+        self.central_hub_node = central_hub_node
         self.sensor_node = sensor_node
         self.mock_service_node = mock_service_node
         self.processed_value = 0
@@ -68,8 +69,8 @@ def context():
     ensure_ros_init()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
     mock_effector_register_provider = setup_effector_register_service()
-    central_hub = setup_lifecycle_sensor_node
-    threads: ExecutorThread = ExecutorThread([mock_effector_register_provider, mock_service_node, main_node, central_hub])
+    central_hub_node = setup_lifecycle_central_hub_node()
+    threads: ExecutorThread = ExecutorThread([mock_effector_register_provider, mock_service_node, main_node, central_hub_node])
     threads.run()
 
     # Configure and activate
@@ -80,7 +81,7 @@ def context():
 
     wait_for_service_registration(0.5)
 
-    yield SensorTestContext(main_node, mock_service_node)
+    yield SensorTestContext(central_hub_node, main_node, mock_service_node)
 
     try:
         threads.clean_up()
