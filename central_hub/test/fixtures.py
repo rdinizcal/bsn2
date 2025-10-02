@@ -164,3 +164,84 @@ def direct_central_hub():
     node.destroy_node()
     shutdown_ros_init()
 
+@pytest.fixture(scope="class")
+def unified_central_hub_context(request):
+    """Unified fixture for central hub tests"""
+    ensure_ros_init()
+    
+    # Create central hub node
+    hub = CentralHub()
+    hub.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+    
+    # Use ExecutorThread for proper management
+    threads = ExecutorThread([hub])  # <- Use 'threads' like other fixtures
+    threads.start()
+    
+    # Configure and activate
+    hub.trigger_configure()
+    time.sleep(0.2)
+    hub.trigger_activate()
+    time.sleep(0.2)
+    
+    # Create publishers for sensor data
+    qos_profile = QoSProfile(
+        reliability=QoSReliabilityPolicy.RELIABLE,
+        history=QoSHistoryPolicy.KEEP_LAST,
+        depth=10
+    )
+    
+    publishers = {}
+    for sensor_type in ["thermometer", "ecg", "oximeter", "abps", "abpd", "glucosemeter"]:
+        publishers[sensor_type] = hub.create_publisher(
+            SensorData, f"sensor_data/{sensor_type}", qos_profile
+        )
+    
+    # Create message collection for published data
+    published_messages = []
+    
+    def target_system_callback(msg):
+        hub.get_logger().debug(f"Test captured TargetSystemData: patient_status={msg.patient_status}")
+        published_messages.append(msg)
+    
+    sub = hub.create_subscription(
+        TargetSystemData, 'target_system_data', target_system_callback, 10
+    )
+    
+    # Wait for everything to be ready
+    time.sleep(0.5)
+    
+    # THIS IS THE KEY PART - Set class attributes like central_hub_node fixture does
+    request.cls.central_hub = hub
+    request.cls.publishers = publishers  # <- This was missing!
+    request.cls.published_messages = published_messages  # <- This was missing!
+    request.cls.threads = threads
+    request.cls.test_sub = sub
+    
+    # Create context object
+    context = UnifiedCentralHubContext(
+        central_hub=hub,
+        publishers=publishers,
+        published_messages=published_messages,
+        subscription=sub,
+        threads=threads  # <- Use 'threads' not 'executor_thread'
+    )
+    
+    yield context
+    
+    # Cleanup
+    try:
+        threads.clean_up()  # <- Use threads.clean_up() like other fixtures
+    except Exception as e:
+        print(f"Error during unified context cleanup: {e}")
+
+
+class UnifiedCentralHubContext:
+    """Unified context for central hub tests"""
+    
+    def __init__(self, central_hub, publishers, published_messages, subscription, threads):
+        self.central_hub = central_hub
+        self.publishers = publishers
+        self.published_messages = published_messages
+        self.subscription = subscription
+        self.threads = threads  # <- Use 'threads' not 'executor_thread'
+

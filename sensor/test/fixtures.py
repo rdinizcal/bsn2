@@ -13,8 +13,9 @@ from shared_components.test_components.test_utilities import (
     shutdown_ros_init,
 )
 from shared_components.test_components.node_setups import (
-    setup_lifecycle_sensor_node,  # Move this here
-    # Add any other functions from node_setups
+    setup_lifecycle_sensor_node,
+    setup_effector_register_service,
+    setup_lifecycle_central_hub_node,
 )
 
 
@@ -66,7 +67,9 @@ def context():
     """Create and manage sensor node for BDD testing"""
     ensure_ros_init()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
-    threads: ExecutorThread = ExecutorThread([mock_service_node, main_node])
+    mock_effector_register_provider = setup_effector_register_service()
+    central_hub = setup_lifecycle_sensor_node
+    threads: ExecutorThread = ExecutorThread([mock_effector_register_provider, mock_service_node, main_node, central_hub])
     threads.run()
 
     # Configure and activate
