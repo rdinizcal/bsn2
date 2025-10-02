@@ -32,8 +32,9 @@ class SensorTestContext:
 def sensor_node(request):
     """Create and manage sensor node for testing"""
     ensure_ros_init()
+    mock_effector_register = setup_effector_register_service()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
-    threads: ExecutorThread = ExecutorThread([mock_service_node, main_node])
+    threads: ExecutorThread = ExecutorThread([mock_effector_register, mock_service_node, main_node])
     threads.run()
 
     # Configure and activate node
@@ -63,22 +64,24 @@ def sensor_node(request):
         shutdown_ros_init()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def context():
     """Create and manage sensor node for BDD testing"""
     ensure_ros_init()
-    main_node, mock_service_node = setup_lifecycle_sensor_node()
     mock_effector_register_provider = setup_effector_register_service()
+    main_node, mock_service_node = setup_lifecycle_sensor_node()
+    print("Effector register service setup complete.")
     central_hub_node = setup_lifecycle_central_hub_node()
     threads: ExecutorThread = ExecutorThread([mock_effector_register_provider, mock_service_node, main_node, central_hub_node])
     threads.run()
-
+    
     # Configure and activate
     if hasattr(main_node, "trigger_configure"):
         main_node.trigger_configure()
+        central_hub_node.trigger_configure()
     time.sleep(0.5)
     main_node.trigger_activate()
-
+    central_hub_node.trigger_activate()
     wait_for_service_registration(0.5)
 
     yield SensorTestContext(central_hub_node, main_node, mock_service_node)
@@ -95,9 +98,9 @@ def context():
 def lifecycle_sensor():
     """Create a fresh sensor node for each test."""
     ensure_ros_init()
-
+    mock_effector_service = setup_effector_register_service()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
-    threads: ExecutorThread = ExecutorThread([mock_service_node, main_node])
+    threads: ExecutorThread = ExecutorThread([mock_effector_service,mock_service_node, main_node])
     threads.run()
 
     # Configure the node and wait a bit

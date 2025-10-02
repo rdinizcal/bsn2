@@ -1,5 +1,4 @@
 import pytest
-from .shared_fixtures import mock_service_node
 from sensor.sensor import Sensor
 from central_hub.central_hub import CentralHub
 from bsn_interfaces.srv import PatientData, EffectorRegister

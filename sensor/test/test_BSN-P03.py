@@ -1,7 +1,7 @@
 from pytest_bdd import scenarios, given, when, then
 from fixtures import context
-from shared_test_methods import SharedSensorTests
-from central_hub.test.shared_test_methods import SharedCentralHubTests
+from sensor.sensor_tests import SharedSensorTests
+from central_hub.central_hub_tests import SharedCentralHubTests
 import time
 import rclpy
 from bsn_interfaces.msg import SensorData

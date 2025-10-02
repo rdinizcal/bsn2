@@ -5,7 +5,7 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from bsn_interfaces.msg import SensorData, TargetSystemData
 from std_msgs.msg import Header
 from fixtures import direct_central_hub, central_hub_node
-from shared_test_methods import SharedCentralHubTests
+from central_hub.central_hub_tests import SharedCentralHubTests
 
 
 class TestCentralHubBehavior:

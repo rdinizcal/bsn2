@@ -1,7 +1,7 @@
 import pytest
 import time
 from fixtures import direct_central_hub
-from shared_test_methods import SharedCentralHubTests
+from central_hub.central_hub_tests import SharedCentralHubTests
 
 
 class TestCentralHubDirect:

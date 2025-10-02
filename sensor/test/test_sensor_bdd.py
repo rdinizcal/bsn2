@@ -1,6 +1,6 @@
 from pytest_bdd import scenarios, given, when, then
 from fixtures import context
-from shared_test_methods import SharedSensorTests
+from sensor.sensor_tests import SharedSensorTests
 
 scenarios("../features/check_sensor.feature")
 

@@ -2,7 +2,7 @@ import pytest
 import time
 import rclpy
 from fixtures import sensor_node
-from shared_test_methods import SharedSensorTests
+from sensor.sensor_tests import SharedSensorTests
 
 
 @pytest.mark.usefixtures("sensor_node")
