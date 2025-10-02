@@ -10,7 +10,6 @@ from .test_utilities import (
     ensure_ros_init,
     create_mock_service_node,
     wait_for_service_registration,
-    TestNodeManager,
 )
 
 
@@ -22,14 +21,6 @@ def ros_context():
     if rclpy.ok():
         rclpy.shutdown()
 
-
-@pytest.fixture
-def mock_service_node():
-    """Create a mock service node for testing"""
-    node = create_mock_service_node()
-
-    with TestNodeManager([node]):
-        yield node
 
 
 @pytest.fixture
