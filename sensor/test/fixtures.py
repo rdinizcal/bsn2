@@ -34,7 +34,9 @@ def sensor_node(request):
     ensure_ros_init()
     mock_effector_register = setup_effector_register_service()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
-    threads: ExecutorThread = ExecutorThread([mock_effector_register, mock_service_node, main_node])
+    threads: ExecutorThread = ExecutorThread(
+        [mock_effector_register, mock_service_node, main_node]
+    )
     threads.run()
 
     # Configure and activate node
@@ -64,7 +66,7 @@ def sensor_node(request):
         shutdown_ros_init()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def context():
     """Create and manage sensor node for BDD testing"""
     ensure_ros_init()
@@ -72,9 +74,16 @@ def context():
     main_node, mock_service_node = setup_lifecycle_sensor_node()
     print("Effector register service setup complete.")
     central_hub_node = setup_lifecycle_central_hub_node()
-    threads: ExecutorThread = ExecutorThread([mock_effector_register_provider, mock_service_node, main_node, central_hub_node])
+    threads: ExecutorThread = ExecutorThread(
+        [
+            mock_effector_register_provider,
+            mock_service_node,
+            main_node,
+            central_hub_node,
+        ]
+    )
     threads.run()
-    
+
     # Configure and activate
     if hasattr(main_node, "trigger_configure"):
         main_node.trigger_configure()
@@ -100,7 +109,9 @@ def lifecycle_sensor():
     ensure_ros_init()
     mock_effector_service = setup_effector_register_service()
     main_node, mock_service_node = setup_lifecycle_sensor_node()
-    threads: ExecutorThread = ExecutorThread([mock_effector_service,mock_service_node, main_node])
+    threads: ExecutorThread = ExecutorThread(
+        [mock_effector_service, mock_service_node, main_node]
+    )
     threads.run()
 
     # Configure the node and wait a bit
