@@ -14,7 +14,8 @@ from central_hub.utils.visualization import Visualizer
 from central_hub.utils.risk_analyzer import RiskAnalyzer
 from shared_components.lifecycle_manager import LifecycleManager  # Add this import
 from shared_components.adaptation_handler import AdaptationHandler
-
+from shared_components.enums import StatusContent, Task, EventType
+from shared_components.battery_manager import BatteryManager
 class CentralHub(LifecycleNode):
     """
     Central Hub for the Body Sensor Network.
@@ -29,12 +30,12 @@ class CentralHub(LifecycleNode):
         self.config = ConfigManager(self)
         
         # Component managers
-        self.battery_manager = BatteryManager(self)
-        self.publisher_manager = PublisherManager(self)
-        self.sensor_handler = SensorDataHandler(self)
-        self.fusion_engine = DataFusionEngine(self)
-        self.risk_analyzer = RiskAnalyzer(self)
-        self.visualizer = Visualizer(self)
+        self.battery_manager: BatteryManager = BatteryManager(self)
+        self.publisher_manager: PublisherManager = PublisherManager(self)
+        self.sensor_handler: SensorDataHandler = SensorDataHandler(self)
+        self.fusion_engine: DataFusionEngine = DataFusionEngine(self)
+        self.risk_analyzer: RiskAnalyzer = RiskAnalyzer(self)
+        self.visualizer: Visualizer = Visualizer(self)
         
         # Add lifecycle manager
         self.lifecycle_manager = LifecycleManager(self)

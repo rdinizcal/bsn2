@@ -7,8 +7,8 @@ transferring the final results.
 """
 
 from collections import deque
-
-
+from shared_components.enums import EventType, StatusContent, Task
+from sensor.sensor import Sensor
 class DataProcessor:
     """
     Handles data collection, processing, and transmission.
@@ -49,11 +49,11 @@ class DataProcessor:
         Args:
             node: The parent sensor node instance.
         """
-        self.node = node
+        self.node: Sensor = node
         
         # Initialize data window for moving average
-        self.data_window = deque(maxlen=node.config.window_size)
-        
+        self.data_window: deque = deque(maxlen=node.config.window_size)
+
         # Initialize client for patient data
         self.setup_client()
     
@@ -94,12 +94,11 @@ class DataProcessor:
             float: Collected sensor reading, or -1.0 if collection failed
                    or node is inactive.
         """
-        self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "collect"
-        )
-        
         # Check if active before collecting
-        if not self.node.active:
+        if not self.node.active or self.node.battery_manager.is_recharging:
+            self.node.publisher_manager.publish_status(
+            StatusContent.FAIL, Task.COLLECT
+            )
             self.node.battery_manager.recharge()
             return -1.0
             
@@ -113,7 +112,7 @@ class DataProcessor:
         if response is None:
             self.node.get_logger().error("Service call failed. No response received.")
             self.node.publisher_manager.publish_status(
-                self.node.active and "activated" or "deactivated", "idle"
+                StatusContent.FAIL, Task.COLLECT
             )
             return -1.0
             
@@ -122,7 +121,7 @@ class DataProcessor:
         )
         
         self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "idle"
+            StatusContent.SUCCESS, Task.COLLECT
         )
         return response.datapoint
     
@@ -142,37 +141,50 @@ class DataProcessor:
                    is not full or node is inactive.
         """
         if not self.node.active or datapoint < 0:
+            self.node.publisher_manager.publish_status(
+            StatusContent.FAIL, Task.PROCESS
+            )
             return -1.0
-            
-        self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "process"
-        )
-        
-        # Consume battery for processing
-        multiplier = min(1.0, self.node.config.window_size / 10.0)
-        self.node.battery_manager.consume(multiplier)
-        
-        # Add to data window
-        self.data_window.append(datapoint)
-        
-        # Calculate moving average
-        if len(self.data_window) == self.node.config.window_size:
-            moving_avg = sum(self.data_window) / self.node.config.window_size
-            self.node.get_logger().debug(
-                f"Moving average for {self.node.config.sensor}: {moving_avg}"
+        elif self.node.battery_manager.is_recharging:
+            self.node.publisher_manager.publish_status(
+            StatusContent.FAIL, Task.PROCESS
             )
-            result = moving_avg
-        else:
-            self.node.get_logger().info(
-                f"Insufficient data for moving average. Current window size: {len(self.data_window)}"
+            return -1.0
+        try:
+            # Consume battery for processing
+            multiplier = min(1.0, self.node.config.window_size / 10.0)
+            self.node.battery_manager.consume(multiplier)
+
+            # Add to data window
+            self.data_window.append(datapoint)
+
+            # Calculate moving average
+            if len(self.data_window) == self.node.config.window_size:
+                moving_avg = sum(self.data_window) / self.node.config.window_size
+                self.node.get_logger().debug(
+                    f"Moving average for {self.node.config.sensor}: {moving_avg}"
+                )
+                result = moving_avg
+            else:
+                self.node.get_logger().info(
+                    f"Insufficient data for moving average. Current window size: {len(self.data_window)}"
+                )
+                self.node.publisher_manager.publish_status(
+                    StatusContent.FAIL, Task.PROCESS
+                )
+                result = -1.0
+
+            self.node.publisher_manager.publish_status(
+                StatusContent.SUCCESS, Task.PROCESS
             )
-            result = -1.0
-            
-        self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "idle"
-        )
-        return result
-    
+            return result
+        except Exception as e:
+            self.node.get_logger().error(f"Error during processing: {e}")
+            self.node.publisher_manager.publish_status(
+                StatusContent.FAIL, Task.PROCESS
+            )
+            return -1.0
+        
     def transfer(self, datapoint):
         """
         Transfer processed data.
@@ -184,26 +196,31 @@ class DataProcessor:
         Args:
             datapoint (float): Processed sensor reading to transfer.
         """
+        # TO DO: how should energy be handled on transfer?
         if not self.node.active or datapoint < 0:
+            self.node.publisher_manager.publish_status(
+            StatusContent.FAIL, Task.TRANSFER
+            )
             return
-            
-        self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "transfer"
-        )
-        
+        try:
         # Consume battery for transfer
-        self.node.battery_manager.consume(1.0)
-        
-        # Calculate risk
-        risk_value = self.node.risk_manager.evaluate_risk(datapoint)
-        risk_level = self.node.risk_manager.get_risk_label(risk_value)
-        
-        # Publish the data
-        self.node.publisher_manager.publish_sensor_data(datapoint, risk_value, risk_level)
-        
-        # Send energy status
-        self.node.battery_manager.send_energy_status()
-        
-        self.node.publisher_manager.publish_status(
-            self.node.active and "activated" or "deactivated", "idle"
-        )
+            self.node.battery_manager.consume(1.0)
+
+            # Calculate risk
+            risk_value = self.node.risk_manager.evaluate_risk(datapoint)
+            risk_level = self.node.risk_manager.get_risk_label(risk_value)
+
+            # Publish the data
+            self.node.publisher_manager.publish_sensor_data(datapoint, risk_value, risk_level)
+
+            # Send energy status
+            self.node.battery_manager.send_energy_status()
+
+            self.node.publisher_manager.publish_status(
+                StatusContent.SUCCESS, Task.TRANSFER
+            )
+        except Exception as e:
+            self.node.get_logger().error(f"Error during transfer: {e}")
+            self.node.publisher_manager.publish_status(
+                StatusContent.FAIL, Task.TRANSFER
+            )

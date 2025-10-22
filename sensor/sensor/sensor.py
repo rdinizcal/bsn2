@@ -11,13 +11,13 @@ import rclpy
 import threading
 import time
 from sensor.components.data_processor import DataProcessor
-from sensor.components.battery_manager import BatteryManager
+from shared_components.battery_manager import BatteryManager
 from sensor.components.risk_manager import RiskManager
 from sensor.components.publishers import PublisherManager
 from sensor.components.config_manager import ConfigManager
 from shared_components.lifecycle_manager import LifecycleManager
 from shared_components.adaptation_handler import AdaptationHandler
-
+from shared_components.enums import StatusContent, Task, EventType
 
 class Sensor(LifecycleNode):
     """
@@ -63,22 +63,24 @@ class Sensor(LifecycleNode):
         self.config = ConfigManager(self)
         
         # Component managers
-        self.battery_manager = BatteryManager(self)
-        self.publisher_manager = PublisherManager(self)
-        self.risk_manager = RiskManager(self)
-        self.processor = DataProcessor(self)
-        
+        self.battery_manager: BatteryManager = BatteryManager(self)
+        self.publisher_manager: PublisherManager = PublisherManager(self)
+        self.risk_manager: RiskManager = RiskManager(self)
+        self.processor: DataProcessor = DataProcessor(self)
+
         # Lifecycle manager - handles its own state transitions
-        self.lifecycle_manager = LifecycleManager(self)
-        
-        self.adaptation_handler = AdaptationHandler(self)
-        if self.config.activate_adaptation: 
+        self.lifecycle_manager: LifecycleManager = LifecycleManager(self)
+
+        self.adaptation_handler: AdaptationHandler = AdaptationHandler(self)
+        if self.config.activate_adaptation:
             self.adaptation_handler.register_with_effector()
             
         # Node state
         self.active = False
         self._finalized = False
         self._heartbeat_timer = None
+        # Track last published event to avoid duplicate event floods
+        self._last_event: EventType = EventType.DEACTIVATE
         
         # Configure lifecycle management
         self.lifecycle_manager.set_auto_management_flags(
@@ -113,13 +115,14 @@ class Sensor(LifecycleNode):
             # Set up publishers
             self.publisher_manager.setup_publishers()
             # Publish configured status
-            self.publisher_manager.publish_status("configured", "idle")
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CONFIGURE)
             
             # Set up risk manager with sensor-specific configuration
             self.risk_manager.configure_risk_ranges()
             
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.CONFIGURE)
             self.get_logger().error(f"Error during configuration: {e}")
             return TransitionCallbackReturn.ERROR
         
@@ -150,12 +153,13 @@ class Sensor(LifecycleNode):
                 self._heartbeat_timer.reset()
             
             # Publish immediate activation events
-            self.publisher_manager.publish_event("activate")
-            self.publisher_manager.publish_status("activated", "idle")
-            
+            self._publish_event_once(EventType.ACTIVATE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
+
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
             self.get_logger().error(f"Error during activation: {e}")
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.ACTIVATE)
             return TransitionCallbackReturn.ERROR
         
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
@@ -177,12 +181,13 @@ class Sensor(LifecycleNode):
             self.active = False
             
             # Publish deactivation events
-            self.publisher_manager.publish_event("deactivate")
-            self.publisher_manager.publish_status("deactivated", "idle")
+            self._publish_event_once(EventType.DEACTIVATE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.DEACTIVATE)
             
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
             self.get_logger().error(f"Error during deactivation: {e}")
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.DEACTIVATE)
             return TransitionCallbackReturn.ERROR
         
     def on_cleanup(self, state: State) -> TransitionCallbackReturn:
@@ -209,11 +214,12 @@ class Sensor(LifecycleNode):
                 self.processor.reset()
             
             # Publish status update
-            self.publisher_manager.publish_status("unconfigured", "idle")
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CLEANUP)
             
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
             self.get_logger().error(f"Error during cleanup: {e}")
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.CLEANUP)
             return TransitionCallbackReturn.ERROR
         
     def on_shutdown(self, state: State) -> TransitionCallbackReturn:
@@ -256,7 +262,24 @@ class Sensor(LifecycleNode):
             bool: True if sensor is active, False otherwise.
         """
         return self.active
-        
+
+    def _publish_event_once(self, event_type: EventType):
+        """
+        Publish an event only when its normalized value differs from the
+        last published event. This avoids flooding the system with the
+        same event repeatedly while the node remains in the same state.
+
+        """
+        # Normalize event to string for stable comparison
+
+        if event_type.name != self._last_event:
+            try:
+                self.publisher_manager.publish_event(event_type)
+                self._last_event = event_type
+            except Exception as e:
+                self.get_logger().warning(f"Failed to publish event {event_type}: {e}")
+
+
     def spin_sensor(self):
         """
         Main sensor loop with individual lifecycle management.
@@ -288,6 +311,8 @@ class Sensor(LifecycleNode):
                     self.get_logger().error(f"Sensor operation failed: {str(e)}")
             else:
                 # Handle recharging while inactive or in recharge mode
+                # TO DO? - should event return task too?
+                self._publish_event_once(EventType.DEACTIVATE)
                 self.battery_manager.recharge()
                 
             rate.sleep()  

@@ -8,7 +8,7 @@ for publishing various types of messages.
 
 from bsn_interfaces.msg import SensorData, EnergyStatus, Event, Status
 from std_msgs.msg import Header
-
+from shared_components.enums import StatusContent, Task, EventType
 
 class PublisherManager:
     """
@@ -75,8 +75,8 @@ class PublisherManager:
         self.data_pub = self.node.create_publisher(
             SensorData, f'sensor_data/{self.node.config.sensor}', 10
         )
-    
-    def publish_status(self, content, task):
+
+    def publish_status(self, content: StatusContent, task: Task):
         """
         Publish component status.
         
@@ -98,8 +98,8 @@ class PublisherManager:
         msg.task = task
         self.status_pub.publish(msg)
         self.node.get_logger().debug(f"Status published: {content}, task: {task}")
-    
-    def publish_event(self, event_type):
+
+    def publish_event(self, event_type: EventType):
         """
         Publish an event.
         
@@ -124,22 +124,23 @@ class PublisherManager:
         Sends regular heartbeat messages to indicate sensor node is alive
         and communicating. Content varies based on current operational state.
         """
-        msg = Event()
+        if self.status_pub is None:
+            self.node.get_logger().debug("Status publisher not available, skipping publish")
+            return
+        msg = Status()
         msg.source = self.node.get_name()
         msg.target = "system"
-        msg.freq = float(self.node.config.frequency)
+        msg.content = StatusContent.RUNNING
         
         # Check for recharge mode
-        if (hasattr(self.node, 'battery_manager') and 
-            hasattr(self.node.battery_manager, 'is_recharging')):
-            if self.node.battery_manager.is_recharging:
-                msg.content = "recharging"
-            else:
-                msg.content = "activate" if self.node.active else "deactivate"
+  
+        if self.node.battery_manager.is_recharging:
+            msg.task = Task.RECHARGING
         else:
-            msg.content = "activate" if self.node.active else "deactivate"
-            
-        self.event_pub.publish(msg)
+            msg.task = Task.NORMAL
+
+
+        self.status_pub.publish(msg)
         self.node.get_logger().debug(f"Heartbeat published: {msg.content}")
     
     def publish_sensor_data(self, datapoint, risk_value, risk_level):

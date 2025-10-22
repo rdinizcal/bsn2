@@ -9,7 +9,7 @@ battery levels.
 from shared_components.battery import Battery
 from bsn_interfaces.msg import EnergyStatus
 from std_msgs.msg import Header
-
+from shared_components.enums import StatusContent, Task, EventType
 
 class BatteryManager:
     """
@@ -78,7 +78,7 @@ class BatteryManager:
         
         # Create energy status publisher
         self.energy_status_pub = node.create_publisher(
-            EnergyStatus, f'collect_energy_status/{node.config.sensor}', 10
+            EnergyStatus, f'collect_energy_status/{node.config.component}', 10
         )
         
         # Create timer for battery management
@@ -154,11 +154,12 @@ class BatteryManager:
         self.is_recharging = True
         
         # Keep node active but publish recharging status
-        self.node.publisher_manager.publish_status("deactivated", "recharging")
-        self.node.publisher_manager.publish_event("recharge_start")
-        
+        self.node.publisher_manager.publish_status(StatusContent.SUCCESS, Task.RECHARGING)
+        if self.node._last_event != EventType.RECHARGE:
+            self.node.publisher_manager.publish_event(EventType.RECHARGE)
+            self.node._last_event = EventType.RECHARGE
         self.node.get_logger().info(
-            "Entered recharge mode - processing stopped until battery > 15%"
+            f"Entered recharge mode - processing stopped until battery > 15% {self.battery.current_level:.1f}%"
         )
     
     def exit_recharge_mode(self):
@@ -171,11 +172,11 @@ class BatteryManager:
         self.is_recharging = False
         
         # Update status
-        self.node.publisher_manager.publish_status("activated", "idle")
-        self.node.publisher_manager.publish_event("recharge_complete")
-        
+        self.node.publisher_manager.publish_status(StatusContent.SUCCESS, Task.RECHARGING)
+        self.node.publisher_manager.publish_event(EventType.RECHARGE_COMPLETE)
+
         self.node.get_logger().info(
-            "Exited recharge mode - resuming normal processing"
+            f"Exited recharge mode - resuming normal processing {self.battery.current_level:.1f}%"
         )
     
     def send_energy_status(self):
@@ -191,6 +192,7 @@ class BatteryManager:
         msg.header.stamp = self.node.get_clock().now().to_msg()
         msg.source = self.node.get_name()
         msg.target = "system"
+        # TO DO: this might be the corrected format msg.content = std::to_string(cost);
         msg.content = f"energy:{self.battery.current_level:.2f}:cost:{self.cost:.2f}"
         
         self.energy_status_pub.publish(msg)
