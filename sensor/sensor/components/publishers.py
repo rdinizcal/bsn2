@@ -73,7 +73,7 @@ class PublisherManager:
         
         # Create sensor data publisher
         self.data_pub = self.node.create_publisher(
-            SensorData, f'sensor_data/{self.node.config.sensor}', 10
+            SensorData, f'sensor_data/{self.node.config.component}', 10
         )
 
     def publish_status(self, content: StatusContent, task: Task):
@@ -161,10 +161,10 @@ class PublisherManager:
         msg = SensorData()
         header = Header()
         header.stamp = self.node.get_clock().now().to_msg()
-        header.frame_id = self.node.config.sensor
-        
+        header.frame_id = self.node.config.component
+
         msg.header = header
-        msg.sensor_type = self.node.config.sensor
+        msg.sensor_type = self.node.config.component
         msg.sensor_datapoint = datapoint
         msg.battery_level = self.node.battery_manager.battery.current_level
         msg.risk = float(risk_value)

@@ -27,7 +27,7 @@ class CentralHub(LifecycleNode):
         super().__init__("central_hub")
         
         # Configuration manager (loads and manages parameters)
-        self.config = ConfigManager(self)
+        self.config: ConfigManager = ConfigManager(self)
         
         # Component managers
         self.battery_manager: BatteryManager = BatteryManager(self)
@@ -38,9 +38,9 @@ class CentralHub(LifecycleNode):
         self.visualizer: Visualizer = Visualizer(self)
         
         # Add lifecycle manager
-        self.lifecycle_manager = LifecycleManager(self)
-        
-        self.adaptation_handler = AdaptationHandler(self)
+        self.lifecycle_manager: LifecycleManager = LifecycleManager(self)
+
+        self.adaptation_handler: AdaptationHandler = AdaptationHandler(self)
         if self.config.activate_adaptation: 
             self.adaptation_handler.register_with_effector()
         # Node state

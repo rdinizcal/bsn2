@@ -72,7 +72,7 @@ class BatteryManager:
         
         # Energy status publisher
         self.energy_status_pub = node.create_publisher(
-            EnergyStatus, 'collect_energy_status/central_hub', 10
+            EnergyStatus, f'collect_energy_status/{self.node.config.component}', 10
         )
         
         # Create timer for battery management

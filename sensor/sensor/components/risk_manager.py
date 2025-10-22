@@ -57,27 +57,26 @@ class RiskManager:
         risk value ranges and percentage scoring ranges. Configures
         the risk evaluator with these parameters.
         """
-        # Get sensor type
-        sensor_type = self.node.config.sensor
-        
+        sensor_type = self.node.config.component
+
         # Parse risk percentages
         low_risk = self._parse_range(self.node.config.lowrisk_percent)
         mid_risk = self._parse_range(self.node.config.midrisk_percent)
         high_risk = self._parse_range(self.node.config.highrisk_percent)
-        
+
         self.risk_percentages = (
             (low_risk[0], low_risk[1]),
             (mid_risk[0], mid_risk[1]),
             (high_risk[0], high_risk[1])
         )
-        
+
         # Parse sensor-specific ranges
         high_risk0 = self._parse_range(self.node.config.HighRisk0)
         mid_risk0 = self._parse_range(self.node.config.MidRisk0)
         low_risk = self._parse_range(self.node.config.LowRisk)
         mid_risk1 = self._parse_range(self.node.config.MidRisk1)
         high_risk1 = self._parse_range(self.node.config.HighRisk1)
-        
+
         # Create range dictionary
         self.ranges = {
             "high_risk0": (high_risk0[0], high_risk0[1]),
@@ -86,10 +85,10 @@ class RiskManager:
             "mid_risk1": (mid_risk1[0], mid_risk1[1]),
             "high_risk1": (high_risk1[0], high_risk1[1])
         }
-        
+
         # Configure evaluator with sensor ranges
         self.evaluator.configure(sensor_type, self.ranges, self.risk_percentages)
-        
+
         self.node.get_logger().info(
             f"Risk ranges configured for {sensor_type}: "
             f"HR0={high_risk0}, MR0={mid_risk0}, LR={low_risk}, "
@@ -139,7 +138,7 @@ class RiskManager:
         """
         if datapoint < 0:
             return -1.0
-            
+
         sensor_type = self.node.config.sensor
         return self.evaluator.evaluate_risk(sensor_type, datapoint)
     

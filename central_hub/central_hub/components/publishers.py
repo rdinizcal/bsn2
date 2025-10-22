@@ -8,8 +8,8 @@ for the Body Sensor Network emergency detection system.
 
 from bsn_interfaces.msg import Event, Status, TargetSystemData
 from std_msgs.msg import Header
-
-
+from shared_components.enums import StatusContent, Task
+# TO DO central_hub collector management
 class PublisherManager:
     """
     Manages all publishers for the central hub.
@@ -152,7 +152,9 @@ class PublisherManager:
             latest_risk (dict): Latest risk percentages from all sensors.
             sensor_battery_levels (dict): Current battery levels of all sensors.
         """
-        if self.target_system_publisher is None and not self.active:
+        if self.target_system_publisher is None or not self.node.active:
+            self.node.get_logger().debug("Target system publisher not available or node inactive, skipping publish")
+            self.publish_status(StatusContent.FAIL, Task.TRANSFER)
             return
             
         # Use small battery for transmission

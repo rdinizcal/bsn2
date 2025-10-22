@@ -54,12 +54,12 @@ class ConfigManager:
         node.declare_parameter("frequency", "1.0")
         
         # Get basic configuration
-        self.sensor = node.get_parameter("sensor").get_parameter_value().string_value
+        self.component = node.get_parameter("sensor").get_parameter_value().string_value
         self.vital_sign = node.get_parameter("vital_sign").get_parameter_value().string_value
         self.frequency = float(node.get_parameter("frequency").get_parameter_value().string_value)
         
         # Declare battery parameters
-        node.declare_parameter("battery_id", f"{self.sensor}_battery")
+        node.declare_parameter("battery_id", f"{self.component}_battery")
         node.declare_parameter("battery_capacity", 100.0)
         node.declare_parameter("battery_level", 100.0)
         node.declare_parameter("battery_unit", 0.05)
@@ -80,7 +80,7 @@ class ConfigManager:
         
         # Log configuration
         node.get_logger().info(
-            f"Initialized sensor: {self.sensor}, vital sign: {self.vital_sign}, "
+            f"Initialized sensor: {self.component}, vital sign: {self.vital_sign}, "
             f"frequency: {self.frequency}Hz"
         )
         

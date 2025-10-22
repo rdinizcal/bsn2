@@ -44,7 +44,7 @@ class ConfigManager:
             node: The parent Central Hub ROS node instance.
         """
         self.node = node
-        
+        self.component = "central_hub"
         # Declare battery parameters
         node.declare_parameter("battery_id", "hub_battery")
         node.declare_parameter("frequency", 2.0)

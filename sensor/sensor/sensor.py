@@ -60,7 +60,7 @@ class Sensor(LifecycleNode):
         super().__init__(node_name, parameter_overrides=parameters or [])
         
         # Configuration manager (loads and manages parameters)
-        self.config = ConfigManager(self)
+        self.config: ConfigManager = ConfigManager(self)
         
         # Component managers
         self.battery_manager: BatteryManager = BatteryManager(self)
@@ -109,7 +109,7 @@ class Sensor(LifecycleNode):
         Returns:
             SUCCESS if configuration successful, ERROR otherwise.
         """
-        self.get_logger().info(f"Configuring {self.config.sensor} sensor...")
+        self.get_logger().info(f"Configuring {self.config.component} sensor...")
         
         try:
             # Set up publishers
@@ -138,7 +138,7 @@ class Sensor(LifecycleNode):
         Returns:
             SUCCESS if activation successful, ERROR otherwise.
         """
-        self.get_logger().info(f"Activating {self.config.sensor} sensor...")
+        self.get_logger().info(f"Activating {self.config.component} sensor...")
         
         try:
             # Update node state
@@ -174,7 +174,7 @@ class Sensor(LifecycleNode):
         Returns:
             SUCCESS if deactivation successful, ERROR otherwise.
         """
-        self.get_logger().info(f"Deactivating {self.config.sensor} sensor...")
+        self.get_logger().info(f"Deactivating {self.config.component} sensor...")
         
         try:
             # Update node state
@@ -202,7 +202,7 @@ class Sensor(LifecycleNode):
         Returns:
             SUCCESS if cleanup successful, ERROR otherwise.
         """
-        self.get_logger().info(f"Cleaning up {self.config.sensor} sensor...")
+        self.get_logger().info(f"Cleaning up {self.config.component} sensor...")
         
         try:
             # Cancel heartbeat timer but don't set to None to allow reactivation
@@ -234,7 +234,7 @@ class Sensor(LifecycleNode):
         Returns:
             SUCCESS if shutdown successful, FAILURE otherwise.
         """
-        self.get_logger().info(f"Shutting down {self.config.sensor} sensor...")
+        self.get_logger().info(f"Shutting down {self.config.component} sensor...")
         
         try:
             # Stop lifecycle management

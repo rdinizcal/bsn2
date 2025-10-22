@@ -162,7 +162,7 @@ class DataProcessor:
             if len(self.data_window) == self.node.config.window_size:
                 moving_avg = sum(self.data_window) / self.node.config.window_size
                 self.node.get_logger().debug(
-                    f"Moving average for {self.node.config.sensor}: {moving_avg}"
+                    f"Moving average for {self.node.config.component}: {moving_avg}"
                 )
                 result = moving_avg
             else:
