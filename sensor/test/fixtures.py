@@ -1,6 +1,7 @@
 import pytest
 import time
 from sensor.sensor import Sensor
+from central_hub.central_hub import CentralHub
 from bsn_interfaces.srv import PatientData, EffectorRegister
 from bsn_interfaces.msg import SensorData
 from rclpy.node import Node
@@ -21,8 +22,8 @@ from shared_components.test_components.node_setups import (
 
 class SensorTestContext:
     def __init__(self, central_hub_node, sensor_node, mock_service_node):
-        self.central_hub_node = central_hub_node
-        self.sensor_node = sensor_node
+        self.central_hub_node: CentralHub = central_hub_node
+        self.sensor_node: Sensor = sensor_node
         self.mock_service_node = mock_service_node
         self.processed_value = 0
         self.transferred_msg = 0

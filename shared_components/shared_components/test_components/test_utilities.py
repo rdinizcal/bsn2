@@ -96,11 +96,16 @@ def ensure_ros_init():
     if not rclpy.ok():
         rclpy.init()
 
+class mock_service_node(Node):
+    """A Node subclass that can hold test-only data"""
+    def __init__(self, name):
+        super().__init__(name)
+        self.test_data = {}
 
 def create_mock_service_node(node_name="mock_service_provider"):
     """Create a basic mock service node for testing"""
     ensure_ros_init()
-    return Node(node_name)
+    return mock_service_node(node_name)
 
 
 def shutdown_ros_init():

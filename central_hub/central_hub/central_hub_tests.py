@@ -25,6 +25,26 @@ class SharedCentralHubTests:
             hub.sensor_handler.receive_datapoint(msg)
             assert hub.sensor_handler.latest_data["thermometer"] == 37.0, f'Expected 37.0, got {hub.sensor_handler.latest_data["thermometer"]}'
         return True
+    @staticmethod
+    def receive_changing_datapoints_from_sensor(hub: CentralHub, sensor_type="thermometer", start=36.5, end=38.5, step=0.5):
+        """Simulate receiving changing datapoints from a sensor"""
+        if not hasattr(hub, 'sensor_handler') or not hasattr(hub.sensor_handler, 'receive_datapoint'):
+            return False
+
+        current = start
+        while current <= end:
+            msg = SensorData()
+            msg.sensor_type = sensor_type
+            msg.sensor_datapoint = current
+            msg.risk_level = "normal"
+            msg.risk = 10.0
+
+            hub.sensor_handler.receive_datapoint(msg)
+            assert hub.sensor_handler.latest_data[sensor_type] == current, f'Expected {current}, got {hub.sensor_handler.latest_data[sensor_type]}'
+            current += step
+            time.sleep(0.1)  # Simulate time between readings
+
+        return True
 
     @staticmethod
     def assert_detect_normal_conditions_works(hub : CentralHub):

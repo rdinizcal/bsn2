@@ -2,15 +2,14 @@ import time
 from pytest_bdd import scenarios, given, when, then
 from central_hub.central_hub_tests import SharedCentralHubTests
 from sensor.sensor_tests import SharedSensorTests
-
-# Import fixture
-from fixtures import context
+from sensor.sensor import Sensor
+from fixtures import context,SensorTestContext
 
 scenarios("../../features/health_status.feature")
 
 
 @given("that nodes thermometer and central hub are online")
-def nodes_online(context):
+def nodes_online(context: SensorTestContext):
     assert context.sensor_node is not None, "Sensor node should exist"
     assert context.central_hub_node is not None, "Central hub node should exist"
     # Basic component checks
@@ -19,19 +18,17 @@ def nodes_online(context):
 
 
 @when("I listen to thermometer")
-def listen_to_thermometer(context):
-    # use monotonic for timing stability
-    context.listen_start_time = time.monotonic()
+def listen_to_thermometer(context: SensorTestContext):
     # Clear any previous state
-    if hasattr(context.central_hub_node, 'sensor_handler'):
-        context.central_hub_node.sensor_handler.latest_data = {}
-        context.central_hub_node.sensor_handler.latest_risk = {}
+    SharedSensorTests.assert_collect_works(context.sensor_node, 37.0)
+    context.mock_service_node.test_data['last_datapoint'] = 43.0
+    SharedSensorTests.assert_collect_works(context.sensor_node, 43.0)
 
 
 @then("g4t1 will detect new patient health status")
-def detect_health_status(context):
+def detect_health_status(context: SensorTestContext):
     # For the happy path, simulate abnormal conditions so the hub's detect() is exercised
-    result = SharedCentralHubTests.assert_detect_abnormal_conditions_works(
+    result = SharedCentralHubTests.assert_receive_datapoint_works(
         context.central_hub_node
     )
     assert result, "Central hub failed to detect health status under abnormal conditions"
