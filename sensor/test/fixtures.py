@@ -38,11 +38,13 @@ def sensor_node(request):
     threads: ExecutorThread = ExecutorThread(
         [mock_effector_register, mock_service_node, main_node]
     )
+    
     threads.run()
-
-    # Configure and activate node
+    
     try:
         result = main_node.trigger_configure()
+        
+        # Start executor thread AFTER configuration
         if result.value == 1:
             act_result = main_node.trigger_activate()
             if act_result.value != 1:
@@ -83,13 +85,18 @@ def context():
             central_hub_node,
         ]
     )
+    
+    # Start executor thread first (original pattern)
     threads.run()
-
-    # Configure and activate
+    time.sleep(0.1)  # Allow executor to start
+    
+    # Configure and activate nodes
     if hasattr(main_node, "trigger_configure"):
         main_node.trigger_configure()
         central_hub_node.trigger_configure()
-    time.sleep(0.5)
+    time.sleep(0.2)  # Allow configuration to complete
+    
+    # Activate nodes
     main_node.trigger_activate()
     central_hub_node.trigger_activate()
     wait_for_service_registration(0.5)
@@ -113,12 +120,15 @@ def lifecycle_sensor():
     threads: ExecutorThread = ExecutorThread(
         [mock_effector_service, mock_service_node, main_node]
     )
-    threads.run()
-
-    # Configure the node and wait a bit
+    
+    # Configure the node BEFORE starting executor thread
     if hasattr(main_node, "trigger_configure"):
         main_node.trigger_configure()
-    time.sleep(0.5)
+    time.sleep(0.2)  # Allow configuration to complete
+    
+    # Start executor thread AFTER configuration
+    threads.run()
+    time.sleep(0.3)  # Allow executor to start
 
     yield main_node
 

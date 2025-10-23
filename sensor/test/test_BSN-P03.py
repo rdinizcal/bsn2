@@ -30,8 +30,10 @@ def listen_to_thermometer(context):
 
 @when("thermometer sends data with high risk")
 def thermometer_sends_high_risk(context):
-    # Send a single high-risk datapoint directly to the hub and record publish time
-    send_time = time.monotonic()
+    # Record the exact time when thermometer starts sending high-risk data
+    context.transmission_start_time = time.monotonic()
+    
+    # Send high-risk datapoint and process through the full pipeline
     SharedCentralHubTests.publish_and_process_sensor_data(
         context.central_hub_node,
         sensor_type="thermometer",
@@ -39,17 +41,38 @@ def thermometer_sends_high_risk(context):
         risk_level="high",
         risk_percentage=90.0,
     )
-    context.last_send_time = send_time
+    
+    # Record when data transmission and processing is complete
+    context.data_ready_time = time.monotonic()
 
 
 @then("Central hub will detect an emergency in less than 250 ms")
 def central_hub_detects_fast(context):
-    # Measure detection time by invoking detect and timing it
-    t0 = time.monotonic()
+    # Measure complete pipeline: thermometer send → central hub detection
+    detection_start_time = time.monotonic()
     context.central_hub_node.detect()
-    t1 = time.monotonic()
-    elapsed = t1 - t0
-    assert elapsed <= 0.250, f"Detection took too long: {elapsed:.3f}s"
+    detection_end_time = time.monotonic()
+    
+    # Calculate total pipeline time (transmission + processing + detection)
+    total_pipeline_time = detection_end_time - context.transmission_start_time
+    
+    # Calculate just the detection phase time  
+    detection_only_time = detection_end_time - detection_start_time
+    
+    # Store timing data for analysis
+    context.test_data = {
+        'total_pipeline_ms': total_pipeline_time * 1000,
+        'detection_only_ms': detection_only_time * 1000,
+        'transmission_processing_ms': (context.data_ready_time - context.transmission_start_time) * 1000
+    }
+    
+    # Assert BSN-P03 requirement: complete pipeline under 250ms
+    assert total_pipeline_time <= 0.250, (
+        f"Complete thermometer→central_hub pipeline took {total_pipeline_time*1000:.2f}ms, "
+        f"exceeds 250ms limit. Breakdown: "
+        f"transmission+processing={context.test_data['transmission_processing_ms']:.2f}ms, "
+        f"detection={context.test_data['detection_only_ms']:.2f}ms"
+    )
 
 
 @when("thermometer sends low-risk data with high frequency")
@@ -67,8 +90,9 @@ def thermometer_sends_high_freq_low_risk(context):
 
 @when("But thermometer sends data with high risk")
 def then_send_high_risk_after_overload(context):
-    # After overload, send the high-risk datapoint and measure detection time
-    send_time = time.monotonic()
+    # After overload, send high-risk datapoint and measure complete timing
+    context.overload_transmission_start_time = time.monotonic()
+    
     SharedCentralHubTests.publish_and_process_sensor_data(
         context.central_hub_node,
         sensor_type="thermometer",
@@ -76,14 +100,30 @@ def then_send_high_risk_after_overload(context):
         risk_level="high",
         risk_percentage=90.0,
     )
-    context.last_send_time = send_time
+    
+    context.overload_data_ready_time = time.monotonic()
 
 
 @then("Central Hub will experience delayed emergency detection")
 def central_hub_detects_slow(context):
-    t0 = time.monotonic()
+    detection_start_time = time.monotonic()
     context.central_hub_node.detect()
-    t1 = time.monotonic()
-    elapsed = t1 - t0
-    # We expect the system to be delayed due to prior load; assert detection > 250ms
-    assert elapsed > 0.250, f"Detection was not delayed as expected: {elapsed:.3f}s"
+    detection_end_time = time.monotonic()
+    
+    # Calculate overloaded pipeline timing
+    total_overload_time = detection_end_time - context.overload_transmission_start_time
+    detection_only_time = detection_end_time - detection_start_time
+    
+    # Store overload timing data
+    context.overload_test_data = {
+        'total_pipeline_ms': total_overload_time * 1000,
+        'detection_only_ms': detection_only_time * 1000,
+        'transmission_processing_ms': (context.overload_data_ready_time - context.overload_transmission_start_time) * 1000
+    }
+    
+    # Under overload conditions, we expect delayed detection (> 250ms)
+    assert total_overload_time > 0.250, (
+        f"Overloaded pipeline should exceed 250ms but took {total_overload_time*1000:.2f}ms. "
+        f"Breakdown: transmission+processing={context.overload_test_data['transmission_processing_ms']:.2f}ms, "
+        f"detection={context.overload_test_data['detection_only_ms']:.2f}ms"
+    )

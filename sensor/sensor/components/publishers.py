@@ -66,15 +66,23 @@ class PublisherManager:
         Creates the remaining publishers that require sensor-specific
         configuration information.
         """
-        # Create status publisher
-        self.status_pub = self.node.create_publisher(
-            Status, 'component_status', 10
-        )
+        try:
+            # Create status publisher
+            self.status_pub = self.node.create_publisher(
+                Status, 'component_status', 10
+            )
+
+            # Create sensor data publisher
+            self.data_pub = self.node.create_publisher(
+                SensorData, f'sensor_data/{self.node.config.component}', 10
+            )
+            self.node.get_logger().info(f"Data publisher created for {self.node.config.component}")
+            print("publisher setado")
+            return True
+        except Exception as e:
+            self.node.get_logger().error(f"Failed to set up publishers: {e}")
+            return False
         
-        # Create sensor data publisher
-        self.data_pub = self.node.create_publisher(
-            SensorData, f'sensor_data/{self.node.config.component}', 10
-        )
 
     def publish_status(self, content: StatusContent, task: Task):
         """
@@ -109,12 +117,20 @@ class PublisherManager:
         Args:
             event_type (str): Type of event (e.g., "activate", "deactivate").
         """
-        msg = Event()
-        msg.source = self.node.get_name()
-        msg.target = "system"
-        msg.content = event_type
-        msg.freq = float(self.node.config.frequency)
-        self.event_pub.publish(msg)
+        if self.event_pub is None:
+            self.node.get_logger().debug("Event publisher not available, skipping publish")
+            return
+            
+        try:
+            msg = Event()
+            msg.source = self.node.get_name()
+            msg.target = "system"
+            msg.content = event_type
+            msg.freq = float(self.node.config.frequency)
+            self.event_pub.publish(msg)
+        except Exception as e:
+            self.node.get_logger().warning(f"Failed to publish event: {e}")
+            # Don't re-raise to avoid crashing lifecycle transitions
         self.node.get_logger().info(f"Event published: {event_type}")
     
     def publish_heartbeat(self):
@@ -139,9 +155,12 @@ class PublisherManager:
         else:
             msg.task = Task.NORMAL
 
-
-        self.status_pub.publish(msg)
-        self.node.get_logger().debug(f"Heartbeat published: {msg.content}")
+        try:
+            self.status_pub.publish(msg)
+            self.node.get_logger().debug(f"Heartbeat published: {msg.content}")
+        except Exception as e:
+            self.node.get_logger().warning(f"Failed to publish heartbeat: {e}")
+            # Don't re-raise to avoid interrupting heartbeat timer
     
     def publish_sensor_data(self, datapoint, risk_value, risk_level):
         """

@@ -7,8 +7,10 @@ transferring the final results.
 """
 
 from collections import deque
+from typing import TYPE_CHECKING
 from shared_components.enums import EventType, StatusContent, Task
-from sensor.sensor import Sensor
+
+
 class DataProcessor:
     """
     Handles data collection, processing, and transmission.
@@ -49,7 +51,7 @@ class DataProcessor:
         Args:
             node: The parent sensor node instance.
         """
-        self.node: Sensor = node
+        self.node = node
         
         # Initialize data window for moving average
         self.data_window: deque = deque(maxlen=node.config.window_size)

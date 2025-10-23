@@ -19,15 +19,39 @@ def nodes_online(context: SensorTestContext):
 
 @when("I listen to thermometer")
 def listen_to_thermometer(context: SensorTestContext):
-    # Clear any previous state
+    # Clear any previous state and collect first datapoint (37.0)
     SharedSensorTests.assert_collect_works(context.sensor_node, 37.0)
+    
+    # Allow time for central hub to receive and process the data
+    time.sleep(0.1)
+    
+    # Store the initial thermometer risk after receiving 37.0
+    initial_risk = context.central_hub_node.sensor_handler.latest_risk.get("thermometer", -1.0)
+    context.test_data['initial_thermometer_risk'] = initial_risk
+    
+    # Now collect second datapoint (43.0)
     context.mock_service_node.test_data['last_datapoint'] = 43.0
     SharedSensorTests.assert_collect_works(context.sensor_node, 43.0)
+    
+    # Allow time for central hub to receive and process the new data
+    time.sleep(0.1)
 
 
 @then("g4t1 will detect new patient health status")
 def detect_health_status(context: SensorTestContext):
-    # For the happy path, simulate abnormal conditions so the hub's detect() is exercised
+    # Get the current thermometer risk after receiving 43.0
+    current_risk = context.central_hub_node.sensor_handler.latest_risk.get("thermometer", -1.0)
+    initial_risk = context.test_data.get('initial_thermometer_risk', -1.0)
+    
+    # Assert that the central hub received and processed both datapoints
+    assert current_risk >= 0, f"Central hub should have thermometer risk data, got: {current_risk}"
+    assert initial_risk >= 0, f"Initial thermometer risk should have been recorded, got: {initial_risk}"
+    
+    # The key test: risk should change when temperature goes from 37.0 to 43.0
+    # Since 43.0 is likely higher risk than 37.0, we expect the risk to increase
+    assert current_risk > initial_risk, f"Thermometer risk should change from {initial_risk} to {current_risk} when temperature changes from 37.0 to 43.0"
+    
+    # Verify the central hub's overall functionality
     result = SharedCentralHubTests.assert_receive_datapoint_works(
         context.central_hub_node
     )

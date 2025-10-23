@@ -113,16 +113,16 @@ class Sensor(LifecycleNode):
         
         try:
             # Set up publishers
-            self.publisher_manager.setup_publishers()
-            # Publish configured status
-            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CONFIGURE)
-            
+            if not self.publisher_manager.setup_publishers():
+                raise RuntimeError("Publisher setup failed")
+
             # Set up risk manager with sensor-specific configuration
             self.risk_manager.configure_risk_ranges()
             
+            #self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CONFIGURE)
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
-            self.publisher_manager.publish_status(StatusContent.FAIL, Task.CONFIGURE)
+            #self.publisher_manager.publish_status(StatusContent.FAIL, Task.CONFIGURE)
             self.get_logger().error(f"Error during configuration: {e}")
             return TransitionCallbackReturn.ERROR
         
@@ -152,9 +152,14 @@ class Sensor(LifecycleNode):
             else:
                 self._heartbeat_timer.reset()
             
-            # Publish immediate activation events
-            self._publish_event_once(EventType.ACTIVATE)
-            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
+            # Defer publishing events until after activation completes
+            # This prevents thread safety issues during lifecycle transitions
+            def publish_and_cancel():
+                self._publish_deferred_activation_events()
+                if hasattr(self, '_activation_timer'):
+                    self._activation_timer.cancel()
+                    
+            self._activation_timer = self.create_timer(0.1, publish_and_cancel)
 
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
@@ -277,8 +282,21 @@ class Sensor(LifecycleNode):
                 self.publisher_manager.publish_event(event_type)
                 self._last_event = event_type
             except Exception as e:
+                print("event didnt publish")
                 self.get_logger().warning(f"Failed to publish event {event_type}: {e}")
 
+    def _publish_deferred_activation_events(self):
+        """
+        Publish activation events after lifecycle transition completes.
+        
+        This method is called via timer to safely publish events after
+        the activation transition finishes, preventing thread safety issues.
+        """
+        try:
+            self._publish_event_once(EventType.ACTIVATE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
+        except Exception as e:
+            self.get_logger().warning(f"Failed to publish deferred activation events: {e}")
 
     def spin_sensor(self):
         """
