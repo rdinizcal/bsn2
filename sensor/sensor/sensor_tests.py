@@ -5,10 +5,10 @@ class SharedSensorTests:
     """Shared test methods for sensor testing"""
 
     @staticmethod
-    def assert_collect_works(sensor_node):
+    def assert_collect_works(sensor_node, data=37.0):
         """Assert that collect method returns expected value"""
         datapoint = sensor_node.processor.collect()
-        assert datapoint == 37.0
+        assert datapoint == data
         return True
 
     @staticmethod

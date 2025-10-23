@@ -26,6 +26,7 @@ class SensorTestContext:
         self.mock_service_node = mock_service_node
         self.processed_value = 0
         self.transferred_msg = 0
+        self.test_data = {}
 
 
 @pytest.fixture(scope="class")

@@ -5,7 +5,7 @@ from bsn_interfaces.srv import PatientData, EffectorRegister
 from bsn_interfaces.msg import SensorData
 from rclpy.node import Node
 import rclpy
-from .test_utilities import ensure_ros_init, get_param
+from .test_utilities import ensure_ros_init, get_param, create_mock_service_node
 
 
 def setup_lifecycle_sensor_node():
@@ -13,11 +13,11 @@ def setup_lifecycle_sensor_node():
     ensure_ros_init()
 
     # Create a separate node for the mock service
-    mock_service_node = Node("mock_service_provider")
-
+    mock_service_node = create_mock_service_node("mock_service_provider")
+    mock_service_node.test_data = {'last_datapoint': 37.0}
     def mock_patient_service(req, res):
         mock_service_node.get_logger().info(f"Mock service called for {req.vital_sign}")
-        res.datapoint = 37.0
+        res.datapoint = mock_service_node.test_data['last_datapoint']
         return res
 
     # Create services
