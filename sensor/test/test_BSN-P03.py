@@ -53,9 +53,8 @@ def thermometer_sends_high_risk(context):
     msg.risk = 90.0
     msg.risk_level = "high"
     
-    # Process the message directly
-    if hasattr(context.central_hub_node, 'sensor_handler'):
-        context.central_hub_node.sensor_handler.receive_datapoint(msg)
+
+    context.central_hub_node.sensor_handler.receive_datapoint(msg)
     
     # Record when data transmission and processing is complete
     context.test_data['data_ready_time'] = time.monotonic()
