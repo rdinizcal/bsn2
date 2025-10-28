@@ -151,15 +151,7 @@ class Sensor(LifecycleNode):
                 )
             else:
                 self._heartbeat_timer.reset()
-            
-            # Defer publishing events until after activation completes
-            # This prevents thread safety issues during lifecycle transitions
-            def publish_and_cancel():
-                self._publish_deferred_activation_events()
-                if hasattr(self, '_activation_timer'):
-                    self._activation_timer.cancel()
-                    
-            self._activation_timer = self.create_timer(0.1, publish_and_cancel)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
 
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
@@ -320,6 +312,7 @@ class Sensor(LifecycleNode):
             # Only process if active AND not in recharge mode
             if self.active and not self.battery_manager.is_recharging:
                 try:
+                    self._publish_event_once(EventType.ACTIVATE)
                     # Perform sensor operations through processor
                     datapoint = self.processor.collect()
                     if datapoint >= 0:

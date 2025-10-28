@@ -102,8 +102,10 @@ class PublisherManager:
         msg = Status()
         msg.source = self.node.get_name()
         msg.target = "system"
-        msg.content = content
-        msg.task = task
+        # The IDL expects plain strings; convert Enum values to their string
+        # representation if Enums are passed in.
+        msg.content = content.value if hasattr(content, 'value') else str(content)
+        msg.task = task.value if hasattr(task, 'value') else str(task)
         self.status_pub.publish(msg)
         self.node.get_logger().debug(f"Status published: {content}, task: {task}")
 
@@ -125,7 +127,8 @@ class PublisherManager:
             msg = Event()
             msg.source = self.node.get_name()
             msg.target = "system"
-            msg.content = event_type
+            # Event.content is a string in the IDL; convert Enum -> str
+            msg.content = event_type.value if hasattr(event_type, 'value') else str(event_type)
             msg.freq = float(self.node.config.frequency)
             self.event_pub.publish(msg)
         except Exception as e:
@@ -143,17 +146,18 @@ class PublisherManager:
         if self.status_pub is None:
             self.node.get_logger().debug("Status publisher not available, skipping publish")
             return
+
         msg = Status()
         msg.source = self.node.get_name()
         msg.target = "system"
-        msg.content = StatusContent.RUNNING
-        
+        # Ensure content/task are strings (Status.msg expects strings)
+        msg.content = StatusContent.RUNNING.value
+
         # Check for recharge mode
-  
         if self.node.battery_manager.is_recharging:
-            msg.task = Task.RECHARGING
+            msg.task = Task.RECHARGING.value
         else:
-            msg.task = Task.NORMAL
+            msg.task = Task.NORMAL.value
 
         try:
             self.status_pub.publish(msg)

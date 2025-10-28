@@ -132,6 +132,6 @@ class SharedSensorTests:
 
         assert hasattr(sensor_node, "config"), "Sensor node missing config"
         assert hasattr(sensor_node.config, "window_size"), "Config missing window_size"
-        assert hasattr(sensor_node.config, "sensor"), "Config missing sensor type"
+        assert hasattr(sensor_node.config, "component"), "Config missing sensor type"
 
         return True
