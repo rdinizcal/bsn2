@@ -48,6 +48,11 @@ def generate_launch_description():
         'config',
         'reli_engine.yaml'
     )
+    config_central = os.path.join(
+        get_package_share_directory('central_hub'),
+        'config',
+        'central_hub.yaml'
+    )
 
     return launch.LaunchDescription(
         [
@@ -114,6 +119,7 @@ def generate_launch_description():
                 name="central_hub_node",
                 emulate_tty=True,
                 output="screen",
+                parameters=[config_central],
             ),
             launch_ros.actions.Node(
                 package='system_monitor',

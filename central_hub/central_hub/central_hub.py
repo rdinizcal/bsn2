@@ -23,8 +23,8 @@ class CentralHub(LifecycleNode):
     This class coordinates different components to monitor patient health.
     """
     
-    def __init__(self):
-        super().__init__("central_hub")
+    def __init__(self, node_name: str, parameters=None):
+        super().__init__(node_name, parameter_overrides=parameters or [])
         
         # Configuration manager (loads and manages parameters)
         self.config: ConfigManager = ConfigManager(self)
@@ -195,7 +195,7 @@ class CentralHub(LifecycleNode):
 def main(args=None):
     rclpy.init(args=args)
 
-    hub = CentralHub()
+    hub = CentralHub(node_name="central_hub_node")
     
     # Start automatic lifecycle management
     hub.lifecycle_manager.start_auto_management()

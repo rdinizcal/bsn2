@@ -75,7 +75,7 @@ class ConfigManager(ConfigManagerBase):
 
         # Set window size for moving average
         self.window_size = 5
-
+     
         # Log configuration
         node.get_logger().info(
             f"Initialized sensor: {self.component}, vital sign: {self.vital_sign}, "
