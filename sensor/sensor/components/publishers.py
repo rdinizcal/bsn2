@@ -6,11 +6,11 @@ events, and heartbeat messages. It provides a centralized interface
 for publishing various types of messages.
 """
 
-from bsn_interfaces.msg import SensorData, EnergyStatus, Event, Status
+from bsn_interfaces.msg import SensorData
 from std_msgs.msg import Header
-from shared_components.enums import StatusContent, Task, EventType
+from shared_components.core.publisher_manager_base import PublisherManagerBase
 
-class PublisherManager:
+class PublisherManager(PublisherManagerBase):
     """
     Manages publishers for the sensor node.
     
@@ -50,138 +50,25 @@ class PublisherManager:
         Args:
             node: The parent sensor node instance.
         """
-        self.node = node
-        self.status_pub = None
-        
-        # Create event publisher early
-        self.event_pub = node.create_publisher(Event, 'collect_event', 10)
-        
+        super().__init__(node)
         # Data publisher will be created on configure
         self.data_pub = None
     
-    def setup_publishers(self):
+    def setup_exclusive_publishers(self) -> bool:
         """
-        Set up publishers during configure transition.
+        Set up any exclusive publishers for the sensor node.
         
-        Creates the remaining publishers that require sensor-specific
-        configuration information.
+        This method can be overridden to create additional publishers
+        that are specific to certain sensor types or configurations.
         """
         try:
-            # Create status publisher
-            self.status_pub = self.node.create_publisher(
-                Status, 'component_status', 10
-            )
-
-            # Create sensor data publisher
             self.data_pub = self.node.create_publisher(
                 SensorData, f'sensor_data/{self.node.config.component}', 10
             )
-            self.node.get_logger().info(f"Data publisher created for {self.node.config.component}")
-            print("publisher setado")
             return True
         except Exception as e:
-            self.node.get_logger().error(f"Failed to set up publishers: {e}")
+            self.node.get_logger().error(f"Failed to create data publisher: {e}")
             return False
-        
-
-    def publish_status(self, content: StatusContent, task: Task):
-        """
-        Publish component status.
-        
-        Sends status updates about the sensor component's current state
-        and active task to the system for monitoring.
-        
-        Args:
-            content (str): Status content (e.g., "activated", "configured").
-            task (str): Current task being performed (e.g., "idle", "collect").
-        """
-        if self.status_pub is None:
-            self.node.get_logger().debug("Status publisher not available, skipping publish")
-            return
-            
-        msg = Status()
-        msg.source = self.node.get_name()
-        msg.target = "system"
-        # The IDL expects plain strings; convert Enum values to their string
-        # representation if Enums are passed in.
-        msg.content = content.value if hasattr(content, 'value') else str(content)
-        msg.task = task.value if hasattr(task, 'value') else str(task)
-        self.status_pub.publish(msg)
-        self.node.get_logger().debug(f"Status published: {content}, task: {task}")
-
-    def publish_event_once(self, event_type: EventType):
-        """
-        Publish an event only when its normalized value differs from the
-        last published event. This avoids flooding the system with the
-        same event repeatedly while the node remains in the same state.
-
-            """
-            # Normalize event to string for stable comparison
-
-        if event_type.name != self.node.config.last_event:
-            try:
-                self.publish_event(event_type)
-                self.node.config.last_event = event_type
-            except Exception as e:
-                print("event didnt publish")
-                self.node.get_logger().warning(f"Failed to publish event {event_type}: {e}")
-
-    def publish_event(self, event_type: EventType):
-        """
-        Publish an event.
-        
-        Sends system events to notify other components of important
-        state changes or operations.
-        
-        Args:
-            event_type (str): Type of event (e.g., "activate", "deactivate").
-        """
-        if self.event_pub is None:
-            self.node.get_logger().debug("Event publisher not available, skipping publish")
-            return
-            
-        try:
-            msg = Event()
-            msg.source = self.node.get_name()
-            msg.target = "system"
-            # Event.content is a string in the IDL; convert Enum -> str
-            msg.content = event_type.value if hasattr(event_type, 'value') else str(event_type)
-            msg.freq = float(self.node.config.frequency)
-            self.event_pub.publish(msg)
-        except Exception as e:
-            self.node.get_logger().warning(f"Failed to publish event: {e}")
-            # Don't re-raise to avoid crashing lifecycle transitions
-        self.node.get_logger().info(f"Event published: {event_type}")
-    
-    def publish_heartbeat(self):
-        """
-        Publish periodic heartbeat.
-        
-        Sends regular heartbeat messages to indicate sensor node is alive
-        and communicating. Content varies based on current operational state.
-        """
-        if self.status_pub is None:
-            self.node.get_logger().debug("Status publisher not available, skipping publish")
-            return
-
-        msg = Status()
-        msg.source = self.node.get_name()
-        msg.target = "system"
-        # Ensure content/task are strings (Status.msg expects strings)
-        msg.content = StatusContent.RUNNING.value
-
-        # Check for recharge mode
-        if self.node.battery_manager.is_recharging:
-            msg.task = Task.RECHARGING.value
-        else:
-            msg.task = Task.NORMAL.value
-
-        try:
-            self.status_pub.publish(msg)
-            self.node.get_logger().debug(f"Heartbeat published: {msg.content}")
-        except Exception as e:
-            self.node.get_logger().warning(f"Failed to publish heartbeat: {e}")
-            # Don't re-raise to avoid interrupting heartbeat timer
     
     def publish_sensor_data(self, datapoint, risk_value, risk_level):
         """

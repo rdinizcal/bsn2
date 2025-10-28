@@ -27,7 +27,7 @@ def setup_lifecycle_sensor_node():
 
     # Load parameters and create sensor node
     params = get_param("sensor", "thermometer_node", "thermometer.yaml")
-    node = Sensor("thermometer_test_node", parameters=params)
+    node = Sensor("thermometer_node", parameters=params)
     node.lifecycle_manager.auto_recovery = True
 
     return node, mock_service_node
@@ -35,7 +35,8 @@ def setup_lifecycle_central_hub_node():
     """Setup function to initialize central hub node for tests"""
     ensure_ros_init()
     # Load parameters and create central hub node
-    node = CentralHub()
+    params = get_param("central_hub", "central_hub_node", "central_hub.yaml")
+    node = CentralHub("central_hub_node", parameters=params)
     node.lifecycle_manager.auto_recovery = True
     
     return node
