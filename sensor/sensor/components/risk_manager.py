@@ -139,7 +139,7 @@ class RiskManager:
         if datapoint < 0:
             return -1.0
 
-        sensor_type = self.node.config.sensor
+        sensor_type = self.node.config.component
         return self.evaluator.evaluate_risk(sensor_type, datapoint)
     
     def get_risk_label(self, risk_value):
