@@ -1,6 +1,6 @@
 abpd_node:
   ros__parameters:
-    sensor: "abpd"
+    component: "abpd"
     vital_sign: "abpd"
     frequency: "1.0"
     

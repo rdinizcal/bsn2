@@ -1,6 +1,6 @@
 oximeter_node:
   ros__parameters:
-    sensor: "oximeter"
+    component: "oximeter"
     vital_sign: "oxigenation"
     frequency: "1.0"
     

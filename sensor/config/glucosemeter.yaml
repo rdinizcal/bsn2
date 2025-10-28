@@ -1,6 +1,6 @@
 glucosemeter_node:
   ros__parameters:
-    sensor: "glucosemeter"
+    component: "glucosemeter"
     vital_sign: "glucose"
     frequency: "1.0"
     

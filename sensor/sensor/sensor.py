@@ -79,8 +79,6 @@ class Sensor(LifecycleNode):
         self.active = False
         self._finalized = False
         self._heartbeat_timer = None
-        # Track last published event to avoid duplicate event floods
-        self._last_event: EventType = EventType.DEACTIVATE
         
         # Configure lifecycle management
         self.lifecycle_manager.set_auto_management_flags(
@@ -119,10 +117,10 @@ class Sensor(LifecycleNode):
             # Set up risk manager with sensor-specific configuration
             self.risk_manager.configure_risk_ranges()
             
-            #self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CONFIGURE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.CONFIGURE)
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
-            #self.publisher_manager.publish_status(StatusContent.FAIL, Task.CONFIGURE)
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.CONFIGURE)
             self.get_logger().error(f"Error during configuration: {e}")
             return TransitionCallbackReturn.ERROR
         
@@ -151,6 +149,7 @@ class Sensor(LifecycleNode):
                 )
             else:
                 self._heartbeat_timer.reset()
+            self.publisher_manager.publish_event_once(EventType.ACTIVATE)
             self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
 
             return TransitionCallbackReturn.SUCCESS
@@ -178,7 +177,7 @@ class Sensor(LifecycleNode):
             self.active = False
             
             # Publish deactivation events
-            self._publish_event_once(EventType.DEACTIVATE)
+            self.publisher_manager.publish_event_once(EventType.DEACTIVATE)
             self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.DEACTIVATE)
             
             return TransitionCallbackReturn.SUCCESS
@@ -260,22 +259,6 @@ class Sensor(LifecycleNode):
         """
         return self.active
 
-    def _publish_event_once(self, event_type: EventType):
-        """
-        Publish an event only when its normalized value differs from the
-        last published event. This avoids flooding the system with the
-        same event repeatedly while the node remains in the same state.
-
-        """
-        # Normalize event to string for stable comparison
-
-        if event_type.name != self._last_event:
-            try:
-                self.publisher_manager.publish_event(event_type)
-                self._last_event = event_type
-            except Exception as e:
-                print("event didnt publish")
-                self.get_logger().warning(f"Failed to publish event {event_type}: {e}")
 
     def _publish_deferred_activation_events(self):
         """
@@ -285,7 +268,7 @@ class Sensor(LifecycleNode):
         the activation transition finishes, preventing thread safety issues.
         """
         try:
-            self._publish_event_once(EventType.ACTIVATE)
+            self.publisher_manager.publish_event_once(EventType.ACTIVATE)
             self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
         except Exception as e:
             self.get_logger().warning(f"Failed to publish deferred activation events: {e}")
@@ -312,7 +295,7 @@ class Sensor(LifecycleNode):
             # Only process if active AND not in recharge mode
             if self.active and not self.battery_manager.is_recharging:
                 try:
-                    self._publish_event_once(EventType.ACTIVATE)
+                    self.publisher_manager.publish_event_once(EventType.ACTIVATE)
                     # Perform sensor operations through processor
                     datapoint = self.processor.collect()
                     if datapoint >= 0:
@@ -323,7 +306,7 @@ class Sensor(LifecycleNode):
             else:
                 # Handle recharging while inactive or in recharge mode
                 # TO DO? - should event return task too?
-                self._publish_event_once(EventType.DEACTIVATE)
+                self.publisher_manager.publish_event_once(EventType.DEACTIVATE)
                 self.battery_manager.recharge()
                 
             rate.sleep()  

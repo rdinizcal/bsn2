@@ -109,6 +109,23 @@ class PublisherManager:
         self.status_pub.publish(msg)
         self.node.get_logger().debug(f"Status published: {content}, task: {task}")
 
+    def publish_event_once(self, event_type: EventType):
+        """
+        Publish an event only when its normalized value differs from the
+        last published event. This avoids flooding the system with the
+        same event repeatedly while the node remains in the same state.
+
+            """
+            # Normalize event to string for stable comparison
+
+        if event_type.name != self.node.config.last_event:
+            try:
+                self.publish_event(event_type)
+                self.node.config.last_event = event_type
+            except Exception as e:
+                print("event didnt publish")
+                self.node.get_logger().warning(f"Failed to publish event {event_type}: {e}")
+
     def publish_event(self, event_type: EventType):
         """
         Publish an event.

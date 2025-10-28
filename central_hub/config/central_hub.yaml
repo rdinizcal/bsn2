@@ -1,5 +1,6 @@
 central_hub_node:
   ros__parameters:
+    component: 'central_hub'
     frequency: 2.0
     
     battery_id: 'hub_battery'

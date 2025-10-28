@@ -1,6 +1,6 @@
 ecg_node:
   ros__parameters:
-    sensor: "ecg"
+    component: "ecg"
     vital_sign: "heart_rate"
     frequency: "1.0"
     

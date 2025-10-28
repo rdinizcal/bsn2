@@ -7,7 +7,7 @@ adaptation settings.
 """
 
 
-class ConfigManager:
+class ConfigManager():
     """
     Handles parameter declaration and access for Central Hub.
     

@@ -1,6 +1,6 @@
 thermometer_node:
   ros__parameters:
-    sensor: "thermometer"
+    component: "thermometer"
     vital_sign: "temperature"
     frequency: "1.0"
     
