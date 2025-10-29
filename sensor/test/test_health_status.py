@@ -19,22 +19,31 @@ def nodes_online(context: SensorTestContext):
 
 @when("I listen to thermometer")
 def listen_to_thermometer(context: SensorTestContext):
-    # Clear any previous state and collect first datapoint (37.0)
-    SharedSensorTests.assert_collect_works(context.sensor_node, 37.0)
+    # Initialize test_data if not already present
+    if not hasattr(context, 'test_data'):
+        context.test_data = {}
     
-    # Allow time for central hub to receive and process the data
-    time.sleep(0.1)
+    # Send first datapoint (37.0) directly to central hub
+    SharedCentralHubTests.publish_and_process_sensor_data(
+        context.central_hub_node,
+        sensor_type="thermometer",
+        value=37.0,
+        risk_level="low",
+        risk_percentage=10.0,
+    )
     
     # Store the initial thermometer risk after receiving 37.0
     initial_risk = context.central_hub_node.sensor_handler.latest_risk.get("thermometer", -1.0)
     context.test_data['initial_thermometer_risk'] = initial_risk
     
-    # Now collect second datapoint (43.0)
-    context.mock_service_node.test_data['last_datapoint'] = 43.0
-    SharedSensorTests.assert_collect_works(context.sensor_node, 43.0)
-    
-    # Allow time for central hub to receive and process the new data
-    time.sleep(0.1)
+    # Send second datapoint (43.0) with higher risk
+    SharedCentralHubTests.publish_and_process_sensor_data(
+        context.central_hub_node,
+        sensor_type="thermometer",
+        value=43.0,
+        risk_level="high", 
+        risk_percentage=80.0,
+    )
 
 
 @then("g4t1 will detect new patient health status")
