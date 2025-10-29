@@ -9,7 +9,6 @@ node framework.
 from rclpy.lifecycle import LifecycleNode, State, TransitionCallbackReturn
 import rclpy
 import threading
-import time
 from sensor.components.data_processor import DataProcessor
 from shared_components.battery_manager import BatteryManager
 from sensor.components.risk_manager import RiskManager
@@ -273,7 +272,7 @@ class Sensor(LifecycleNode):
         except Exception as e:
             self.get_logger().warning(f"Failed to publish deferred activation events: {e}")
 
-    def spin_sensor(self):
+    def run(self):
         """
         Main sensor loop with individual lifecycle management.
         
@@ -331,7 +330,7 @@ def main(args=None):
     thread.start()
 
     try:
-        sensor_node.spin_sensor()
+        sensor_node.run()
     finally:
         sensor_node.destroy_node()
         rclpy.shutdown()

@@ -95,11 +95,12 @@ class CentralHub(LifecycleNode):
                 self._heartbeat_timer.reset()
                 
             # Publish activation event immediately
-            self.publisher_manager.publish_event("activate")
-            self.publisher_manager.publish_status("activated", "idle")
+            self.publisher_manager.publish_event(EventType.ACTIVATE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.ACTIVATE)
             
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.ACTIVATE)
             self.get_logger().error(f"Error during activation: {e}")
             return TransitionCallbackReturn.ERROR
 
@@ -113,12 +114,13 @@ class CentralHub(LifecycleNode):
             # DO NOT cancel the timer
             self.get_logger().warn(f"activation state is {self.active}")
             # Publish deactivation events
-            self.publisher_manager.publish_event("deactivate")
-            self.publisher_manager.publish_status("deactivated", "idle")
-            
+            self.publisher_manager.publish_event(EventType.DEACTIVATE)
+            self.publisher_manager.publish_status(StatusContent.SUCCESS, Task.DEACTIVATE)
+
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
             self.get_logger().error(f"Error during deactivation: {e}")
+            self.publisher_manager.publish_status(StatusContent.FAIL, Task.DEACTIVATE)
             return TransitionCallbackReturn.ERROR
 
     def on_cleanup(self, state: State) -> TransitionCallbackReturn:
@@ -127,8 +129,6 @@ class CentralHub(LifecycleNode):
         try:
             # Clean up subscriptions
             self.sensor_handler.cleanup_subscriptions()
-            
-            self.publisher_manager.publish_status("unconfigured", "idle")
             return TransitionCallbackReturn.SUCCESS
         except Exception as e:
             self.get_logger().error(f"Error during cleanup: {e}")
