@@ -36,12 +36,12 @@ class RosComponent(LifecycleNode):
         # initialize LifecycleNode
         super().__init__(node_name, parameter_overrides=parameters or [])
 
+        self.config: Any = self._create_config_manager()
         self.battery_manager: BatteryManager = BatteryManager(self)
         self.lifecycle_manager: LifecycleManager = LifecycleManager(self)
         self.adaptation_handler: AdaptationHandler = AdaptationHandler(self)
 
 
-        self.config: Any = self._create_config_manager()
         self.publisher_manager: Any = self._create_publisher_manager()
         
         # hook for additional child-specific managers (processor, fusion_engine, etc.)
@@ -55,11 +55,8 @@ class RosComponent(LifecycleNode):
         # register with adaptation if config requires it
         self._register_adaptation()
 
-        self._set_auto_management_flags()
-        self._set_configured_battery_thresholds()
-
     def _register_adaptation(self):
-        if self.config.adaptation_required:
+        if self.config.activate_adaptation:
             self.adaptation_handler.register_with_effector()
 
     @abstractmethod
@@ -107,26 +104,6 @@ class RosComponent(LifecycleNode):
             self.visualizer = Visualizer(self)
         """
         pass
-
-    def _set_auto_management_flags(self, *, auto_configure: bool = True,
-                                  auto_activate: bool = True,
-                                  battery_aware: bool = True,
-                                  auto_recovery: bool = False) -> None:
-        """Proxy to configure lifecycle manager automatic behaviour."""
-        self.lifecycle_manager.set_auto_management_flags(
-            auto_configure=auto_configure,
-            auto_activate=auto_activate,
-            battery_aware=battery_aware,
-            auto_recovery=auto_recovery,
-        )
-    
-    def _set_configured_battery_thresholds(self, battery_low: float = 5.0,
-                                          battery_recovery: float = 15.0) -> None:
-        """Proxy to configure lifecycle manager battery thresholds from config."""
-        self.lifecycle_manager.configure_thresholds(
-            battery_low=battery_low,
-            battery_recovery=battery_recovery
-        )
     @abstractmethod
-    def _run(self) -> None:
+    def run(self) -> None:
         raise NotImplementedError("Subclass must implement _run()")

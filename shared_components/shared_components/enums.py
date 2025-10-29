@@ -11,6 +11,8 @@ class Task(enum.Enum):
     RECHARGING = "recharging"
     DEACTIVATE = "deactivate"
     CLEANUP = "cleanup"
+    FUSE = "fuse"
+    EMIT = "emit_emergency"
 
 class StatusContent(enum.Enum):
     SUCCESS = "success"

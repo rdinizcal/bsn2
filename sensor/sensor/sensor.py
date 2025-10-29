@@ -17,8 +17,8 @@ from sensor.components.config_manager import ConfigManager
 from shared_components.lifecycle_manager import LifecycleManager
 from shared_components.adaptation_handler import AdaptationHandler
 from shared_components.enums import StatusContent, Task, EventType
-
-class Sensor(LifecycleNode):
+from shared_components.core.ros_component import RosComponent
+class Sensor(RosComponent):
     """
     Main sensor node class with individual lifecycle management.
     
@@ -56,42 +56,73 @@ class Sensor(LifecycleNode):
             node_name: Name of the ROS node.
             parameters: Optional list of parameter overrides.
         """
-        super().__init__(node_name, parameter_overrides=parameters or [])
-        
-        # Configuration manager (loads and manages parameters)
-        self.config: ConfigManager = ConfigManager(self)
-        
-        # Component managers
-        self.battery_manager: BatteryManager = BatteryManager(self)
-        self.publisher_manager: PublisherManager = PublisherManager(self)
-        self.risk_manager: RiskManager = RiskManager(self)
-        self.processor: DataProcessor = DataProcessor(self)
+        # Call RosComponent.__init__ which will call our factory methods
+        super().__init__(node_name, parameters)
 
-        # Lifecycle manager - handles its own state transitions
-        self.lifecycle_manager: LifecycleManager = LifecycleManager(self)
-
-        self.adaptation_handler: AdaptationHandler = AdaptationHandler(self)
-        if self.config.activate_adaptation:
-            self.adaptation_handler.register_with_effector()
-            
-        # Node state
-        self.active = False
-        self._finalized = False
-        self._heartbeat_timer = None
-        
-        # Configure lifecycle management
         self.lifecycle_manager.set_auto_management_flags(
             auto_configure=True,
             auto_activate=True,
             battery_aware=True,
             auto_recovery=True
         )
-        
-        # Set battery thresholds for lifecycle decisions
         self.lifecycle_manager.configure_thresholds(
             battery_low=5.0,
             battery_recovery=15.0
         )
+    
+    
+
+    
+    def _create_config_manager(self):
+        """Factory method: return sensor-specific ConfigManager."""
+        return ConfigManager(self)
+    
+    def _create_publisher_manager(self):
+        """Factory method: return sensor-specific PublisherManager."""
+        return PublisherManager(self)
+    
+    def _create_additional_managers(self):
+        """Create sensor-specific managers: processor and risk_manager."""
+        self.processor = DataProcessor(self)
+        self.risk_manager = RiskManager(self)
+    
+    def run(self):
+        """
+        Main sensor loop implementation (required by RosComponent).
+        
+        Continuously collects, processes, and publishes sensor data while
+        managing battery consumption and automatic lifecycle transitions.
+        """
+        rate = self.create_rate(self.config.frequency)
+        
+        # Start automatic lifecycle management
+        self.get_logger().info("Starting individual lifecycle management...")
+        self.lifecycle_manager.start_auto_management()
+        
+        while rclpy.ok():
+            if self._finalized:
+                self.get_logger().info("Node has been shut down, exiting spin loop")
+                break
+                
+            # Only process if active AND not in recharge mode
+            if self.active and not self.battery_manager.is_recharging:
+                try:
+                    self.publisher_manager.publish_event_once(EventType.ACTIVATE)
+                    # Perform sensor operations through processor
+                    datapoint = self.processor.collect()
+                    if datapoint >= 0:
+                        datapoint = self.processor.process(datapoint)
+                        self.processor.transfer(datapoint)
+                except Exception as e:
+                    self.get_logger().error(f"Sensor operation failed: {str(e)}")
+            else:
+                # Handle recharging while inactive or in recharge mode
+                self.publisher_manager.publish_event_once(EventType.DEACTIVATE)
+                self.battery_manager.recharge()
+                
+            rate.sleep()
+    
+ 
         
     def on_configure(self, state: State) -> TransitionCallbackReturn:
         """
@@ -272,44 +303,6 @@ class Sensor(LifecycleNode):
         except Exception as e:
             self.get_logger().warning(f"Failed to publish deferred activation events: {e}")
 
-    def run(self):
-        """
-        Main sensor loop with individual lifecycle management.
-        
-        Continuously collects, processes, and publishes sensor data while
-        managing battery consumption and automatic lifecycle transitions.
-        The loop runs until ROS is shut down or the node is finalized.
-        """
-        rate = self.create_rate(self.config.frequency)
-        
-        # Start automatic lifecycle management
-        self.get_logger().info("Starting individual lifecycle management...")
-        self.lifecycle_manager.start_auto_management()
-        
-        while rclpy.ok():
-            if self._finalized:
-                self.get_logger().info("Node has been shut down, exiting spin loop")
-                break
-                
-            # Only process if active AND not in recharge mode
-            if self.active and not self.battery_manager.is_recharging:
-                try:
-                    self.publisher_manager.publish_event_once(EventType.ACTIVATE)
-                    # Perform sensor operations through processor
-                    datapoint = self.processor.collect()
-                    if datapoint >= 0:
-                        datapoint = self.processor.process(datapoint)
-                        self.processor.transfer(datapoint)
-                except Exception as e:
-                    self.get_logger().error(f"Sensor operation failed: {str(e)}")
-            else:
-                # Handle recharging while inactive or in recharge mode
-                # TO DO? - should event return task too?
-                self.publisher_manager.publish_event_once(EventType.DEACTIVATE)
-                self.battery_manager.recharge()
-                
-            rate.sleep()  
-
 
 def main(args=None):
     """
@@ -330,7 +323,7 @@ def main(args=None):
     thread.start()
 
     try:
-        sensor_node.run()
+        sensor_node.run()  # Call the public run method
     finally:
         sensor_node.destroy_node()
         rclpy.shutdown()
