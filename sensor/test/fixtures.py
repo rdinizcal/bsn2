@@ -161,11 +161,11 @@ def context_persistence():
     if hasattr(main_node, "trigger_configure"):
         main_node.trigger_configure()
         central_hub_node.trigger_configure()
-        logger_node.trigger_configure()
+        #logger_node.trigger_configure()
     time.sleep(0.2)
     main_node.trigger_activate()
     central_hub_node.trigger_activate()
-    logger_node.trigger_activate()
+    #logger_node.trigger_activate()
     wait_for_service_registration(0.5)
 
     yield TestContext(
