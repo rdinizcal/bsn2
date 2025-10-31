@@ -112,8 +112,9 @@ class DataAccess(Node):
     - Manage system goal model and formulas
     """
 
-    def __init__(self):
-        super().__init__("data_access")
+    def __init__(self, node_name: str, parameters: Optional[list] = None):
+        # initialize LifecycleNode
+        super().__init__(node_name, parameter_overrides=parameters or [])
         self.get_logger().info("Starting DataAccess component")
 
         # Component name mapping: ROS2 node names -> BSN component names

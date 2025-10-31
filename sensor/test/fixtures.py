@@ -1,5 +1,6 @@
 import pytest
 import time
+from adaptation.data_access.data_access import DataAccess
 from sensor.sensor import Sensor
 from central_hub.central_hub import CentralHub
 from bsn_interfaces.srv import PatientData, EffectorRegister
@@ -17,7 +18,12 @@ from shared_components.test_components.node_setups import (
     setup_lifecycle_sensor_node,
     setup_effector_register_service,
     setup_lifecycle_central_hub_node,
+    setup_data_access_node,
+    setup_lifecycle_logger_node,
+    setup_system_monitor_node,
 )
+from system_monitor.logger import Logger
+from system_monitor.node_monitor import SystemMonitor
 
 
 class SensorTestContext:
@@ -29,6 +35,23 @@ class SensorTestContext:
         self.transferred_msg = 0
         self.test_data = {}
 
+class TestContext:
+    def __init__(self, 
+                central_hub_node, 
+                sensor_node, 
+                mock_service_node,
+                data_access_node,
+                node_monitor_node,
+                logger_node):
+        self.central_hub_node: CentralHub = central_hub_node
+        self.sensor_node: Sensor = sensor_node
+        self.node_monitor_node: SystemMonitor = node_monitor_node
+        self.logger_node: Logger = logger_node
+        self.mock_service_node = mock_service_node
+        self.data_access_node: DataAccess = data_access_node
+        self.processed_value = 0
+        self.transferred_msg = 0
+        self.test_data = {}
 
 @pytest.fixture(scope="class")
 def sensor_node(request):
@@ -103,6 +126,56 @@ def context():
     wait_for_service_registration(0.5)
 
     yield SensorTestContext(central_hub_node, main_node, mock_service_node)
+
+    try:
+        threads.clean_up()
+    except Exception as e:
+        print(f"Error during sensor cleanup: {e}")
+    finally:
+        shutdown_ros_init()
+
+@pytest.fixture(scope="module")
+def context_persistence():
+    """Context fixture for data persistence tests, sets up all required nodes."""
+    ensure_ros_init()
+    mock_effector_register_provider = setup_effector_register_service()
+    main_node, mock_service_node = setup_lifecycle_sensor_node()
+    central_hub_node = setup_lifecycle_central_hub_node()
+    data_access_node = setup_data_access_node()
+    logger_node = setup_lifecycle_logger_node()
+    node_monitor_node = setup_system_monitor_node()
+
+    threads: ExecutorThread = ExecutorThread([
+        mock_effector_register_provider,
+        mock_service_node,
+        main_node,
+        central_hub_node,
+        logger_node,
+        node_monitor_node,
+        data_access_node,
+    ])
+    threads.run()
+    time.sleep(0.1)
+
+    # Configure and activate lifecycle nodes
+    if hasattr(main_node, "trigger_configure"):
+        main_node.trigger_configure()
+        central_hub_node.trigger_configure()
+        logger_node.trigger_configure()
+    time.sleep(0.2)
+    main_node.trigger_activate()
+    central_hub_node.trigger_activate()
+    logger_node.trigger_activate()
+    wait_for_service_registration(0.5)
+
+    yield TestContext(
+        central_hub_node,
+        main_node,
+        mock_service_node,
+        data_access_node=data_access_node,
+        logger_node=logger_node,
+        node_monitor_node=node_monitor_node,
+    )
 
     try:
         threads.clean_up()

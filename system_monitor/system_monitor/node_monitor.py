@@ -7,10 +7,10 @@ message collection and forwarding, node activity tracking, heartbeat monitoring,
 and system status reporting for the BSN system.
 """
 
+from pyparsing import Optional
 import rclpy
 from rclpy.node import Node
 from bsn_interfaces.msg import Status, Event, EnergyStatus
-from std_msgs.msg import String
 import threading
 import time
 
@@ -58,15 +58,9 @@ class SystemMonitor(Node):
         ```
     """
 
-    def __init__(self):
-        """
-        Initialize the combined system monitor and message collector.
-        
-        Sets up message forwarding capabilities, node state tracking,
-        heartbeat monitoring, and status reporting with configurable
-        parameters for monitoring behavior.
-        """
-        super().__init__('node_monitor')
+    def __init__(self, node_name: str, parameters= None):
+        # initialize LifecycleNode
+        super().__init__(node_name, parameter_overrides=parameters or [])
         self.get_logger().info("Starting Combined System Monitor")
         
         # Configure parameters

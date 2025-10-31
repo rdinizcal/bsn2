@@ -4,7 +4,8 @@ import pytest
 from pytest_bdd import scenarios, given, when, then
 from central_hub.central_hub_tests import SharedCentralHubTests
 from sensor.sensor_tests import SharedSensorTests
-
+from bsn_interfaces.msg import SensorData
+from std_msgs.msg import Header
 # Import fixture
 from fixtures import context
 
@@ -39,8 +40,6 @@ def thermometer_sends_high_risk(context):
     context.test_data['transmission_start_time'] = time.monotonic()
     
     # Send high-risk datapoint directly without the long processing delays
-    from bsn_interfaces.msg import SensorData
-    from std_msgs.msg import Header
     
     msg = SensorData()
     header = Header()

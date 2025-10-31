@@ -9,6 +9,7 @@ format for storage and analysis. It handles status updates, events, energy
 reports, adaptation commands, and uncertainty messages from all BSN components.
 """
 
+from typing import Optional
 import rclpy
 from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
@@ -57,16 +58,10 @@ class Logger(LifecycleNode):
         logger = Logger(parameter_overrides=params)
         ```
     """
-    
-    def __init__(self):
-        """
-        Initialize the lifecycle logger node.
-        
-        Sets up message subscriptions for all BSN message types and creates
-        the persistence publisher. Configures timing reference for consistent
-        timestamp generation across all logged messages.
-        """
-        super().__init__('logger')
+
+    def __init__(self, node_name: str, parameters: Optional[list] = None):
+        # initialize LifecycleNode
+        super().__init__(node_name, parameter_overrides=parameters or [])
         
         # Declare parameters
         self.declare_parameter("frequency", 2.0)
@@ -375,7 +370,7 @@ def main(args=None):
     """
     rclpy.init(args=args)
 
-    logger = Logger()
+    logger = Logger("logger_node")
 
     # Run spin in a thread, make thread daemon so we don't have to join it to exit
     thread = threading.Thread(

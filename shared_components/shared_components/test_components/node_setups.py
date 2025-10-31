@@ -40,6 +40,21 @@ def setup_lifecycle_central_hub_node():
     node.lifecycle_manager.auto_recovery = True
     
     return node
+def setup_data_access_node():
+    from adaptation.data_access.data_access import DataAccess
+    params = get_param("adaptation", "data_access", "data_access.yaml")
+    return DataAccess("data_access", parameters=params)
+
+def setup_lifecycle_logger_node():
+    from system_monitor.logger import Logger
+    #params = get_param("system_monitor", "logger_node", "logger.yaml")
+    return Logger("logger_node")
+
+def setup_system_monitor_node():
+    from system_monitor.node_monitor import SystemMonitor
+    params = get_param("system_monitor", "node_monitor", "monitor_config.yaml")
+    return SystemMonitor("node_monitor", parameters=params)
+
 
 def setup_effector_register_service():
     """Setup function to initialize effector register service for tests"""
