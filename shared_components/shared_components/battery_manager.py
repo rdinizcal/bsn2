@@ -44,7 +44,7 @@ class BatteryManager:
         ```
     """
     
-    def __init__(self, node):
+    def __init__(self, node): # config: ConfigManagerBase, publisher_manager: PublisherManagerBase):
         """
         Initialize battery manager.
         
@@ -155,9 +155,9 @@ class BatteryManager:
         
         # Keep node active but publish recharging status
         self.node.publisher_manager.publish_status(StatusContent.SUCCESS, Task.RECHARGING)
-        if self.node._last_event != EventType.RECHARGE:
+        if self.node.last_event != EventType.RECHARGE:
             self.node.publisher_manager.publish_event(EventType.RECHARGE)
-            self.node._last_event = EventType.RECHARGE
+            self.node.last_event = EventType.RECHARGE
         self.node.get_logger().info(
             f"Entered recharge mode - processing stopped until battery > 15% {self.battery.current_level:.1f}%"
         )

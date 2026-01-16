@@ -6,10 +6,12 @@ enabling dynamic reconfiguration through the ParamAdapter service and processing
 of adaptation commands for frequency changes and operational parameters.
 """
 
-from rclpy.node import Node
 from bsn_interfaces.msg import AdaptationCommand
 from bsn_interfaces.srv import EffectorRegister
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    # Imported only for type checking to avoid circular import at runtime
+    from shared_components.core.ros_component import RosComponent
 
 class AdaptationHandler:
     """
@@ -52,7 +54,7 @@ class AdaptationHandler:
         ```
     """
     
-    def __init__(self, node):
+    def __init__(self, node: 'RosComponent'):
         """
         Initialize adaptation handler for a BSN component.
         

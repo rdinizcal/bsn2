@@ -16,16 +16,15 @@ class SharedDataAccessTests:
         assert isinstance(data_access.components_batteries, dict)
 
     @staticmethod
-    def assert_goal_model_loaded(data_access: DataAccess):
-        assert hasattr(data_access, 'goal_tree')
-        assert hasattr(data_access, 'component_mapping')
-        expected_sensors = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6"]
+    def assert_goal_model_loaded(data_access: DataAccess, expected_sensors: list):
+        assert data_access.goal_tree, "Goal tree should be loaded"
+        #expected_sensors = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6"]
         for sensor in expected_sensors:
             assert sensor in data_access.component_mapping.values()
 
     @staticmethod
-    def assert_component_batteries_initialized(data_access: DataAccess):
-        expected_components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6", "g4t1"]
+    def assert_component_batteries_initialized(data_access: DataAccess, expected_components: list):
+        #expected_components = ["g3t1_1", "g3t1_2", "g3t1_3", "g3t1_4", "g3t1_5", "g3t1_6", "g4t1"]
         for component in expected_components:
             assert data_access.components_batteries[component] == 100.0
 
@@ -72,6 +71,29 @@ class SharedDataAccessTests:
                         assert False, f"Last value should be reliability: {data_values[-1]}"
                     for status in data_values[:-1]:
                         assert status in ["success", "fail"]
+    @staticmethod
+    def test_process_query_reliability_format(data_access):
+        """Test that response has valid format"""
+        # Setup: persistir alguns dados
+        data_access.status["g3t1_1"] = deque([
+            (100, "success"),
+            (200, "fail"),
+            (300, "success"),
+        ])
+        
+        # Execute
+        request = Mock()
+        request.query = "all:reliability"
+        response = Mock()
+        data_access.process_query(request, response)
+        
+        # Assert: apenas validar formato
+        parsed = SharedDataAccessTests.assert_process_query_reliability(
+            response.content
+        )
+        
+        assert "/g3t1_1" in parsed
+        assert len(parsed["/g3t1_1"]["statuses"]) == 3
 
     @staticmethod
     def assert_process_query_context(response_content: str):

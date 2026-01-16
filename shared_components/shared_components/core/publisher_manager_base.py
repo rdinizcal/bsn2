@@ -1,5 +1,5 @@
 import rclpy
-from rclpy.lifecycle import LifecycleNode
+from shared_components.core.ros_component import RosComponent
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from abc import ABC, abstractmethod
 
@@ -15,7 +15,8 @@ class PublisherManagerBase(ABC):
     Implements common create/publish helpers for `Status` and `Event`.
     Keep it minimal so it's easy to follow and safe in tests.
     """
-    def __init__(self, node: LifecycleNode):
+    def __init__(self, node: RosComponent): # battery_manager: BatteryManager, config_manager: ConfigManagerBase):
+        
         self.node = node
         self.status_pub = None
         self.event_pub = None

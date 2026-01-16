@@ -41,7 +41,7 @@ class DataProcessor:
         ```
     """
     
-    def __init__(self, node):
+    def __init__(self, node): # BatteryManager: BatteryManager, publisher_manager: PublisherManagerBase, risk_manager : RiskManager):
         """
         Initialize data processor.
         

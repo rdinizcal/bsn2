@@ -11,8 +11,10 @@ from pyparsing import Optional
 import rclpy
 from rclpy.node import Node
 from bsn_interfaces.msg import Status, Event, EnergyStatus
+from shared_components.enums import StatusContent, Task, EventType
 import threading
 import time
+from lifecycle_msgs.srv import GetState
 
 
 class SystemMonitor(Node):
@@ -90,6 +92,13 @@ class SystemMonitor(Node):
                 'content': 'unknown',
                 'is_recharging': False
             }
+
+        self.state_clients = {}
+        for node_name in self.node_list:
+            self.state_clients[node_name] = self.create_client(
+                GetState, f'{node_name}/get_state'
+            )
+        
         
         # === COLLECTOR FUNCTIONALITY ===
         # Create publishers to log_* topics for the Logger
@@ -166,14 +175,14 @@ class SystemMonitor(Node):
                 self.monitored_nodes[monitored_node]['content'] = content
                 
                 # Auto-update active state based on status content
-                if content == "activated":
+                if content == StatusContent.RUNNING.value:
                     self.monitored_nodes[monitored_node]['active'] = True
                     self.monitored_nodes[monitored_node]['is_recharging'] = False
-                elif content == "deactivated":
+                elif content == StatusContent.FAIL.value:
                     self.monitored_nodes[monitored_node]['active'] = False
                 
                 # Check for recharging status
-                if task == "recharging":
+                if task == Task.RECHARGING.value:
                     self.monitored_nodes[monitored_node]['is_recharging'] = True
                 else:
                     self.monitored_nodes[monitored_node]['is_recharging'] = False
@@ -216,7 +225,7 @@ class SystemMonitor(Node):
                 self.monitored_nodes[monitored_node]['last_heartbeat'] = time.time()
                 
                 # Track active state
-                if content == "activate":
+                if content == StatusContent.RUNNING.value:
                     self.monitored_nodes[monitored_node]['active'] = True
                 elif content == "deactivate":
                     self.monitored_nodes[monitored_node]['active'] = False
@@ -278,7 +287,7 @@ class SystemMonitor(Node):
             # Create a Status message for each monitored node
             status_msg = Status()
             status_msg.source = node_name  # ← The node being reported on
-            status_msg.target = 'system'
+            status_msg.target = 'logger'
             status_msg.task = info.get('task', 'monitoring')  # ← The node's current task
             
             # Create detailed status content
@@ -302,7 +311,7 @@ def main(args=None):
         args: Command line arguments passed to ROS initialization.
     """
     rclpy.init(args=args)
-    node = SystemMonitor()
+    node = SystemMonitor(node_name='node_monitor')
     
     # Spin in a separate thread
     executor = rclpy.executors.MultiThreadedExecutor()

@@ -63,7 +63,7 @@ class ParamAdapter(Node):
         
         Sets up component registration service, adaptation command subscription,
         and periodic component checking. Configures adapter parameters for
-        staleness detection and debug logging.
+        staleness detection.
         """
         super().__init__('param_adapter')
         self.get_logger().info("Starting ParamAdapter")
@@ -100,15 +100,14 @@ class ParamAdapter(Node):
 
         # Configure adapter parameters
         self.declare_parameter('check_interval', 10.0)  # Interval to check for stale components
-        self.declare_parameter('debug_level', False)    # Enable debug logging
+
         
         # Get parameters
         self.check_interval = self.get_parameter('check_interval').value
-        self.debug = self.get_parameter('debug_level').value
         
         # Service for components to register themselves
         self.register_service = self.create_service(
-            EffectorRegister, 
+            EffectorRegister,
             'EffectorRegister', 
             self.module_connect
         )
@@ -237,12 +236,11 @@ class ParamAdapter(Node):
                 stale_components.append(component)
                 
         # Log stale components (but don't remove - they might still be active)
-        if stale_components and self.debug:
-            self.get_logger().info(f"These components were registered >5 minutes ago: {stale_components}")
+        
+            self.get_logger().debug(f"These components were registered >5 minutes ago: {stale_components}")
             
         # Log active components summary
-        if self.debug:
-            self.get_logger().info(f"Active components: {list(self.registered_components.keys())}")
+        self.get_logger().debug(f"Active components: {list(self.registered_components.keys())}")
 
 
 def main(args=None):
