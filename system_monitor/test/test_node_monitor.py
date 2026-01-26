@@ -9,7 +9,10 @@ import time
 
 # Import the SystemMonitor class
 from system_monitor.node_monitor import SystemMonitor
-
+from shared_components.test_components.node_setups import (
+    setup_lifecycle_central_hub_node,
+    setup_system_monitor_node
+)
 # Add wait_for mechanism to ensure message delivery
 def wait_for(condition_function, timeout=5.0):
     """Wait for a condition function to become true or timeout."""
@@ -32,7 +35,7 @@ def setup_ros():
 @pytest.fixture(scope="function")
 def monitor_node(setup_ros):
     """Create a SystemMonitor node for testing"""
-    monitor = SystemMonitor()
+    monitor = setup_system_monitor_node()
     monitor.get_logger().info("SystemMonitor started for testing")
     
     yield monitor

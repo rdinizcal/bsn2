@@ -10,12 +10,13 @@ and system status reporting for the BSN system.
 from pyparsing import Optional
 import rclpy
 from rclpy.node import Node
+from rclpy.client import Client
 from bsn_interfaces.msg import Status, Event, EnergyStatus
 from shared_components.enums import StatusContent, Task, EventType
 import threading
 import time
 from lifecycle_msgs.srv import GetState
-
+from lifecycle_msgs.msg import State
 
 class SystemMonitor(Node):
     """
@@ -93,7 +94,7 @@ class SystemMonitor(Node):
                 'is_recharging': False
             }
 
-        self.state_clients = {}
+        self.state_clients: dict[str, Client] = {}
         for node_name in self.node_list:
             self.state_clients[node_name] = self.create_client(
                 GetState, f'{node_name}/get_state'
@@ -178,8 +179,7 @@ class SystemMonitor(Node):
                 if content == StatusContent.RUNNING.value:
                     self.monitored_nodes[monitored_node]['active'] = True
                     self.monitored_nodes[monitored_node]['is_recharging'] = False
-                elif content == StatusContent.FAIL.value:
-                    self.monitored_nodes[monitored_node]['active'] = False
+
                 
                 # Check for recharging status
                 if task == Task.RECHARGING.value:
@@ -225,11 +225,11 @@ class SystemMonitor(Node):
                 self.monitored_nodes[monitored_node]['last_heartbeat'] = time.time()
                 
                 # Track active state
-                if content == StatusContent.RUNNING.value:
+                if content == EventType.ACTIVATE.value:
                     self.monitored_nodes[monitored_node]['active'] = True
-                elif content == "deactivate":
+                elif content == EventType.DEACTIVATE.value:
                     self.monitored_nodes[monitored_node]['active'] = False
-                elif content == "recharging":
+                elif content == EventType.RECHARGE.value:
                     self.monitored_nodes[monitored_node]['is_recharging'] = True
                 
                 # Log state changes
@@ -259,6 +259,9 @@ class SystemMonitor(Node):
         node_name = msg.source
         self.get_logger().debug(f"Energy update from {node_name}: {msg.content}")
 
+    def check_state_helper(self, node_name):
+        return self.state_clients[node_name].call_async(GetState)
+
     def check_heartbeats(self):
         """
         Check for missing heartbeats and log warnings for silent nodes.
@@ -271,13 +274,14 @@ class SystemMonitor(Node):
         
         for node_name, info in self.monitored_nodes.items():
             time_since_last = current_time - info['last_heartbeat']
-            
-            # Only log warning if node should be active
-            if time_since_last > self.heartbeat_timeout:
-                if info['active']:
-                    self.get_logger().warn(f"Node {node_name} hasn't sent a heartbeat in {time_since_last:.1f} seconds!")
-                elif self.debug:
-                    self.get_logger().debug(f"Inactive node {node_name} silent for {time_since_last:.1f}s")
+
+            if self.check_state_helper(node_name) != State.PRIMARY_STATE_ACTIVE:
+                # Only log warning if node should be active
+                if time_since_last > self.heartbeat_timeout:
+                    if info['active']:
+                        self.get_logger().warn(f"Node {node_name} hasn't sent a heartbeat in {time_since_last:.1f} seconds!")
+                    elif self.debug:
+                        self.get_logger().debug(f"Inactive node {node_name} silent for {time_since_last:.1f}s")
 
     def publish_monitor_status(self):
         """
