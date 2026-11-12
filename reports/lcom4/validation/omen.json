@@ -1,0 +1,245 @@
+{
+  "classes": [
+    {
+      "cbo": 5,
+      "class_name": "CallBridge",
+      "coupled_classes": [
+        "second",
+        "CallBridge",
+        "self.x",
+        "first",
+        "self.first"
+      ],
+      "dit": 0,
+      "end_line": 32,
+      "fields": [],
+      "language": "Python",
+      "lcom": 2,
+      "loc": 6,
+      "methods": [
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 0,
+      "nom": 2,
+      "path": "cases.py",
+      "rfc": 2,
+      "start_line": 27,
+      "violations": [
+        "LCOM 2 exceeds threshold 1"
+      ],
+      "wmc": 2
+    },
+    {
+      "cbo": 3,
+      "class_name": "Stateless",
+      "coupled_classes": [
+        "second",
+        "Stateless",
+        "first"
+      ],
+      "dit": 0,
+      "end_line": 45,
+      "fields": [],
+      "language": "Python",
+      "lcom": 2,
+      "loc": 6,
+      "methods": [
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 0,
+      "nom": 2,
+      "path": "cases.py",
+      "rfc": 2,
+      "start_line": 40,
+      "violations": [
+        "LCOM 2 exceeds threshold 1"
+      ],
+      "wmc": 2
+    },
+    {
+      "cbo": 10,
+      "class_name": "InheritedLogging",
+      "coupled_classes": [
+        "get_logger",
+        "second",
+        "self.get_logger",
+        "ExternalBase",
+        "first",
+        "self.y",
+        "info",
+        "self.x",
+        "self.get_logger().info",
+        "InheritedLogging"
+      ],
+      "dit": 1,
+      "end_line": 66,
+      "fields": [],
+      "language": "Python",
+      "lcom": 2,
+      "loc": 8,
+      "methods": [
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 0,
+      "nom": 2,
+      "parent_class": "ExternalBase",
+      "path": "cases.py",
+      "rfc": 2,
+      "start_line": 59,
+      "violations": [
+        "LCOM 2 exceeds threshold 1"
+      ],
+      "wmc": 2
+    },
+    {
+      "cbo": 5,
+      "class_name": "SharedState",
+      "coupled_classes": [
+        "SharedState",
+        "second",
+        "first",
+        "self.x",
+        "__init__"
+      ],
+      "dit": 0,
+      "end_line": 13,
+      "fields": [
+        "x"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 9,
+      "methods": [
+        "__init__",
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 3,
+      "path": "cases.py",
+      "rfc": 3,
+      "start_line": 5,
+      "violations": [],
+      "wmc": 3
+    },
+    {
+      "cbo": 6,
+      "class_name": "SplitState",
+      "coupled_classes": [
+        "self.y",
+        "__init__",
+        "SplitState",
+        "second",
+        "self.x",
+        "first"
+      ],
+      "dit": 0,
+      "end_line": 24,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 9,
+      "methods": [
+        "__init__",
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 2,
+      "nom": 3,
+      "path": "cases.py",
+      "rfc": 3,
+      "start_line": 16,
+      "violations": [],
+      "wmc": 3
+    },
+    {
+      "cbo": 3,
+      "class_name": "OnlyConstructor",
+      "coupled_classes": [
+        "__init__",
+        "self.x",
+        "OnlyConstructor"
+      ],
+      "dit": 0,
+      "end_line": 37,
+      "fields": [
+        "x"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases.py",
+      "rfc": 1,
+      "start_line": 35,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 6,
+      "class_name": "SeparateGetters",
+      "coupled_classes": [
+        "self.x",
+        "SeparateGetters",
+        "self.y",
+        "first",
+        "second",
+        "__init__"
+      ],
+      "dit": 0,
+      "end_line": 56,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 9,
+      "methods": [
+        "__init__",
+        "first",
+        "second"
+      ],
+      "noc": 0,
+      "nof": 2,
+      "nom": 3,
+      "path": "cases.py",
+      "rfc": 3,
+      "start_line": 48,
+      "violations": [],
+      "wmc": 3
+    }
+  ],
+  "generated_at": "2026-11-12T17:21:34.954827357+00:00",
+  "summary": {
+    "avg_cbo": 5.428571428571429,
+    "avg_lcom": 1.4285714285714286,
+    "avg_rfc": 2.2857142857142856,
+    "avg_wmc": 2.2857142857142856,
+    "low_cohesion_count": 3,
+    "max_cbo": 10,
+    "max_dit": 1,
+    "max_lcom": 2,
+    "max_rfc": 3,
+    "max_wmc": 3,
+    "total_classes": 7,
+    "total_files": 1,
+    "violation_count": 3
+  }
+}

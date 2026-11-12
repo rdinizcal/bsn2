@@ -69,3 +69,8 @@ cover/
 
 # MkDocs documentation
 docs/site/
+
+# Local metric analysis environments and Python caches
+.venv-metrics
+.venv-semgrep
+__pycache__/

@@ -1,0 +1,8 @@
+package,Ca,Ce,instability,in_cycle,transitive_dependents,internal_dependencies,external_dependencies
+adaptation,0,0,,False,0,,
+bsn_interfaces,4,0,0.0,False,4,,rosidl_default_runtime;std_msgs
+central_hub,0,3,1.0,False,0,bsn_interfaces;shared_components;system_monitor,launch;launch_ros
+patient,0,1,1.0,False,0,bsn_interfaces,
+sensor,0,2,1.0,False,0,bsn_interfaces;system_monitor,
+shared_components,1,1,0.5,False,1,bsn_interfaces,lifecycle_msgs;rclpy
+system_monitor,2,0,0.0,False,2,,rclpy

@@ -1,0 +1,48 @@
+file,class,line,cbo_pyscn,cbo_dependencies,nom_declared,wmc_sum_lizard_cc,max_method_cc_lizard,pyreverse_outgoing_relations,pyreverse_incoming_relations,in_detected_class_cycle
+adaptation/adaptation/data_access/data_access.py,DataMessage,33,0,[],1,1,1,0,5,False
+adaptation/adaptation/data_access/data_access.py,StatusMessage,53,0,[],1,1,1,1,1,False
+adaptation/adaptation/data_access/data_access.py,EventMessage,62,0,[],1,1,1,1,1,False
+adaptation/adaptation/data_access/data_access.py,EnergyStatusMessage,71,0,[],1,1,1,1,1,False
+adaptation/adaptation/data_access/data_access.py,UncertaintyMessage,82,0,[],1,1,1,1,1,False
+adaptation/adaptation/data_access/data_access.py,AdaptationMessage,93,0,[],1,1,1,1,1,False
+adaptation/adaptation/data_access/data_access.py,DataAccess,104,15,"[""Context"", ""DurabilityPolicy"", ""Formula"", ""Goal"", ""GoalTree"", ""HistoryPolicy"", ""LeafTask"", ""Node"", ""Path"", ""Property"", ""QoSProfile"", ""ReliabilityPolicy"", ""Task"", ""defaultdict"", ""deque""]",22,99,17,8,0,False
+adaptation/adaptation/enactor/controller.py,Controller,10,8,"[""AdaptationCommand"", ""DurabilityPolicy"", ""Enactor"", ""ExceptionMsg"", ""HistoryPolicy"", ""QoSProfile"", ""ReliabilityPolicy"", ""deque""]",7,31,11,1,0,False
+adaptation/adaptation/enactor/enactor.py,Enactor,17,7,"[""DataAccessRequest"", ""DurabilityPolicy"", ""EngineRequest"", ""HistoryPolicy"", ""Node"", ""QoSProfile"", ""ReliabilityPolicy""]",15,40,8,0,1,False
+adaptation/adaptation/engines/base_engine.py,Engine,17,6,"[""DataAccessRequest"", ""Formula"", ""HistoryPolicy"", ""Node"", ""QoSProfile"", ""ReliabilityPolicy""]",16,33,6,1,1,False
+adaptation/adaptation/engines/reli_engine.py,ReliabilityEngine,13,3,"[""DataAccessRequest"", ""Engine"", ""Strategy""]",13,67,16,1,0,False
+adaptation/adaptation/goal_model/context.py,Context,5,0,[],11,12,2,0,1,False
+adaptation/adaptation/goal_model/goal.py,Goal,3,1,"[""Node""]",2,2,1,1,0,False
+adaptation/adaptation/goal_model/goaltree.py,GoalTree,7,0,[],14,24,4,0,1,False
+adaptation/adaptation/goal_model/leaftask.py,LeafTask,6,3,"[""Context"", ""Property"", ""Task""]",13,17,5,1,0,False
+adaptation/adaptation/goal_model/node.py,Node,10,0,[],17,25,3,0,2,False
+adaptation/adaptation/goal_model/property.py,Property,5,0,[],9,10,2,0,0,False
+adaptation/adaptation/goal_model/task.py,Task,4,1,"[""Node""]",4,4,1,1,1,False
+adaptation/adaptation/model/formula.py,FormulaError,8,0,[],0,0,0,0,0,False
+adaptation/adaptation/model/formula.py,Formula,14,15,"[""ast.Add"", ""ast.BinOp"", ""ast.BitXor"", ""ast.Call"", ""ast.Constant"", ""ast.Div"", ""ast.Load"", ""ast.Mult"", ""ast.Name"", ""ast.Num"", ""ast.Pow"", ""ast.Sub"", ""ast.UAdd"", ""ast.USub"", ""ast.UnaryOp""]",16,50,12,0,2,False
+central_hub/central_hub/central_hub.py,CentralHub,15,11,"[""ConfigManager"", ""DataFusionEngine"", ""EventType"", ""PublisherManager"", ""RiskAnalyzer"", ""RosComponent"", ""SensorDataHandler"", ""StatusContent"", ""Task"", ""TransitionCallbackReturn"", ""Visualizer""]",12,31,7,5,0,False
+central_hub/central_hub/components/config_manager.py,ConfigManager,12,1,"[""ConfigManagerBase""]",2,4,2,1,0,False
+central_hub/central_hub/components/data_fusion.py,DataFusionEngine,10,2,"[""StatusContent"", ""Task""]",3,22,13,0,1,False
+central_hub/central_hub/components/publishers.py,PublisherManager,15,5,"[""Header"", ""PublisherManagerBase"", ""StatusContent"", ""TargetSystemData"", ""Task""]",3,6,3,1,0,False
+central_hub/central_hub/components/sensor_data_handler.py,SensorDataHandler,12,0,[],4,10,7,0,1,False
+central_hub/central_hub/utils/risk_analyzer.py,RiskAnalyzer,2,2,"[""StatusContent"", ""Task""]",2,13,12,0,1,False
+central_hub/central_hub/utils/visualization.py,Visualizer,10,0,[],4,14,9,0,1,False
+patient/patient/patient.py,Patient,17,1,"[""Node""]",9,32,7,0,0,False
+sensor/sensor/components/config_manager.py,ConfigManager,13,1,"[""ConfigManagerBase""]",3,3,1,1,0,False
+sensor/sensor/components/data_processor.py,DataProcessor,14,4,"[""PatientData"", ""StatusContent"", ""Task"", ""deque""]",6,18,6,0,1,False
+sensor/sensor/components/publishers.py,PublisherManager,13,3,"[""Header"", ""PublisherManagerBase"", ""SensorData""]",3,5,2,1,0,False
+sensor/sensor/components/risk_manager.py,RiskManager,12,1,"[""RiskEvaluator""]",8,13,4,1,1,False
+sensor/sensor/sensor.py,Sensor,21,9,"[""ConfigManager"", ""DataProcessor"", ""EventType"", ""PublisherManager"", ""RiskManager"", ""RosComponent"", ""StatusContent"", ""Task"", ""TransitionCallbackReturn""]",12,29,7,3,0,False
+sensor/sensor/utils/risk_evaluator.py,RiskEvaluator,10,0,[],10,25,7,0,1,False
+shared_components/shared_components/adaptation_handler.py,AdaptationHandler,16,1,"[""EffectorRegister""]",4,11,5,0,1,False
+shared_components/shared_components/battery.py,Battery,10,0,[],4,11,6,0,1,False
+shared_components/shared_components/battery_manager.py,BatteryManager,14,6,"[""Battery"", ""EnergyStatus"", ""EventType"", ""Header"", ""StatusContent"", ""Task""]",7,17,8,1,1,False
+shared_components/shared_components/core/config_manager_base.py,ConfigManagerBase,6,1,"[""EventType""]",3,6,3,0,2,False
+shared_components/shared_components/core/publisher_manager_base.py,PublisherManagerBase,12,7,"[""Event"", ""HistoryPolicy"", ""QoSProfile"", ""ReliabilityPolicy"", ""Status"", ""StatusContent"", ""Task""]",8,21,4,1,2,False
+shared_components/shared_components/core/ros_component.py,RosComponent,13,4,"[""AdaptationHandler"", ""BatteryManager"", ""LifecycleManager"", ""LifecycleNode""]",6,8,2,3,3,False
+shared_components/shared_components/enums.py,Task,3,1,"[""enum.Enum""]",0,0,0,0,0,False
+shared_components/shared_components/enums.py,StatusContent,17,1,"[""enum.Enum""]",0,0,0,0,0,False
+shared_components/shared_components/enums.py,EventType,23,1,"[""enum.Enum""]",0,0,0,0,0,False
+shared_components/shared_components/lifecycle_manager.py,LifecycleManager,16,1,"[""TransitionCallbackReturn""]",15,57,7,0,1,False
+system_monitor/system_monitor/logger.py,Logger,20,7,"[""DurabilityPolicy"", ""HistoryPolicy"", ""LifecycleNode"", ""Persist"", ""QoSProfile"", ""ReliabilityPolicy"", ""TransitionCallbackReturn""]",14,32,10,0,0,False
+system_monitor/system_monitor/node_monitor.py,SystemMonitor,21,6,"[""EventType"", ""Node"", ""State"", ""Status"", ""StatusContent"", ""Task""]",7,33,8,0,0,False
+system_monitor/system_monitor/param_adapter.py,ParamAdapter,17,1,"[""Node""]",4,15,5,0,0,False

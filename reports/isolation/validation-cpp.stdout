@@ -1,0 +1,73 @@
+                    
+                    
+┌──────────────────┐
+│ 11 Code Findings │
+└──────────────────┘
+                                         
+    tools/semgrep/tests/isolation-cpp.cpp
+     ❱ tools.semgrep.isolation.cpp.ros-resource
+          ❰❰ Blocking ❱❱
+          Recurso ROS 1 criado diretamente; revisar isolamento do adaptador.
+                                                                            
+            4┆ node.advertise<Message>("data", 10);
+   
+     ❱ tools.semgrep.isolation.cpp.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS 1; revisar controle de executor e tempo no teste.
+                                                                     
+            8┆ node.createTimer(duration, callback);
+   
+     ❱ tools.semgrep.isolation.cpp.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução de runtime ROS 1.
+                                                     
+           10┆ ros::spin();
+   
+     ❱ tools.semgrep.isolation.cpp.service-wait
+          ❰❰ Blocking ❱❱
+          Espera pela disponibilidade de serviço ROS 1.
+                                                       
+           12┆ client.waitForExistence(timeout);
+   
+     ❱ tools.semgrep.isolation.cpp.client-call
+          ❰❰ Blocking ❱❱
+          Possível chamada de cliente ROS 1, identificada pelo nome; confirmar contexto.
+                                                                                        
+           14┆ client.call(request);
+   
+     ❱ tools.semgrep.isolation.cpp.file-io
+          ❰❰ Blocking ❱❱
+          Acesso a arquivo; revisar substituição ou arquivos temporários.
+                                                                         
+           18┆ auto input = std::ifstream("data.txt");
+   
+     ❱ tools.semgrep.isolation.cpp.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar controle do tempo.
+                                                             
+           20┆ ros::Time::now();
+   
+     ❱ tools.semgrep.isolation.cpp.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real.
+                               
+           22┆ std::this_thread::sleep_for(duration);
+   
+     ❱ tools.semgrep.isolation.cpp.thread-creation
+          ❰❰ Blocking ❱❱
+          Construção de std::thread inicia concorrência; revisar controle no teste.
+                                                                                   
+           24┆ auto worker = std::thread(callback);
+   
+     ❱ tools.semgrep.isolation.cpp.process-execution
+          ❰❰ Blocking ❱❱
+          Execução de processo externo.
+                                       
+           26┆ system("tool");
+   
+     ❱ tools.semgrep.isolation.cpp.environment-read
+          ❰❰ Blocking ❱❱
+          Entrada dependente do ambiente do processo.
+                                                     
+           28┆ std::getenv("CONFIG");
+

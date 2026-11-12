@@ -1,0 +1,19 @@
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 54 files with 17 Code rules:
+  Scanning 54 files with 17 python rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 251 (251 blocking)
+ • Rules run: 17
+ • Targets scanned: 54
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 17 rules on 54 files: 251 findings.

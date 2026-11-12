@@ -1,0 +1,13 @@
+{
+  "classes": 47,
+  "direct_methods": 318,
+  "native_lizard_functions_including_globals": 328,
+  "cbo_pyscn_mean": 2.893617021276596,
+  "cbo_pyscn_max": 15,
+  "wmc_lizard_mean": 18.21276595744681,
+  "wmc_lizard_max": 99,
+  "max_method_cc_lizard": 17,
+  "methods_cc_over_10": 9,
+  "class_cycle_components_detected": 0,
+  "module_cycles_native": 0
+}

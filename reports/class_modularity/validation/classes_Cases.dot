@@ -1,0 +1,18 @@
+digraph "classes_Cases" {
+rankdir=BT
+charset="utf-8"
+"cases.complexity_example.ComplexityExample" [color="black", fontcolor="black", label=<cases.complexity_example.ComplexityExample>, shape="record", style="solid"];
+"cases.consumer.ConstructedConsumer" [color="black", fontcolor="black", label=<cases.consumer.ConstructedConsumer>, shape="record", style="solid"];
+"cases.consumer.LocalConsumer" [color="black", fontcolor="black", label=<cases.consumer.LocalConsumer>, shape="record", style="solid"];
+"cases.consumer.LocalDependency" [color="black", fontcolor="black", label=<cases.consumer.LocalDependency>, shape="record", style="solid"];
+"cases.consumer.TypedConsumer" [color="black", fontcolor="black", label=<cases.consumer.TypedConsumer>, shape="record", style="solid"];
+"cases.consumer.UntypedConsumer" [color="black", fontcolor="black", label=<cases.consumer.UntypedConsumer>, shape="record", style="solid"];
+"cases.dependency.Dependency" [color="black", fontcolor="black", label=<cases.dependency.Dependency>, shape="record", style="solid"];
+"cases.loop_a.A" [color="black", fontcolor="black", label=<cases.loop_a.A>, shape="record", style="solid"];
+"cases.loop_b.B" [color="black", fontcolor="black", label=<cases.loop_b.B>, shape="record", style="solid"];
+"cases.consumer.LocalDependency" -> "cases.consumer.LocalConsumer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="dependency", style="solid"];
+"cases.dependency.Dependency" -> "cases.consumer.ConstructedConsumer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="dependency", style="solid"];
+"cases.dependency.Dependency" -> "cases.consumer.TypedConsumer" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="dependency", style="solid"];
+"cases.loop_a.A" -> "cases.loop_b.B" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="peer", style="solid"];
+"cases.loop_b.B" -> "cases.loop_a.A" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="peer", style="solid"];
+}

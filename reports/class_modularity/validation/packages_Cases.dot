@@ -1,0 +1,13 @@
+digraph "packages_Cases" {
+rankdir=BT
+charset="utf-8"
+"cases" [color="black", label=<cases>, shape="box", style="solid"];
+"cases.complexity_example" [color="black", label=<cases.complexity_example>, shape="box", style="solid"];
+"cases.consumer" [color="black", label=<cases.consumer>, shape="box", style="solid"];
+"cases.dependency" [color="black", label=<cases.dependency>, shape="box", style="solid"];
+"cases.loop_a" [color="black", label=<cases.loop_a>, shape="box", style="solid"];
+"cases.loop_b" [color="black", label=<cases.loop_b>, shape="box", style="solid"];
+"cases.consumer" -> "cases.dependency" [arrowhead="open", arrowtail="none"];
+"cases.loop_a" -> "cases.loop_b" [arrowhead="open", arrowtail="none"];
+"cases.loop_b" -> "cases.loop_a" [arrowhead="open", arrowtail="none"];
+}

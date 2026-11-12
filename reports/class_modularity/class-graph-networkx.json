@@ -1,0 +1,298 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "id": "adaptation.data_access.data_access.AdaptationMessage"
+    },
+    {
+      "id": "adaptation.data_access.data_access.DataAccess"
+    },
+    {
+      "id": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "id": "adaptation.data_access.data_access.EnergyStatusMessage"
+    },
+    {
+      "id": "adaptation.data_access.data_access.EventMessage"
+    },
+    {
+      "id": "adaptation.data_access.data_access.StatusMessage"
+    },
+    {
+      "id": "adaptation.data_access.data_access.UncertaintyMessage"
+    },
+    {
+      "id": "adaptation.enactor.controller.Controller"
+    },
+    {
+      "id": "adaptation.enactor.enactor.Enactor"
+    },
+    {
+      "id": "adaptation.engines.base_engine.Engine"
+    },
+    {
+      "id": "adaptation.engines.reli_engine.ReliabilityEngine"
+    },
+    {
+      "id": "adaptation.goal_model.context.Context"
+    },
+    {
+      "id": "adaptation.goal_model.goal.Goal"
+    },
+    {
+      "id": "adaptation.goal_model.goaltree.GoalTree"
+    },
+    {
+      "id": "adaptation.goal_model.leaftask.LeafTask"
+    },
+    {
+      "id": "adaptation.goal_model.node.Node"
+    },
+    {
+      "id": "adaptation.goal_model.property.Property"
+    },
+    {
+      "id": "adaptation.goal_model.task.Task"
+    },
+    {
+      "id": "adaptation.model.formula.Formula"
+    },
+    {
+      "id": "adaptation.model.formula.FormulaError"
+    },
+    {
+      "id": "central_hub.central_hub.CentralHub"
+    },
+    {
+      "id": "central_hub.components.config_manager.ConfigManager"
+    },
+    {
+      "id": "central_hub.components.data_fusion.DataFusionEngine"
+    },
+    {
+      "id": "central_hub.components.publishers.PublisherManager"
+    },
+    {
+      "id": "central_hub.components.sensor_data_handler.SensorDataHandler"
+    },
+    {
+      "id": "central_hub.utils.risk_analyzer.RiskAnalyzer"
+    },
+    {
+      "id": "central_hub.utils.visualization.Visualizer"
+    },
+    {
+      "id": "patient.patient.Patient"
+    },
+    {
+      "id": "sensor.components.config_manager.ConfigManager"
+    },
+    {
+      "id": "sensor.components.data_processor.DataProcessor"
+    },
+    {
+      "id": "sensor.components.publishers.PublisherManager"
+    },
+    {
+      "id": "sensor.components.risk_manager.RiskManager"
+    },
+    {
+      "id": "sensor.sensor.Sensor"
+    },
+    {
+      "id": "sensor.utils.risk_evaluator.RiskEvaluator"
+    },
+    {
+      "id": "shared_components.adaptation_handler.AdaptationHandler"
+    },
+    {
+      "id": "shared_components.battery.Battery"
+    },
+    {
+      "id": "shared_components.battery_manager.BatteryManager"
+    },
+    {
+      "id": "shared_components.core.config_manager_base.ConfigManagerBase"
+    },
+    {
+      "id": "shared_components.core.publisher_manager_base.PublisherManagerBase"
+    },
+    {
+      "id": "shared_components.core.ros_component.RosComponent"
+    },
+    {
+      "id": "shared_components.enums.EventType"
+    },
+    {
+      "id": "shared_components.enums.StatusContent"
+    },
+    {
+      "id": "shared_components.enums.Task"
+    },
+    {
+      "id": "shared_components.lifecycle_manager.LifecycleManager"
+    },
+    {
+      "id": "system_monitor.logger.Logger"
+    },
+    {
+      "id": "system_monitor.node_monitor.SystemMonitor"
+    },
+    {
+      "id": "system_monitor.param_adapter.ParamAdapter"
+    }
+  ],
+  "edges": [
+    {
+      "source": "adaptation.data_access.data_access.AdaptationMessage",
+      "target": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.data_access.data_access.AdaptationMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.data_access.data_access.EnergyStatusMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.data_access.data_access.EventMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.data_access.data_access.StatusMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.data_access.data_access.UncertaintyMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.goal_model.context.Context"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.goal_model.goaltree.GoalTree"
+    },
+    {
+      "source": "adaptation.data_access.data_access.DataAccess",
+      "target": "adaptation.model.formula.Formula"
+    },
+    {
+      "source": "adaptation.data_access.data_access.EnergyStatusMessage",
+      "target": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.EventMessage",
+      "target": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.StatusMessage",
+      "target": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "source": "adaptation.data_access.data_access.UncertaintyMessage",
+      "target": "adaptation.data_access.data_access.DataMessage"
+    },
+    {
+      "source": "adaptation.enactor.controller.Controller",
+      "target": "adaptation.enactor.enactor.Enactor"
+    },
+    {
+      "source": "adaptation.engines.base_engine.Engine",
+      "target": "adaptation.model.formula.Formula"
+    },
+    {
+      "source": "adaptation.engines.reli_engine.ReliabilityEngine",
+      "target": "adaptation.engines.base_engine.Engine"
+    },
+    {
+      "source": "adaptation.goal_model.goal.Goal",
+      "target": "adaptation.goal_model.node.Node"
+    },
+    {
+      "source": "adaptation.goal_model.leaftask.LeafTask",
+      "target": "adaptation.goal_model.task.Task"
+    },
+    {
+      "source": "adaptation.goal_model.task.Task",
+      "target": "adaptation.goal_model.node.Node"
+    },
+    {
+      "source": "central_hub.central_hub.CentralHub",
+      "target": "shared_components.core.ros_component.RosComponent"
+    },
+    {
+      "source": "central_hub.central_hub.CentralHub",
+      "target": "central_hub.components.data_fusion.DataFusionEngine"
+    },
+    {
+      "source": "central_hub.central_hub.CentralHub",
+      "target": "central_hub.components.sensor_data_handler.SensorDataHandler"
+    },
+    {
+      "source": "central_hub.central_hub.CentralHub",
+      "target": "central_hub.utils.risk_analyzer.RiskAnalyzer"
+    },
+    {
+      "source": "central_hub.central_hub.CentralHub",
+      "target": "central_hub.utils.visualization.Visualizer"
+    },
+    {
+      "source": "central_hub.components.config_manager.ConfigManager",
+      "target": "shared_components.core.config_manager_base.ConfigManagerBase"
+    },
+    {
+      "source": "central_hub.components.publishers.PublisherManager",
+      "target": "shared_components.core.publisher_manager_base.PublisherManagerBase"
+    },
+    {
+      "source": "sensor.components.config_manager.ConfigManager",
+      "target": "shared_components.core.config_manager_base.ConfigManagerBase"
+    },
+    {
+      "source": "sensor.components.publishers.PublisherManager",
+      "target": "shared_components.core.publisher_manager_base.PublisherManagerBase"
+    },
+    {
+      "source": "sensor.components.risk_manager.RiskManager",
+      "target": "sensor.utils.risk_evaluator.RiskEvaluator"
+    },
+    {
+      "source": "sensor.sensor.Sensor",
+      "target": "shared_components.core.ros_component.RosComponent"
+    },
+    {
+      "source": "sensor.sensor.Sensor",
+      "target": "sensor.components.data_processor.DataProcessor"
+    },
+    {
+      "source": "sensor.sensor.Sensor",
+      "target": "sensor.components.risk_manager.RiskManager"
+    },
+    {
+      "source": "shared_components.battery_manager.BatteryManager",
+      "target": "shared_components.battery.Battery"
+    },
+    {
+      "source": "shared_components.core.publisher_manager_base.PublisherManagerBase",
+      "target": "shared_components.core.ros_component.RosComponent"
+    },
+    {
+      "source": "shared_components.core.ros_component.RosComponent",
+      "target": "shared_components.adaptation_handler.AdaptationHandler"
+    },
+    {
+      "source": "shared_components.core.ros_component.RosComponent",
+      "target": "shared_components.battery_manager.BatteryManager"
+    },
+    {
+      "source": "shared_components.core.ros_component.RosComponent",
+      "target": "shared_components.lifecycle_manager.LifecycleManager"
+    }
+  ]
+}

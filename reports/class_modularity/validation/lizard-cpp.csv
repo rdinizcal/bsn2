@@ -1,0 +1,3 @@
+NLOC,CCN,token,PARAM,length,location,file,function,long_name,start,end
+1,1,8,0,1,"ComplexityExample::straight@3-3@complexity_example.cpp","complexity_example.cpp","ComplexityExample::straight","ComplexityExample::straight()",3,3
+4,2,19,1,4,"ComplexityExample::branch@4-7@complexity_example.cpp","complexity_example.cpp","ComplexityExample::branch","ComplexityExample::branch( bool value)",4,7

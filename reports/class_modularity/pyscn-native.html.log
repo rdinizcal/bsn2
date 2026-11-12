@@ -1,0 +1,17 @@
+📊 Unified HTML report generated: /ros_ws/src/reports/class_modularity/pyscn-native.html
+
+📊 Analysis Summary:
+Health Score: 92/100 (Grade: A)
+Total time: 990ms
+
+📈 Detailed Scores:
+  Complexity:     100/100 ✅  (avg: 2.3, high-risk: 3 functions)
+  Coupling (CBO):  60/100 ⚠️  (avg: 2.9, 5/47 high-coupling)
+
+
+--------------------------------------------------
+[Badge] Add this to your README to show off your score:
+[![pyscn quality](https://img.shields.io/badge/pyscn-A-brightgreen)](https://github.com/ludo-technologies/pyscn)
+
+[Star] Finding pyscn useful? https://github.com/ludo-technologies/pyscn
+--------------------------------------------------

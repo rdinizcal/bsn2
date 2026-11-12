@@ -1,0 +1,19 @@
+📊 Unified JSON report generated: /ros_ws/src/reports/class_modularity/validation/pyscn-native.json
+
+📊 Analysis Summary:
+Health Score: 95/100 (Grade: A)
+Total time: 185ms
+
+📈 Detailed Scores:
+  Complexity:     100/100 ✅  (avg: 1.1, high-risk: 0 functions)
+  Coupling (CBO): 100/100 ✅  (avg: 0.1, 0/9 high-coupling)
+  Dependencies:    70/100 ⚠️  (2 modules in cycles, depth: 1)
+  Architecture:   100/100 ✅  (100% compliant)
+
+
+--------------------------------------------------
+[Badge] Add this to your README to show off your score:
+[![pyscn quality](https://img.shields.io/badge/pyscn-A-brightgreen)](https://github.com/ludo-technologies/pyscn)
+
+[Star] Finding pyscn useful? https://github.com/ludo-technologies/pyscn
+--------------------------------------------------

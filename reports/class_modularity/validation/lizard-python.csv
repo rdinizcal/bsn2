@@ -1,0 +1,3 @@
+NLOC,CCN,token,PARAM,length,location,file,function,long_name,start,end
+2,1,7,1,2,"straight@2-3@cases/complexity_example.py","cases/complexity_example.py","straight","straight( self )",2,3
+4,2,14,2,4,"branch@5-8@cases/complexity_example.py","cases/complexity_example.py","branch","branch( self , value )",5,8

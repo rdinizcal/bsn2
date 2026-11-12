@@ -1,0 +1,30 @@
+{
+  "source_files": 54,
+  "classes": 47,
+  "native_rule_occurrences": 251,
+  "occurrences_by_category": {
+    "client_call": 8,
+    "constructor_effect": 19,
+    "constructor_helper_wait": 1,
+    "directory_io": 1,
+    "file_io": 9,
+    "real_clock": 16,
+    "real_sleep": 6,
+    "ros_node_base": 8,
+    "ros_parameters": 92,
+    "ros_resource": 44,
+    "ros_runtime": 13,
+    "ros_timer": 11,
+    "service_wait": 6,
+    "supplied_collaborator": 11,
+    "thread_creation": 6
+  },
+  "classes_with_direct_infrastructure_findings": 21,
+  "classes_with_direct_constructor_effects": 7,
+  "classes_with_constructor_helper_wait": 1,
+  "classes_with_ros_base_contract": 8,
+  "classes_with_supplied_collaborator_candidate": 11,
+  "findings_outside_classes": 17,
+  "errors": [],
+  "testability_score": null
+}

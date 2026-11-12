@@ -1,0 +1,48 @@
+file,class,line,bases,infrastructure_categories,infrastructure_rule_occurrences,direct_constructor_effects,constructor_helper_waits,ros_base_contract,supplied_collaborator_candidates,interpretation
+adaptation/adaptation/data_access/data_access.py,DataMessage,33,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,StatusMessage,53,DataMessage,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,EventMessage,62,DataMessage,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,EnergyStatusMessage,71,DataMessage,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,UncertaintyMessage,82,DataMessage,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,AdaptationMessage,93,DataMessage,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/data_access/data_access.py,DataAccess,104,Node,directory_io; file_io; real_clock; ros_parameters; ros_resource; ros_timer,24,1,0,True,0,revisar dependencias de infraestrutura
+adaptation/adaptation/enactor/controller.py,Controller,10,Enactor,ros_parameters; ros_resource,3,1,0,False,0,revisar dependencias de infraestrutura
+adaptation/adaptation/enactor/enactor.py,Enactor,17,Node,client_call; ros_parameters; ros_resource; ros_timer; service_wait,14,1,0,True,0,revisar dependencias de infraestrutura
+adaptation/adaptation/engines/base_engine.py,Engine,17,Node; ABC,client_call; real_sleep; ros_parameters; ros_resource; ros_runtime,15,0,0,True,0,revisar dependencias de infraestrutura
+adaptation/adaptation/engines/reli_engine.py,ReliabilityEngine,13,Engine,client_call; ros_parameters; ros_resource; ros_runtime; service_wait,15,0,0,False,0,revisar dependencias de infraestrutura
+adaptation/adaptation/goal_model/context.py,Context,5,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/goal.py,Goal,3,Node,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/goaltree.py,GoalTree,7,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/leaftask.py,LeafTask,6,Task,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/node.py,Node,10,ABC,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/property.py,Property,5,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/goal_model/task.py,Task,4,Node,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/model/formula.py,FormulaError,8,Exception,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+adaptation/adaptation/model/formula.py,Formula,14,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+central_hub/central_hub/central_hub.py,CentralHub,15,RosComponent,ros_timer,1,0,0,False,0,revisar dependencias de infraestrutura
+central_hub/central_hub/components/config_manager.py,ConfigManager,12,ConfigManagerBase,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+central_hub/central_hub/components/data_fusion.py,DataFusionEngine,10,,,0,0,0,False,1,nenhum indicio direto nas regras; nao comprova isolamento
+central_hub/central_hub/components/publishers.py,PublisherManager,15,PublisherManagerBase,real_clock; ros_resource,2,0,0,False,0,revisar dependencias de infraestrutura
+central_hub/central_hub/components/sensor_data_handler.py,SensorDataHandler,12,,ros_resource,6,0,0,False,1,revisar dependencias de infraestrutura
+central_hub/central_hub/utils/risk_analyzer.py,RiskAnalyzer,2,,,0,0,0,False,1,nenhum indicio direto nas regras; nao comprova isolamento
+central_hub/central_hub/utils/visualization.py,Visualizer,10,,,0,0,0,False,1,nenhum indicio direto nas regras; nao comprova isolamento
+patient/patient/patient.py,Patient,17,Node,ros_parameters; ros_resource,15,1,0,True,0,revisar dependencias de infraestrutura
+sensor/sensor/components/config_manager.py,ConfigManager,13,ConfigManagerBase,ros_parameters,18,0,0,False,0,revisar dependencias de infraestrutura
+sensor/sensor/components/data_processor.py,DataProcessor,14,,client_call; ros_resource; service_wait,3,0,1,False,1,revisar dependencias de infraestrutura
+sensor/sensor/components/publishers.py,PublisherManager,13,PublisherManagerBase,real_clock; ros_resource,2,0,0,False,0,revisar dependencias de infraestrutura
+sensor/sensor/components/risk_manager.py,RiskManager,12,,,0,0,0,False,1,nenhum indicio direto nas regras; nao comprova isolamento
+sensor/sensor/sensor.py,Sensor,21,RosComponent,ros_timer,1,0,0,False,0,revisar dependencias de infraestrutura
+sensor/sensor/utils/risk_evaluator.py,RiskEvaluator,10,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+shared_components/shared_components/adaptation_handler.py,AdaptationHandler,16,,client_call; ros_resource; service_wait,4,0,0,False,1,revisar dependencias de infraestrutura
+shared_components/shared_components/battery.py,Battery,10,,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+shared_components/shared_components/battery_manager.py,BatteryManager,14,,real_clock; ros_resource; ros_timer,3,2,0,False,1,revisar dependencias de infraestrutura
+shared_components/shared_components/core/config_manager_base.py,ConfigManagerBase,6,ABC,ros_parameters,16,0,0,False,1,revisar dependencias de infraestrutura
+shared_components/shared_components/core/publisher_manager_base.py,PublisherManagerBase,12,ABC,ros_resource,2,0,0,False,1,revisar dependencias de infraestrutura
+shared_components/shared_components/core/ros_component.py,RosComponent,13,LifecycleNode,,0,0,0,True,0,revisar dependencias de infraestrutura
+shared_components/shared_components/enums.py,Task,3,enum.Enum,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+shared_components/shared_components/enums.py,StatusContent,17,enum.Enum,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+shared_components/shared_components/enums.py,EventType,23,enum.Enum,,0,0,0,False,0,nenhum indicio direto nas regras; nao comprova isolamento
+shared_components/shared_components/lifecycle_manager.py,LifecycleManager,16,,real_clock; real_sleep; ros_timer,8,0,0,False,1,revisar dependencias de infraestrutura
+system_monitor/system_monitor/logger.py,Logger,20,LifecycleNode,real_clock; ros_parameters; ros_resource,9,0,0,True,0,revisar dependencias de infraestrutura
+system_monitor/system_monitor/node_monitor.py,SystemMonitor,21,Node,client_call; real_clock; ros_parameters; ros_resource; ros_timer,24,9,0,True,0,revisar dependencias de infraestrutura
+system_monitor/system_monitor/param_adapter.py,ParamAdapter,17,Node,real_clock; ros_parameters; ros_resource; ros_timer,10,4,0,True,0,revisar dependencias de infraestrutura

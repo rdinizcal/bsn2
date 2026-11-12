@@ -1,0 +1,127 @@
+                    
+                    
+┌──────────────────┐
+│ 21 Code Findings │
+└──────────────────┘
+                                           
+    tools/semgrep/tests/isolation-python.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           12┆ class ROSAdapter(Node):
+           13┆     pass
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           23┆ node.get_parameter('frequency')
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           27┆ node.create_client(Service, 'data')
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+           31┆ node.create_timer(1.0, callback)
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+           33┆ rclpy.init()
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+           35┆ client.wait_for_service(timeout_sec=1.0)
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+           37┆ client.call(request)
+   
+     ❱ tools.semgrep.isolation.python.file-io
+          ❰❰ Blocking ❱❱
+          Acesso a arquivo; revisar uso de sistema de arquivos temporário ou dependência substituta.
+                                                                                                    
+           41┆ open('data.txt')
+            ⋮┆----------------------------------------
+           43┆ path.read_text()
+   
+     ❱ tools.semgrep.isolation.python.directory-io
+          ❰❰ Blocking ❱❱
+          Criação de diretório; efeito sobre o ambiente de teste.
+                                                                 
+           45┆ path.mkdir()
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+           47┆ time.time()
+   
+     ❱ tools.semgrep.isolation.python.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+                                                                                           
+           49┆ time.sleep(1)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+           51┆ threading.Thread(target=callback)
+   
+     ❱ tools.semgrep.isolation.python.process-execution
+          ❰❰ Blocking ❱❱
+          Execução de processo externo; requer substituto ou ambiente preparado.
+                                                                                
+           53┆ subprocess.run(['tool'])
+   
+     ❱ tools.semgrep.isolation.python.environment-read
+          ❰❰ Blocking ❱❱
+          Entrada dependente do ambiente do processo; controlar no teste.
+                                                                         
+           55┆ os.getenv('CONFIG')
+   
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           61┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           63┆ node.create_client(Service, 'data')
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           63┆ node.create_client(Service, 'data')
+   
+     ❱ tools.semgrep.isolation.python.constructor-helper-wait
+          ❰❰ Blocking ❱❱
+          __init__ chama helper da mesma classe que contém espera por serviço; revisar bloqueio na construção.
+                                                                                                              
+           72┆ self.client.wait_for_service(timeout_sec=1.0)
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+           72┆ self.client.wait_for_service(timeout_sec=1.0)
+            ⋮┆----------------------------------------
+           83┆ self.client.wait_for_service(timeout_sec=1.0)
+

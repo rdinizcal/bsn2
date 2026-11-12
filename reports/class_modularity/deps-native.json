@@ -1,0 +1,3531 @@
+{
+  "system": {
+    "dependency_analysis": {
+      "total_modules": 54,
+      "total_dependencies": 63,
+      "resolved_imports": 58,
+      "unresolved_imports": 0,
+      "root_modules": [
+        "adaptation",
+        "adaptation.data_access",
+        "adaptation.enactor",
+        "adaptation.enactor.enactor",
+        "adaptation.engines",
+        "adaptation.goal_model.context",
+        "adaptation.goal_model.node",
+        "adaptation.goal_model.property",
+        "adaptation.model",
+        "adaptation.model.formula",
+        "central_hub",
+        "central_hub.components",
+        "central_hub.components.sensor_data_handler",
+        "central_hub.utils",
+        "central_hub.utils.visualization",
+        "patient",
+        "patient.patient",
+        "sensor",
+        "sensor.components",
+        "sensor.utils",
+        "sensor.utils.risk_evaluator",
+        "shared_components",
+        "shared_components.adaptation_handler",
+        "shared_components.battery",
+        "shared_components.core",
+        "shared_components.enums",
+        "shared_components.lifecycle_manager",
+        "system_monitor",
+        "system_monitor.logger",
+        "system_monitor.param_adapter"
+      ],
+      "leaf_modules": [
+        "adaptation",
+        "adaptation.data_access",
+        "adaptation.data_access.data_access",
+        "adaptation.enactor",
+        "adaptation.enactor.controller",
+        "adaptation.engines",
+        "adaptation.engines.reli_engine",
+        "adaptation.goal_model",
+        "adaptation.model",
+        "central_hub",
+        "central_hub.central_hub",
+        "central_hub.components",
+        "central_hub.utils",
+        "patient",
+        "patient.patient",
+        "sensor",
+        "sensor.components",
+        "sensor.sensor",
+        "sensor.utils",
+        "shared_components",
+        "shared_components.core",
+        "system_monitor",
+        "system_monitor.logger",
+        "system_monitor.node_monitor",
+        "system_monitor.param_adapter"
+      ],
+      "module_metrics": {
+        "adaptation": {
+          "module_name": "adaptation",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "adaptation.data_access": {
+          "module_name": "adaptation.data_access",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/data_access/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "adaptation.data_access.data_access": {
+          "module_name": "adaptation.data_access.data_access",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/data_access/data_access.py",
+          "is_package": false,
+          "lines_of_code": 790,
+          "function_count": 29,
+          "class_count": 7,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "DataMessage",
+            "StatusMessage",
+            "EventMessage",
+            "EnergyStatusMessage",
+            "UncertaintyMessage",
+            "AdaptationMessage",
+            "DataAccess",
+            "now_seconds",
+            "timer_callback",
+            "receive_persist_message",
+            "process_target_system_data",
+            "process_query",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 7,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task",
+            "adaptation.model.formula"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task",
+            "adaptation.model.formula"
+          ],
+          "dependents": null
+        },
+        "adaptation.enactor": {
+          "module_name": "adaptation.enactor",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/enactor/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "adaptation.enactor.controller": {
+          "module_name": "adaptation.enactor.controller",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/enactor/controller.py",
+          "is_package": false,
+          "lines_of_code": 226,
+          "function_count": 8,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Controller",
+            "receive_event",
+            "apply_reli_strategy",
+            "apply_cost_strategy",
+            "tear_down",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 1,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "adaptation.enactor.enactor"
+          ],
+          "transitive_dependencies": [
+            "adaptation.enactor.enactor"
+          ],
+          "dependents": null
+        },
+        "adaptation.enactor.enactor": {
+          "module_name": "adaptation.enactor.enactor",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/enactor/enactor.py",
+          "is_package": false,
+          "lines_of_code": 277,
+          "function_count": 15,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Enactor",
+            "setup",
+            "tear_down",
+            "body",
+            "receive_status",
+            "receive_strategy",
+            "receive_adaptation_parameter",
+            "print_status",
+            "receive_event",
+            "apply_reli_strategy",
+            "apply_cost_strategy"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "adaptation.enactor.controller"
+          ]
+        },
+        "adaptation.engines": {
+          "module_name": "adaptation.engines",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/engines/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "adaptation.engines.base_engine": {
+          "module_name": "adaptation.engines.base_engine",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/engines/base_engine.py",
+          "is_package": false,
+          "lines_of_code": 255,
+          "function_count": 16,
+          "class_count": 1,
+          "abstract_class_count": 1,
+          "public_interface": [
+            "Engine",
+            "setup",
+            "fetch_formula",
+            "setup_formula",
+            "calculate_qos",
+            "receive_exception",
+            "send_adaptation_parameter",
+            "body",
+            "get_prefix",
+            "initialize_strategy",
+            "initialize_priority",
+            "monitor",
+            "analyze",
+            "plan",
+            "execute"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 1,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "adaptation.model.formula"
+          ],
+          "transitive_dependencies": [
+            "adaptation.model.formula"
+          ],
+          "dependents": [
+            "adaptation.engines.reli_engine"
+          ]
+        },
+        "adaptation.engines.reli_engine": {
+          "module_name": "adaptation.engines.reli_engine",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/engines/reli_engine.py",
+          "is_package": false,
+          "lines_of_code": 416,
+          "function_count": 14,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ReliabilityEngine",
+            "setup",
+            "get_prefix",
+            "initialize_strategy",
+            "initialize_priority",
+            "monitor",
+            "analyze",
+            "plan",
+            "execute",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 1,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "adaptation.engines.base_engine"
+          ],
+          "transitive_dependencies": [
+            "adaptation.engines.base_engine",
+            "adaptation.model.formula"
+          ],
+          "dependents": null
+        },
+        "adaptation.goal_model": {
+          "module_name": "adaptation.goal_model",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/__init__.py",
+          "is_package": true,
+          "lines_of_code": 21,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 7,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task"
+          ],
+          "dependents": null
+        },
+        "adaptation.goal_model.context": {
+          "module_name": "adaptation.goal_model.context",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/context.py",
+          "is_package": false,
+          "lines_of_code": 64,
+          "function_count": 11,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Context",
+            "set_id",
+            "get_id",
+            "set_description",
+            "get_description",
+            "set_value",
+            "get_value"
+          ],
+          "afferent_coupling": 3,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model",
+            "adaptation.goal_model.leaftask"
+          ]
+        },
+        "adaptation.goal_model.goal": {
+          "module_name": "adaptation.goal_model.goal",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/goal.py",
+          "is_package": false,
+          "lines_of_code": 21,
+          "function_count": 2,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Goal"
+          ],
+          "afferent_coupling": 4,
+          "efferent_coupling": 1,
+          "instability": 0.2,
+          "abstractness": 0,
+          "distance": 0.8,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": [
+            "adaptation.goal_model.node"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.node"
+          ],
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.task"
+          ]
+        },
+        "adaptation.goal_model.goaltree": {
+          "module_name": "adaptation.goal_model.goaltree",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/goaltree.py",
+          "is_package": false,
+          "lines_of_code": 96,
+          "function_count": 14,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "GoalTree",
+            "set_actor",
+            "get_actor",
+            "add_root_goal",
+            "get_node",
+            "get_size",
+            "get_leaf_tasks"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 4,
+          "instability": 0.6666666666666666,
+          "abstractness": 0,
+          "distance": 0.33333333333333337,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.task"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task"
+          ],
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model"
+          ]
+        },
+        "adaptation.goal_model.leaftask": {
+          "module_name": "adaptation.goal_model.leaftask",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/leaftask.py",
+          "is_package": false,
+          "lines_of_code": 91,
+          "function_count": 13,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "LeafTask",
+            "set_context",
+            "get_context",
+            "set_cost",
+            "get_cost",
+            "set_reliability",
+            "get_reliability",
+            "set_frequency",
+            "get_frequency",
+            "add_child"
+          ],
+          "afferent_coupling": 3,
+          "efferent_coupling": 4,
+          "instability": 0.5714285714285714,
+          "abstractness": 0,
+          "distance": 0.4285714285714286,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.context",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node",
+            "adaptation.goal_model.property",
+            "adaptation.goal_model.task"
+          ],
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model",
+            "adaptation.goal_model.goaltree"
+          ]
+        },
+        "adaptation.goal_model.node": {
+          "module_name": "adaptation.goal_model.node",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/node.py",
+          "is_package": false,
+          "lines_of_code": 109,
+          "function_count": 17,
+          "class_count": 1,
+          "abstract_class_count": 1,
+          "public_interface": [
+            "Node",
+            "set_id",
+            "get_id",
+            "set_description",
+            "get_description",
+            "has_children",
+            "get_children",
+            "add_child",
+            "remove_child",
+            "get_child"
+          ],
+          "afferent_coupling": 5,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 1,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "adaptation.goal_model",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task"
+          ]
+        },
+        "adaptation.goal_model.property": {
+          "module_name": "adaptation.goal_model.property",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/property.py",
+          "is_package": false,
+          "lines_of_code": 54,
+          "function_count": 9,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Property",
+            "set_id",
+            "get_id",
+            "set_value",
+            "get_value"
+          ],
+          "afferent_coupling": 3,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model",
+            "adaptation.goal_model.leaftask"
+          ]
+        },
+        "adaptation.goal_model.task": {
+          "module_name": "adaptation.goal_model.task",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/task.py",
+          "is_package": false,
+          "lines_of_code": 30,
+          "function_count": 4,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Task",
+            "add_child_task",
+            "add_child_goal"
+          ],
+          "afferent_coupling": 4,
+          "efferent_coupling": 2,
+          "instability": 0.3333333333333333,
+          "abstractness": 0,
+          "distance": 0.6666666666666667,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "transitive_dependencies": [
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask"
+          ]
+        },
+        "adaptation.model": {
+          "module_name": "adaptation.model",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/model/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "adaptation.model.formula": {
+          "module_name": "adaptation.model.formula",
+          "package": "adaptation",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/model/formula.py",
+          "is_package": false,
+          "lines_of_code": 252,
+          "function_count": 16,
+          "class_count": 2,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "FormulaError",
+            "Formula",
+            "get_expression_text",
+            "set_expression",
+            "get_term_value_map",
+            "set_term_value_map",
+            "set_term_value_map_dict",
+            "evaluate",
+            "get_terms",
+            "get_formula"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "adaptation.data_access.data_access",
+            "adaptation.engines.base_engine"
+          ]
+        },
+        "central_hub": {
+          "module_name": "central_hub",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "central_hub.central_hub": {
+          "module_name": "central_hub.central_hub",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/central_hub.py",
+          "is_package": false,
+          "lines_of_code": 237,
+          "function_count": 13,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "CentralHub",
+            "run",
+            "on_configure",
+            "on_activate",
+            "on_deactivate",
+            "on_cleanup",
+            "on_shutdown",
+            "is_active",
+            "detect",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 8,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "central_hub.components.config_manager",
+            "central_hub.components.data_fusion",
+            "central_hub.components.publishers",
+            "central_hub.components.sensor_data_handler",
+            "central_hub.utils.risk_analyzer",
+            "central_hub.utils.visualization",
+            "shared_components.core.ros_component",
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "central_hub.components.config_manager",
+            "central_hub.components.data_fusion",
+            "central_hub.components.publishers",
+            "central_hub.components.sensor_data_handler",
+            "central_hub.utils.risk_analyzer",
+            "central_hub.utils.visualization",
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.core.config_manager_base",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": null
+        },
+        "central_hub.components": {
+          "module_name": "central_hub.components",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "central_hub.components.config_manager": {
+          "module_name": "central_hub.components.config_manager",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/config_manager.py",
+          "is_package": false,
+          "lines_of_code": 42,
+          "function_count": 2,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ConfigManager",
+            "load"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.core.config_manager_base"
+          ],
+          "transitive_dependencies": [
+            "shared_components.core.config_manager_base",
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "central_hub.components.data_fusion": {
+          "module_name": "central_hub.components.data_fusion",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/data_fusion.py",
+          "is_package": false,
+          "lines_of_code": 174,
+          "function_count": 3,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "DataFusionEngine",
+            "fuse_data"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "central_hub.components.publishers": {
+          "module_name": "central_hub.components.publishers",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/publishers.py",
+          "is_package": false,
+          "lines_of_code": 128,
+          "function_count": 3,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "PublisherManager",
+            "setup_exclusive_publishers",
+            "publish_system_data"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 2,
+          "instability": 0.6666666666666666,
+          "abstractness": 0,
+          "distance": 0.33333333333333337,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "shared_components.core.publisher_manager_base",
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "central_hub.components.sensor_data_handler": {
+          "module_name": "central_hub.components.sensor_data_handler",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/sensor_data_handler.py",
+          "is_package": false,
+          "lines_of_code": 156,
+          "function_count": 4,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "SensorDataHandler",
+            "setup_subscriptions",
+            "cleanup_subscriptions",
+            "receive_datapoint"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "central_hub.utils": {
+          "module_name": "central_hub.utils",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/utils/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "central_hub.utils.risk_analyzer": {
+          "module_name": "central_hub.utils.risk_analyzer",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/utils/risk_analyzer.py",
+          "is_package": false,
+          "lines_of_code": 49,
+          "function_count": 2,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "RiskAnalyzer",
+            "emit_alert"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "central_hub.utils.visualization": {
+          "module_name": "central_hub.utils.visualization",
+          "package": "central_hub",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/utils/visualization.py",
+          "is_package": false,
+          "lines_of_code": 140,
+          "function_count": 4,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Visualizer",
+            "format_log_message",
+            "format_summary_message",
+            "format_battery_status"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "central_hub.central_hub"
+          ]
+        },
+        "patient": {
+          "module_name": "patient",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/patient/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "patient.patient": {
+          "module_name": "patient.patient",
+          "package": "patient",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/patient/patient.py",
+          "is_package": false,
+          "lines_of_code": 426,
+          "function_count": 10,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Patient",
+            "gen_data",
+            "get_data",
+            "spin_patient",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "sensor": {
+          "module_name": "sensor",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "sensor.components": {
+          "module_name": "sensor.components",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "sensor.components.config_manager": {
+          "module_name": "sensor.components.config_manager",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/config_manager.py",
+          "is_package": false,
+          "lines_of_code": 116,
+          "function_count": 3,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ConfigManager",
+            "load"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.core.config_manager_base"
+          ],
+          "transitive_dependencies": [
+            "shared_components.core.config_manager_base",
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "sensor.sensor"
+          ]
+        },
+        "sensor.components.data_processor": {
+          "module_name": "sensor.components.data_processor",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/data_processor.py",
+          "is_package": false,
+          "lines_of_code": 228,
+          "function_count": 6,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "DataProcessor",
+            "setup_client",
+            "reset",
+            "collect",
+            "process",
+            "transfer"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "sensor.sensor"
+          ]
+        },
+        "sensor.components.publishers": {
+          "module_name": "sensor.components.publishers",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/publishers.py",
+          "is_package": false,
+          "lines_of_code": 104,
+          "function_count": 3,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "PublisherManager",
+            "setup_exclusive_publishers",
+            "publish_sensor_data"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.core.publisher_manager_base"
+          ],
+          "transitive_dependencies": [
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": [
+            "sensor.sensor"
+          ]
+        },
+        "sensor.components.risk_manager": {
+          "module_name": "sensor.components.risk_manager",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/risk_manager.py",
+          "is_package": false,
+          "lines_of_code": 197,
+          "function_count": 8,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "RiskManager",
+            "configure_risk_ranges",
+            "evaluate_risk",
+            "get_risk_label",
+            "is_high_risk",
+            "is_medium_risk",
+            "is_low_risk"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "sensor.utils.risk_evaluator"
+          ],
+          "transitive_dependencies": [
+            "sensor.utils.risk_evaluator"
+          ],
+          "dependents": [
+            "sensor.sensor"
+          ]
+        },
+        "sensor.sensor": {
+          "module_name": "sensor.sensor",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/sensor.py",
+          "is_package": false,
+          "lines_of_code": 333,
+          "function_count": 13,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Sensor",
+            "run",
+            "on_configure",
+            "on_activate",
+            "on_deactivate",
+            "on_cleanup",
+            "on_shutdown",
+            "is_active",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 9,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "sensor.components.config_manager",
+            "sensor.components.data_processor",
+            "sensor.components.publishers",
+            "sensor.components.risk_manager",
+            "shared_components.adaptation_handler",
+            "shared_components.battery_manager",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "transitive_dependencies": [
+            "sensor.components.config_manager",
+            "sensor.components.data_processor",
+            "sensor.components.publishers",
+            "sensor.components.risk_manager",
+            "sensor.utils.risk_evaluator",
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.core.config_manager_base",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": null
+        },
+        "sensor.utils": {
+          "module_name": "sensor.utils",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/utils/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "sensor.utils.risk_evaluator": {
+          "module_name": "sensor.utils.risk_evaluator",
+          "package": "sensor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/utils/risk_evaluator.py",
+          "is_package": false,
+          "lines_of_code": 270,
+          "function_count": 10,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "RiskEvaluator",
+            "configure",
+            "get_displacement",
+            "convert_percentage",
+            "evaluate_risk",
+            "in_range",
+            "is_low_risk",
+            "is_medium_risk",
+            "is_high_risk",
+            "risk_label"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "sensor.components.risk_manager"
+          ]
+        },
+        "shared_components": {
+          "module_name": "shared_components",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "shared_components.adaptation_handler": {
+          "module_name": "shared_components.adaptation_handler",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/adaptation_handler.py",
+          "is_package": false,
+          "lines_of_code": 190,
+          "function_count": 4,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "AdaptationHandler",
+            "register_with_effector",
+            "registration_callback",
+            "process_adaptation_command"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "sensor.sensor",
+            "shared_components.core.ros_component"
+          ]
+        },
+        "shared_components.battery": {
+          "module_name": "shared_components.battery",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/battery.py",
+          "is_package": false,
+          "lines_of_code": 189,
+          "function_count": 4,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Battery",
+            "consume",
+            "generate"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "shared_components.battery_manager"
+          ]
+        },
+        "shared_components.battery_manager": {
+          "module_name": "shared_components.battery_manager",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/battery_manager.py",
+          "is_package": false,
+          "lines_of_code": 202,
+          "function_count": 7,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "BatteryManager",
+            "consume",
+            "recharge",
+            "check_battery_status",
+            "enter_recharge_mode",
+            "exit_recharge_mode",
+            "send_energy_status"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 2,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.battery",
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.battery",
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "sensor.sensor",
+            "shared_components.core.ros_component"
+          ]
+        },
+        "shared_components.core": {
+          "module_name": "shared_components.core",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "shared_components.core.config_manager_base": {
+          "module_name": "shared_components.core.config_manager_base",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/config_manager_base.py",
+          "is_package": false,
+          "lines_of_code": 42,
+          "function_count": 3,
+          "class_count": 1,
+          "abstract_class_count": 1,
+          "public_interface": [
+            "ConfigManagerBase",
+            "load",
+            "validate"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 1,
+          "instability": 0.3333333333333333,
+          "abstractness": 1,
+          "distance": 0.33333333333333326,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.enums"
+          ],
+          "dependents": [
+            "central_hub.components.config_manager",
+            "sensor.components.config_manager"
+          ]
+        },
+        "shared_components.core.publisher_manager_base": {
+          "module_name": "shared_components.core.publisher_manager_base",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/publisher_manager_base.py",
+          "is_package": false,
+          "lines_of_code": 139,
+          "function_count": 8,
+          "class_count": 1,
+          "abstract_class_count": 1,
+          "public_interface": [
+            "PublisherManagerBase",
+            "setup_publishers",
+            "setup_exclusive_publishers",
+            "publish_status",
+            "publish_event",
+            "publish_event_once",
+            "publish_heartbeat"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 2,
+          "instability": 0.5,
+          "abstractness": 1,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.core.ros_component",
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.core.ros_component",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": [
+            "central_hub.components.publishers",
+            "sensor.components.publishers"
+          ]
+        },
+        "shared_components.core.ros_component": {
+          "module_name": "shared_components.core.ros_component",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/ros_component.py",
+          "is_package": false,
+          "lines_of_code": 109,
+          "function_count": 6,
+          "class_count": 1,
+          "abstract_class_count": 1,
+          "public_interface": [
+            "RosComponent",
+            "run"
+          ],
+          "afferent_coupling": 3,
+          "efferent_coupling": 3,
+          "instability": 0.5,
+          "abstractness": 1,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "shared_components.adaptation_handler",
+            "shared_components.battery_manager",
+            "shared_components.lifecycle_manager"
+          ],
+          "transitive_dependencies": [
+            "shared_components.adaptation_handler",
+            "shared_components.battery",
+            "shared_components.battery_manager",
+            "shared_components.enums",
+            "shared_components.lifecycle_manager"
+          ],
+          "dependents": [
+            "central_hub.central_hub",
+            "sensor.sensor",
+            "shared_components.core.publisher_manager_base"
+          ]
+        },
+        "shared_components.enums": {
+          "module_name": "shared_components.enums",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/enums.py",
+          "is_package": false,
+          "lines_of_code": 27,
+          "function_count": 0,
+          "class_count": 3,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Task",
+            "StatusContent",
+            "EventType"
+          ],
+          "afferent_coupling": 10,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "central_hub.central_hub",
+            "central_hub.components.data_fusion",
+            "central_hub.components.publishers",
+            "central_hub.utils.risk_analyzer",
+            "sensor.components.data_processor",
+            "sensor.sensor",
+            "shared_components.battery_manager",
+            "shared_components.core.config_manager_base",
+            "shared_components.core.publisher_manager_base",
+            "system_monitor.node_monitor"
+          ]
+        },
+        "shared_components.lifecycle_manager": {
+          "module_name": "shared_components.lifecycle_manager",
+          "package": "shared_components",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/lifecycle_manager.py",
+          "is_package": false,
+          "lines_of_code": 631,
+          "function_count": 16,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "LifecycleManager",
+            "start_auto_management",
+            "stop_auto_management",
+            "initial_setup",
+            "activate_once",
+            "monitor_lifecycle_state",
+            "get_battery_level",
+            "configure_node",
+            "activate_node",
+            "deactivate_node",
+            "cleanup_node",
+            "shutdown_node",
+            "restart_node",
+            "configure_thresholds",
+            "set_auto_management_flags",
+            "get_lifecycle_status"
+          ],
+          "afferent_coupling": 2,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "sensor.sensor",
+            "shared_components.core.ros_component"
+          ]
+        },
+        "system_monitor": {
+          "module_name": "system_monitor",
+          "package": "",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/system_monitor/__init__.py",
+          "is_package": true,
+          "lines_of_code": 0,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "system_monitor.logger": {
+          "module_name": "system_monitor.logger",
+          "package": "system_monitor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/system_monitor/logger.py",
+          "is_package": false,
+          "lines_of_code": 391,
+          "function_count": 15,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Logger",
+            "on_configure",
+            "on_activate",
+            "on_deactivate",
+            "on_cleanup",
+            "on_shutdown",
+            "now",
+            "receive_status",
+            "receive_event",
+            "receive_energy_status",
+            "receive_adaptation_command",
+            "receive_uncertainty",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "system_monitor.node_monitor": {
+          "module_name": "system_monitor.node_monitor",
+          "package": "system_monitor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/system_monitor/node_monitor.py",
+          "is_package": false,
+          "lines_of_code": 339,
+          "function_count": 8,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "SystemMonitor",
+            "status_callback",
+            "event_callback",
+            "energy_callback",
+            "check_state_helper",
+            "check_heartbeats",
+            "publish_monitor_status",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 1,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "shared_components.enums"
+          ],
+          "transitive_dependencies": [
+            "shared_components.enums"
+          ],
+          "dependents": null
+        },
+        "system_monitor.param_adapter": {
+          "module_name": "system_monitor.param_adapter",
+          "package": "system_monitor",
+          "file_path": "/tmp/bsn-class-metrics-1ogfr349/system_monitor/param_adapter.py",
+          "is_package": false,
+          "lines_of_code": 279,
+          "function_count": 5,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ParamAdapter",
+            "module_connect",
+            "receive_adaptation_command",
+            "check_components",
+            "main"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        }
+      },
+      "dependency_matrix": {
+        "adaptation": {},
+        "adaptation.data_access": {},
+        "adaptation.data_access.data_access": {
+          "adaptation.goal_model.context": true,
+          "adaptation.goal_model.goal": true,
+          "adaptation.goal_model.goaltree": true,
+          "adaptation.goal_model.leaftask": true,
+          "adaptation.goal_model.property": true,
+          "adaptation.goal_model.task": true,
+          "adaptation.model.formula": true
+        },
+        "adaptation.enactor": {},
+        "adaptation.enactor.controller": {
+          "adaptation.enactor.enactor": true
+        },
+        "adaptation.enactor.enactor": {},
+        "adaptation.engines": {},
+        "adaptation.engines.base_engine": {
+          "adaptation.model.formula": true
+        },
+        "adaptation.engines.reli_engine": {
+          "adaptation.engines.base_engine": true
+        },
+        "adaptation.goal_model": {
+          "adaptation.goal_model.context": true,
+          "adaptation.goal_model.goal": true,
+          "adaptation.goal_model.goaltree": true,
+          "adaptation.goal_model.leaftask": true,
+          "adaptation.goal_model.node": true,
+          "adaptation.goal_model.property": true,
+          "adaptation.goal_model.task": true
+        },
+        "adaptation.goal_model.context": {},
+        "adaptation.goal_model.goal": {
+          "adaptation.goal_model.node": true
+        },
+        "adaptation.goal_model.goaltree": {
+          "adaptation.goal_model.goal": true,
+          "adaptation.goal_model.leaftask": true,
+          "adaptation.goal_model.node": true,
+          "adaptation.goal_model.task": true
+        },
+        "adaptation.goal_model.leaftask": {
+          "adaptation.goal_model.context": true,
+          "adaptation.goal_model.node": true,
+          "adaptation.goal_model.property": true,
+          "adaptation.goal_model.task": true
+        },
+        "adaptation.goal_model.node": {},
+        "adaptation.goal_model.property": {},
+        "adaptation.goal_model.task": {
+          "adaptation.goal_model.goal": true,
+          "adaptation.goal_model.node": true
+        },
+        "adaptation.model": {},
+        "adaptation.model.formula": {},
+        "central_hub": {},
+        "central_hub.central_hub": {
+          "central_hub.components.config_manager": true,
+          "central_hub.components.data_fusion": true,
+          "central_hub.components.publishers": true,
+          "central_hub.components.sensor_data_handler": true,
+          "central_hub.utils.risk_analyzer": true,
+          "central_hub.utils.visualization": true,
+          "shared_components.core.ros_component": true,
+          "shared_components.enums": true
+        },
+        "central_hub.components": {},
+        "central_hub.components.config_manager": {
+          "shared_components.core.config_manager_base": true
+        },
+        "central_hub.components.data_fusion": {
+          "shared_components.enums": true
+        },
+        "central_hub.components.publishers": {
+          "shared_components.core.publisher_manager_base": true,
+          "shared_components.enums": true
+        },
+        "central_hub.components.sensor_data_handler": {},
+        "central_hub.utils": {},
+        "central_hub.utils.risk_analyzer": {
+          "shared_components.enums": true
+        },
+        "central_hub.utils.visualization": {},
+        "patient": {},
+        "patient.patient": {},
+        "sensor": {},
+        "sensor.components": {},
+        "sensor.components.config_manager": {
+          "shared_components.core.config_manager_base": true
+        },
+        "sensor.components.data_processor": {
+          "shared_components.enums": true
+        },
+        "sensor.components.publishers": {
+          "shared_components.core.publisher_manager_base": true
+        },
+        "sensor.components.risk_manager": {
+          "sensor.utils.risk_evaluator": true
+        },
+        "sensor.sensor": {
+          "sensor.components.config_manager": true,
+          "sensor.components.data_processor": true,
+          "sensor.components.publishers": true,
+          "sensor.components.risk_manager": true,
+          "shared_components.adaptation_handler": true,
+          "shared_components.battery_manager": true,
+          "shared_components.core.ros_component": true,
+          "shared_components.enums": true,
+          "shared_components.lifecycle_manager": true
+        },
+        "sensor.utils": {},
+        "sensor.utils.risk_evaluator": {},
+        "shared_components": {},
+        "shared_components.adaptation_handler": {},
+        "shared_components.battery": {},
+        "shared_components.battery_manager": {
+          "shared_components.battery": true,
+          "shared_components.enums": true
+        },
+        "shared_components.core": {},
+        "shared_components.core.config_manager_base": {
+          "shared_components.enums": true
+        },
+        "shared_components.core.publisher_manager_base": {
+          "shared_components.core.ros_component": true,
+          "shared_components.enums": true
+        },
+        "shared_components.core.ros_component": {
+          "shared_components.adaptation_handler": true,
+          "shared_components.battery_manager": true,
+          "shared_components.lifecycle_manager": true
+        },
+        "shared_components.enums": {},
+        "shared_components.lifecycle_manager": {},
+        "system_monitor": {},
+        "system_monitor.logger": {},
+        "system_monitor.node_monitor": {
+          "shared_components.enums": true
+        },
+        "system_monitor.param_adapter": {}
+      },
+      "circular_dependencies": {
+        "has_circular_dependencies": false,
+        "total_cycles": 0,
+        "total_modules_in_cycles": 0,
+        "circular_dependencies": null,
+        "cycle_breaking_suggestions": null,
+        "core_infrastructure": null
+      },
+      "coupling_analysis": {
+        "average_coupling": 2.3333333333333335,
+        "coupling_distribution": null,
+        "highly_coupled_modules": [
+          "adaptation.enactor.enactor",
+          "adaptation.goal_model.context",
+          "adaptation.goal_model.property",
+          "adaptation.model.formula",
+          "central_hub.components.sensor_data_handler",
+          "central_hub.utils.visualization",
+          "sensor.utils.risk_evaluator",
+          "shared_components.adaptation_handler",
+          "shared_components.battery",
+          "shared_components.enums"
+        ],
+        "loosely_coupled_modules": null,
+        "average_instability": 0.4242063492063492,
+        "stable_modules": [
+          "adaptation",
+          "adaptation.data_access",
+          "adaptation.enactor",
+          "adaptation.enactor.enactor",
+          "adaptation.engines",
+          "adaptation.goal_model.context",
+          "adaptation.goal_model.goal",
+          "adaptation.goal_model.node",
+          "adaptation.goal_model.property",
+          "adaptation.model",
+          "adaptation.model.formula",
+          "central_hub",
+          "central_hub.components",
+          "central_hub.components.sensor_data_handler",
+          "central_hub.utils",
+          "central_hub.utils.visualization",
+          "patient",
+          "patient.patient",
+          "sensor",
+          "sensor.components",
+          "sensor.utils",
+          "sensor.utils.risk_evaluator",
+          "shared_components",
+          "shared_components.adaptation_handler",
+          "shared_components.battery",
+          "shared_components.core",
+          "shared_components.enums",
+          "shared_components.lifecycle_manager",
+          "system_monitor",
+          "system_monitor.logger",
+          "system_monitor.param_adapter"
+        ],
+        "instable_modules": [
+          "adaptation.data_access.data_access",
+          "adaptation.enactor.controller",
+          "adaptation.engines.reli_engine",
+          "adaptation.goal_model",
+          "central_hub.central_hub",
+          "sensor.sensor",
+          "system_monitor.node_monitor"
+        ],
+        "main_sequence_deviation": 0.5387566137566138,
+        "zone_of_pain": [
+          "adaptation.goal_model.context",
+          "adaptation.goal_model.goal",
+          "adaptation.goal_model.property",
+          "adaptation.model.formula",
+          "shared_components.adaptation_handler",
+          "shared_components.enums",
+          "shared_components.lifecycle_manager"
+        ],
+        "zone_of_uselessness": [],
+        "main_sequence": [
+          "adaptation.data_access.data_access",
+          "adaptation.enactor.controller",
+          "adaptation.engines.reli_engine",
+          "adaptation.goal_model",
+          "adaptation.goal_model.node",
+          "central_hub.central_hub",
+          "sensor.sensor",
+          "system_monitor.node_monitor"
+        ]
+      },
+      "longest_chains": [
+        {
+          "from": "adaptation.data_access.data_access",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "length": 6
+        },
+        {
+          "from": "adaptation.goal_model",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.goal_model",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "length": 6
+        },
+        {
+          "from": "central_hub.central_hub",
+          "to": "shared_components.battery",
+          "path": [
+            "central_hub.central_hub",
+            "central_hub.components.publishers",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.battery_manager",
+            "shared_components.battery"
+          ],
+          "length": 6
+        },
+        {
+          "from": "central_hub.central_hub",
+          "to": "shared_components.enums",
+          "path": [
+            "central_hub.central_hub",
+            "central_hub.components.publishers",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.battery_manager",
+            "shared_components.enums"
+          ],
+          "length": 6
+        },
+        {
+          "from": "sensor.sensor",
+          "to": "shared_components.battery",
+          "path": [
+            "sensor.sensor",
+            "sensor.components.publishers",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.battery_manager",
+            "shared_components.battery"
+          ],
+          "length": 6
+        },
+        {
+          "from": "sensor.sensor",
+          "to": "shared_components.enums",
+          "path": [
+            "sensor.sensor",
+            "sensor.components.publishers",
+            "shared_components.core.publisher_manager_base",
+            "shared_components.core.ros_component",
+            "shared_components.battery_manager",
+            "shared_components.enums"
+          ],
+          "length": 6
+        },
+        {
+          "from": "adaptation.data_access.data_access",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.node"
+          ],
+          "length": 5
+        },
+        {
+          "from": "adaptation.data_access.data_access",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "length": 5
+        },
+        {
+          "from": "adaptation.data_access.data_access",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.data_access.data_access",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.goal",
+            "adaptation.goal_model.node"
+          ],
+          "length": 5
+        },
+        {
+          "from": "adaptation.goal_model",
+          "to": "adaptation.goal_model.node",
+          "path": [
+            "adaptation.goal_model",
+            "adaptation.goal_model.goaltree",
+            "adaptation.goal_model.leaftask",
+            "adaptation.goal_model.task",
+            "adaptation.goal_model.node"
+          ],
+          "length": 5
+        }
+      ],
+      "max_depth": 5
+    },
+    "architecture_analysis": {
+      "compliance_score": 0.849624060150376,
+      "total_violations": 8,
+      "weighted_violations": 20,
+      "total_rules": 133,
+      "layer_analysis": {
+        "layers_analyzed": 3,
+        "layer_violations": [
+          {
+            "from_module": "shared_components.core.ros_component",
+            "to_module": "shared_components.lifecycle_manager",
+            "from_layer": "domain",
+            "to_layer": "application",
+            "rule": "domain !\u003e application",
+            "severity": "error",
+            "description": "Dependency from 'domain' to 'application' is denied by rule",
+            "suggestion": "Introduce an interface or move code to respect layer boundaries"
+          },
+          {
+            "from_module": "shared_components.core.ros_component",
+            "to_module": "shared_components.adaptation_handler",
+            "from_layer": "domain",
+            "to_layer": "presentation",
+            "rule": "domain !\u003e presentation",
+            "severity": "error",
+            "description": "Dependency from 'domain' to 'presentation' is denied by rule",
+            "suggestion": "Introduce an interface or move code to respect layer boundaries"
+          },
+          {
+            "from_module": "shared_components.core.ros_component",
+            "to_module": "shared_components.battery_manager",
+            "from_layer": "domain",
+            "to_layer": "application",
+            "rule": "domain !\u003e application",
+            "severity": "error",
+            "description": "Dependency from 'domain' to 'application' is denied by rule",
+            "suggestion": "Introduce an interface or move code to respect layer boundaries"
+          }
+        ],
+        "layer_coupling": {
+          "application": {
+            "domain": 2,
+            "unknown": 3
+          },
+          "domain": {
+            "application": 2,
+            "domain": 19,
+            "presentation": 1,
+            "unknown": 2
+          },
+          "presentation": {
+            "unknown": 1
+          },
+          "unknown": {
+            "application": 5,
+            "domain": 12,
+            "presentation": 2,
+            "unknown": 14
+          }
+        },
+        "layer_cohesion": {
+          "application": 0,
+          "domain": 0.7916666666666666,
+          "presentation": 0,
+          "unknown": 0.42424242424242425
+        },
+        "problematic_layers": [
+          "application",
+          "presentation"
+        ]
+      },
+      "cohesion_analysis": {
+        "package_cohesion": {
+          "adaptation": 1,
+          "adaptation.data_access": 0,
+          "adaptation.enactor": 1,
+          "adaptation.engines": 0.5,
+          "adaptation.goal_model": 1,
+          "adaptation.model": 1,
+          "central_hub": 0,
+          "central_hub.components": 0,
+          "central_hub.utils": 0,
+          "patient": 1,
+          "sensor": 0,
+          "sensor.components": 0,
+          "sensor.utils": 1,
+          "shared_components": 1,
+          "shared_components.core": 0.16666666666666666,
+          "system_monitor": 0
+        },
+        "low_cohesion_packages": [
+          "central_hub.components",
+          "sensor.components",
+          "shared_components.core"
+        ],
+        "cohesion_suggestions": {
+          "central_hub.components": "Move unrelated dependencies out of 'central_hub.components' or split it around cohesive dependency groups",
+          "sensor.components": "Move unrelated dependencies out of 'sensor.components' or split it around cohesive dependency groups",
+          "shared_components.core": "Move unrelated dependencies out of 'shared_components.core' or split it around cohesive dependency groups"
+        }
+      },
+      "responsibility_analysis": {
+        "srp_violations": [
+          {
+            "module": "adaptation.goal_model",
+            "responsibilities": [
+              "context",
+              "goal",
+              "goaltree",
+              "leaftask",
+              "property",
+              "task"
+            ],
+            "severity": "warning",
+            "suggestion": "Split 'adaptation.goal_model' by concern so each module owns one stable responsibility boundary"
+          },
+          {
+            "module": "central_hub.central_hub",
+            "responsibilities": [
+              "components",
+              "risk_analyzer",
+              "shared_components",
+              "visualization"
+            ],
+            "severity": "warning",
+            "suggestion": "Split 'central_hub.central_hub' by concern so each module owns one stable responsibility boundary"
+          }
+        ],
+        "module_responsibilities": {
+          "adaptation": [],
+          "adaptation.data_access": [],
+          "adaptation.data_access.data_access": [
+            "goal_model",
+            "model"
+          ],
+          "adaptation.enactor": [],
+          "adaptation.enactor.controller": [
+            "enactor"
+          ],
+          "adaptation.enactor.enactor": [],
+          "adaptation.engines": [],
+          "adaptation.engines.base_engine": [
+            "model"
+          ],
+          "adaptation.engines.reli_engine": [
+            "engines"
+          ],
+          "adaptation.goal_model": [
+            "context",
+            "goal",
+            "goaltree",
+            "leaftask",
+            "property",
+            "task"
+          ],
+          "adaptation.goal_model.context": [],
+          "adaptation.goal_model.goal": [
+            "goal_model"
+          ],
+          "adaptation.goal_model.goaltree": [
+            "goal_model"
+          ],
+          "adaptation.goal_model.leaftask": [
+            "goal_model"
+          ],
+          "adaptation.goal_model.node": [],
+          "adaptation.goal_model.property": [],
+          "adaptation.goal_model.task": [
+            "goal_model"
+          ],
+          "adaptation.model": [],
+          "adaptation.model.formula": [],
+          "central_hub": [],
+          "central_hub.central_hub": [
+            "components",
+            "risk_analyzer",
+            "shared_components",
+            "visualization"
+          ],
+          "central_hub.components": [],
+          "central_hub.components.config_manager": [
+            "shared_components"
+          ],
+          "central_hub.components.data_fusion": [
+            "shared_components"
+          ],
+          "central_hub.components.publishers": [
+            "shared_components"
+          ],
+          "central_hub.components.sensor_data_handler": [],
+          "central_hub.utils": [],
+          "central_hub.utils.risk_analyzer": [
+            "shared_components"
+          ],
+          "central_hub.utils.visualization": [],
+          "patient": [],
+          "patient.patient": [],
+          "sensor": [],
+          "sensor.components": [],
+          "sensor.components.config_manager": [
+            "shared_components"
+          ],
+          "sensor.components.data_processor": [
+            "shared_components"
+          ],
+          "sensor.components.publishers": [
+            "shared_components"
+          ],
+          "sensor.components.risk_manager": [
+            "risk_evaluator"
+          ],
+          "sensor.sensor": [
+            "components",
+            "shared_components"
+          ],
+          "sensor.utils": [],
+          "sensor.utils.risk_evaluator": [],
+          "shared_components": [],
+          "shared_components.adaptation_handler": [],
+          "shared_components.battery": [],
+          "shared_components.battery_manager": [
+            "shared_components"
+          ],
+          "shared_components.core": [],
+          "shared_components.core.config_manager_base": [
+            "enums"
+          ],
+          "shared_components.core.publisher_manager_base": [
+            "core",
+            "enums"
+          ],
+          "shared_components.core.ros_component": [
+            "adaptation_handler",
+            "battery_manager",
+            "lifecycle_manager"
+          ],
+          "shared_components.enums": [],
+          "shared_components.lifecycle_manager": [],
+          "system_monitor": [],
+          "system_monitor.logger": [],
+          "system_monitor.node_monitor": [
+            "shared_components"
+          ],
+          "system_monitor.param_adapter": []
+        },
+        "overloaded_modules": [
+          "adaptation.goal_model",
+          "central_hub.central_hub"
+        ]
+      },
+      "violations": [
+        {
+          "type": "layer",
+          "severity": "error",
+          "module": "shared_components.core.ros_component",
+          "target": "shared_components.lifecycle_manager",
+          "rule": "domain !\u003e application",
+          "description": "Dependency from 'domain' to 'application' is denied by rule",
+          "suggestion": "Introduce an interface or move code to respect layer boundaries",
+          "location": null
+        },
+        {
+          "type": "layer",
+          "severity": "error",
+          "module": "shared_components.core.ros_component",
+          "target": "shared_components.adaptation_handler",
+          "rule": "domain !\u003e presentation",
+          "description": "Dependency from 'domain' to 'presentation' is denied by rule",
+          "suggestion": "Introduce an interface or move code to respect layer boundaries",
+          "location": null
+        },
+        {
+          "type": "layer",
+          "severity": "error",
+          "module": "shared_components.core.ros_component",
+          "target": "shared_components.battery_manager",
+          "rule": "domain !\u003e application",
+          "description": "Dependency from 'domain' to 'application' is denied by rule",
+          "suggestion": "Introduce an interface or move code to respect layer boundaries",
+          "location": null
+        },
+        {
+          "type": "responsibility",
+          "severity": "warning",
+          "module": "adaptation.goal_model",
+          "target": "",
+          "rule": "single-responsibility",
+          "description": "Module 'adaptation.goal_model' mixes 6 dependency concerns with fan-in 0 and fan-out 7",
+          "suggestion": "Split 'adaptation.goal_model' by concern so each module owns one stable responsibility boundary",
+          "location": null
+        },
+        {
+          "type": "responsibility",
+          "severity": "warning",
+          "module": "central_hub.central_hub",
+          "target": "",
+          "rule": "single-responsibility",
+          "description": "Module 'central_hub.central_hub' mixes 4 dependency concerns with fan-in 0 and fan-out 8",
+          "suggestion": "Split 'central_hub.central_hub' by concern so each module owns one stable responsibility boundary",
+          "location": null
+        },
+        {
+          "type": "cohesion",
+          "severity": "warning",
+          "module": "central_hub.components",
+          "target": "",
+          "rule": "package-cohesion",
+          "description": "Package 'central_hub.components' has low cohesion (0.00)",
+          "suggestion": "Move unrelated dependencies out of 'central_hub.components' or split it around cohesive dependency groups",
+          "location": null
+        },
+        {
+          "type": "cohesion",
+          "severity": "warning",
+          "module": "sensor.components",
+          "target": "",
+          "rule": "package-cohesion",
+          "description": "Package 'sensor.components' has low cohesion (0.00)",
+          "suggestion": "Move unrelated dependencies out of 'sensor.components' or split it around cohesive dependency groups",
+          "location": null
+        },
+        {
+          "type": "cohesion",
+          "severity": "warning",
+          "module": "shared_components.core",
+          "target": "",
+          "rule": "package-cohesion",
+          "description": "Package 'shared_components.core' has low cohesion (0.17)",
+          "suggestion": "Move unrelated dependencies out of 'shared_components.core' or split it around cohesive dependency groups",
+          "location": null
+        }
+      ],
+      "severity_breakdown": {
+        "error": 3,
+        "warning": 5
+      },
+      "recommendations": [
+        {
+          "type": "restructure",
+          "priority": "medium",
+          "title": "Improve Cohesion in application Layer",
+          "description": "Layer 'application' has low cohesion (0.00), indicating mixed responsibilities",
+          "benefits": [
+            "Better separation of concerns",
+            "Increased code reusability",
+            "Easier to understand and maintain"
+          ],
+          "effort": "medium",
+          "modules": null,
+          "steps": [
+            "Review the responsibilities of modules in this layer",
+            "Group related functionality together",
+            "Consider splitting the layer if it has multiple distinct responsibilities"
+          ]
+        },
+        {
+          "type": "restructure",
+          "priority": "medium",
+          "title": "Improve Cohesion in presentation Layer",
+          "description": "Layer 'presentation' has low cohesion (0.00), indicating mixed responsibilities",
+          "benefits": [
+            "Better separation of concerns",
+            "Increased code reusability",
+            "Easier to understand and maintain"
+          ],
+          "effort": "medium",
+          "modules": null,
+          "steps": [
+            "Review the responsibilities of modules in this layer",
+            "Group related functionality together",
+            "Consider splitting the layer if it has multiple distinct responsibilities"
+          ]
+        },
+        {
+          "type": "interface",
+          "priority": "low",
+          "title": "Introduce Dependency Injection",
+          "description": "Use dependency injection to reduce coupling between layers",
+          "benefits": [
+            "Better testability with mock dependencies",
+            "Reduced coupling between components",
+            "More flexible and maintainable code"
+          ],
+          "effort": "medium",
+          "modules": null,
+          "steps": [
+            "Identify tightly coupled components",
+            "Create interfaces for dependencies",
+            "Inject dependencies rather than creating them directly"
+          ]
+        }
+      ],
+      "refactoring_targets": [
+        "shared_components.core.ros_component",
+        "adaptation.goal_model",
+        "central_hub.central_hub",
+        "central_hub.components",
+        "sensor.components",
+        "shared_components.core"
+      ]
+    },
+    "summary": {
+      "total_modules": 54,
+      "total_packages": 6,
+      "total_dependencies": 63,
+      "project_root": "/tmp/bsn-class-metrics-1ogfr349",
+      "resolved_imports": 58,
+      "unresolved_imports": 0,
+      "overall_quality_score": 77.59,
+      "maintainability_score": 74.3,
+      "architecture_score": 84.9624060150376,
+      "modularity_score": 74.6,
+      "technical_debt_hours": 92,
+      "average_coupling": 2.3333333333333335,
+      "average_instability": 0.4242063492063492,
+      "cyclic_dependencies": 0,
+      "architecture_violations": 8,
+      "high_risk_modules": 12,
+      "critical_issues": 0,
+      "refactoring_candidates": 18,
+      "architecture_improvements": 3
+    },
+    "issues": null,
+    "recommendations": null,
+    "warnings": null,
+    "errors": [],
+    "generated_at": "2026-11-12T18:16:59.630175785Z",
+    "duration": 5,
+    "version": "1.33.2",
+    "config": null
+  },
+  "module_quality": [
+    {
+      "module_name": "adaptation",
+      "file_path": "adaptation/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.data_access",
+      "file_path": "adaptation/data_access/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.data_access.data_access",
+      "file_path": "adaptation/data_access/data_access.py",
+      "lines_of_code": 790,
+      "function_count": 29,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.enactor",
+      "file_path": "adaptation/enactor/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.enactor.controller",
+      "file_path": "adaptation/enactor/controller.py",
+      "lines_of_code": 226,
+      "function_count": 8,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.enactor.enactor",
+      "file_path": "adaptation/enactor/enactor.py",
+      "lines_of_code": 277,
+      "function_count": 15,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.engines",
+      "file_path": "adaptation/engines/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.engines.base_engine",
+      "file_path": "adaptation/engines/base_engine.py",
+      "lines_of_code": 255,
+      "function_count": 16,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.engines.reli_engine",
+      "file_path": "adaptation/engines/reli_engine.py",
+      "lines_of_code": 416,
+      "function_count": 14,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model",
+      "file_path": "adaptation/goal_model/__init__.py",
+      "lines_of_code": 21,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.context",
+      "file_path": "adaptation/goal_model/context.py",
+      "lines_of_code": 64,
+      "function_count": 11,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.goal",
+      "file_path": "adaptation/goal_model/goal.py",
+      "lines_of_code": 21,
+      "function_count": 2,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.goaltree",
+      "file_path": "adaptation/goal_model/goaltree.py",
+      "lines_of_code": 96,
+      "function_count": 14,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.leaftask",
+      "file_path": "adaptation/goal_model/leaftask.py",
+      "lines_of_code": 91,
+      "function_count": 13,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.node",
+      "file_path": "adaptation/goal_model/node.py",
+      "lines_of_code": 109,
+      "function_count": 17,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.property",
+      "file_path": "adaptation/goal_model/property.py",
+      "lines_of_code": 54,
+      "function_count": 9,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.goal_model.task",
+      "file_path": "adaptation/goal_model/task.py",
+      "lines_of_code": 30,
+      "function_count": 4,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.model",
+      "file_path": "adaptation/model/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "adaptation.model.formula",
+      "file_path": "adaptation/model/formula.py",
+      "lines_of_code": 252,
+      "function_count": 16,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub",
+      "file_path": "central_hub/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.central_hub",
+      "file_path": "central_hub/central_hub.py",
+      "lines_of_code": 237,
+      "function_count": 13,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.components",
+      "file_path": "central_hub/components/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.components.config_manager",
+      "file_path": "central_hub/components/config_manager.py",
+      "lines_of_code": 42,
+      "function_count": 2,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.components.data_fusion",
+      "file_path": "central_hub/components/data_fusion.py",
+      "lines_of_code": 174,
+      "function_count": 3,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.components.publishers",
+      "file_path": "central_hub/components/publishers.py",
+      "lines_of_code": 128,
+      "function_count": 3,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.components.sensor_data_handler",
+      "file_path": "central_hub/components/sensor_data_handler.py",
+      "lines_of_code": 156,
+      "function_count": 4,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.utils",
+      "file_path": "central_hub/utils/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.utils.risk_analyzer",
+      "file_path": "central_hub/utils/risk_analyzer.py",
+      "lines_of_code": 49,
+      "function_count": 2,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "central_hub.utils.visualization",
+      "file_path": "central_hub/utils/visualization.py",
+      "lines_of_code": 140,
+      "function_count": 4,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "patient",
+      "file_path": "patient/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "patient.patient",
+      "file_path": "patient/patient.py",
+      "lines_of_code": 426,
+      "function_count": 10,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor",
+      "file_path": "sensor/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.components",
+      "file_path": "sensor/components/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.components.config_manager",
+      "file_path": "sensor/components/config_manager.py",
+      "lines_of_code": 116,
+      "function_count": 3,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.components.data_processor",
+      "file_path": "sensor/components/data_processor.py",
+      "lines_of_code": 228,
+      "function_count": 6,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.components.publishers",
+      "file_path": "sensor/components/publishers.py",
+      "lines_of_code": 104,
+      "function_count": 3,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.components.risk_manager",
+      "file_path": "sensor/components/risk_manager.py",
+      "lines_of_code": 197,
+      "function_count": 8,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.sensor",
+      "file_path": "sensor/sensor.py",
+      "lines_of_code": 333,
+      "function_count": 13,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.utils",
+      "file_path": "sensor/utils/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "sensor.utils.risk_evaluator",
+      "file_path": "sensor/utils/risk_evaluator.py",
+      "lines_of_code": 270,
+      "function_count": 10,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components",
+      "file_path": "shared_components/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.adaptation_handler",
+      "file_path": "shared_components/adaptation_handler.py",
+      "lines_of_code": 190,
+      "function_count": 4,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.battery",
+      "file_path": "shared_components/battery.py",
+      "lines_of_code": 189,
+      "function_count": 4,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.battery_manager",
+      "file_path": "shared_components/battery_manager.py",
+      "lines_of_code": 202,
+      "function_count": 7,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.core",
+      "file_path": "shared_components/core/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.core.config_manager_base",
+      "file_path": "shared_components/core/config_manager_base.py",
+      "lines_of_code": 42,
+      "function_count": 3,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.core.publisher_manager_base",
+      "file_path": "shared_components/core/publisher_manager_base.py",
+      "lines_of_code": 139,
+      "function_count": 8,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.core.ros_component",
+      "file_path": "shared_components/core/ros_component.py",
+      "lines_of_code": 109,
+      "function_count": 6,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.enums",
+      "file_path": "shared_components/enums.py",
+      "lines_of_code": 27,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "shared_components.lifecycle_manager",
+      "file_path": "shared_components/lifecycle_manager.py",
+      "lines_of_code": 631,
+      "function_count": 16,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "system_monitor",
+      "file_path": "system_monitor/__init__.py",
+      "lines_of_code": 0,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "system_monitor.logger",
+      "file_path": "system_monitor/logger.py",
+      "lines_of_code": 391,
+      "function_count": 15,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "system_monitor.node_monitor",
+      "file_path": "system_monitor/node_monitor.py",
+      "lines_of_code": 339,
+      "function_count": 8,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "system_monitor.param_adapter",
+      "file_path": "system_monitor/param_adapter.py",
+      "lines_of_code": 279,
+      "function_count": 5,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    }
+  ],
+  "suggestions": [
+    {
+      "category": "architecture",
+      "severity": "warning",
+      "effort": "moderate",
+      "title": "Fix architecture violation in 'adaptation.goal_model'",
+      "description": "Split 'adaptation.goal_model' by concern so each module owns one stable responsibility boundary",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/adaptation/goal_model/__init__.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "warning",
+      "effort": "moderate",
+      "title": "Fix architecture violation in 'central_hub.central_hub'",
+      "description": "Split 'central_hub.central_hub' by concern so each module owns one stable responsibility boundary",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/central_hub.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "warning",
+      "effort": "moderate",
+      "title": "Fix architecture violation in 'central_hub.components'",
+      "description": "Move unrelated dependencies out of 'central_hub.components' or split it around cohesive dependency groups",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/central_hub/components/__init__.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "warning",
+      "effort": "moderate",
+      "title": "Fix architecture violation in 'sensor.components'",
+      "description": "Move unrelated dependencies out of 'sensor.components' or split it around cohesive dependency groups",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/sensor/components/__init__.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "warning",
+      "effort": "moderate",
+      "title": "Fix architecture violation in 'shared_components.core'",
+      "description": "Move unrelated dependencies out of 'shared_components.core' or split it around cohesive dependency groups",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/__init__.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Fix architecture violation in 'shared_components.core.ros_component'",
+      "description": "Introduce an interface or move code to respect layer boundaries (targets: shared_components.lifecycle_manager, shared_components.battery_manager)",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/ros_component.py",
+      "start_line": 1
+    },
+    {
+      "category": "architecture",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Fix architecture violation in 'shared_components.core.ros_component'",
+      "description": "Introduce an interface or move code to respect layer boundaries (target: shared_components.adaptation_handler)",
+      "file_path": "/tmp/bsn-class-metrics-1ogfr349/shared_components/core/ros_component.py",
+      "start_line": 1
+    }
+  ],
+  "summary": {
+    "total_files": 54,
+    "analyzed_files": 54,
+    "skipped_files": 0,
+    "complexity_enabled": false,
+    "dead_code_enabled": false,
+    "clone_enabled": false,
+    "cbo_enabled": false,
+    "mock_data_enabled": false,
+    "deps_enabled": true,
+    "arch_enabled": true,
+    "communities_enabled": false,
+    "deps_total_modules": 54,
+    "deps_modules_in_cycles": 0,
+    "deps_max_depth": 5,
+    "deps_main_sequence_deviation": 0.5387566137566138,
+    "arch_compliance": 0.849624060150376,
+    "community_count": 0,
+    "community_total_modules": 0,
+    "community_modularity": 0,
+    "community_bridge_modules": 0,
+    "community_internal_edges": 0,
+    "community_cross_edges": 0,
+    "total_functions": 0,
+    "total_class_scopes": 0,
+    "max_class_complexity": 0,
+    "max_class_cognitive_complexity": 0,
+    "max_class_nesting_depth": 0,
+    "high_complexity_class_scope_count": 0,
+    "functions_parsed": 0,
+    "average_complexity": 0,
+    "average_cognitive_complexity": 0,
+    "average_nesting_depth": 0,
+    "high_complexity_count": 0,
+    "dead_code_count": 0,
+    "critical_dead_code": 0,
+    "warning_dead_code": 0,
+    "info_dead_code": 0,
+    "total_clones": 0,
+    "clone_pairs": 0,
+    "clone_groups": 0,
+    "code_duplication_percentage": 0,
+    "cbo_classes": 0,
+    "high_coupling_classes": 0,
+    "medium_coupling_classes": 0,
+    "average_coupling": 0,
+    "lcom_enabled": false,
+    "lcom_classes": 0,
+    "high_lcom_classes": 0,
+    "medium_lcom_classes": 0,
+    "average_lcom": 0,
+    "mock_data_count": 0,
+    "mock_data_error_count": 0,
+    "mock_data_warning_count": 0,
+    "mock_data_info_count": 0,
+    "health_score": 96,
+    "grade": "A",
+    "complexity_score": 100,
+    "dead_code_score": 100,
+    "duplication_score": 100,
+    "coupling_score": 100,
+    "cohesion_score": 100,
+    "dependency_score": 85,
+    "architecture_score": 85,
+    "community_score": 100,
+    "community_scored": false,
+    "community_risk_score": 0
+  },
+  "schema_version": 2,
+  "generated_at": "2026-11-12T18:16:59.63126465Z",
+  "duration_ms": 212,
+  "version": "1.33.2"
+}

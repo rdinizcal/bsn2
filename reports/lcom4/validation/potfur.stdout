@@ -1,0 +1,15 @@
+
+Calculating LCOM using LCOM4
++-------------------------------------------------+------+
+| Method                                          | LCOM |
++-------------------------------------------------+------+
+| reports.lcom4.validation.cases.CallBridge       | 1    |
+| reports.lcom4.validation.cases.InheritedLogging | 1    |
+| reports.lcom4.validation.cases.OnlyConstructor  | 0    |
+| reports.lcom4.validation.cases.SeparateGetters  | 2    |
+| reports.lcom4.validation.cases.SharedState      | 1    |
+| reports.lcom4.validation.cases.SplitState       | 2    |
+| reports.lcom4.validation.cases.Stateless        | 0    |
++-------------------------------------------------+------+
+| Average                                         | 1.00 |
++-------------------------------------------------+------+

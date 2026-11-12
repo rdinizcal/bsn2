@@ -1,0 +1,55 @@
+
+Calculating LCOM using LCOM4
++--------------------------------------------------------------------------------------+------+
+| Method                                                                               | LCOM |
++--------------------------------------------------------------------------------------+------+
+| adaptation.adaptation.data_access.data_access.AdaptationMessage                      | 0    |
+| adaptation.adaptation.data_access.data_access.DataAccess                             | 2    |
+| adaptation.adaptation.data_access.data_access.DataMessage                            | 0    |
+| adaptation.adaptation.data_access.data_access.EnergyStatusMessage                    | 0    |
+| adaptation.adaptation.data_access.data_access.EventMessage                           | 0    |
+| adaptation.adaptation.data_access.data_access.StatusMessage                          | 0    |
+| adaptation.adaptation.data_access.data_access.UncertaintyMessage                     | 0    |
+| adaptation.adaptation.enactor.controller.Controller                                  | 1    |
+| adaptation.adaptation.enactor.enactor.Enactor                                        | 1    |
+| adaptation.adaptation.engines.base_engine.Engine                                     | 1    |
+| adaptation.adaptation.engines.reli_engine.ReliabilityEngine                          | 2    |
+| adaptation.adaptation.goal_model.context.Context                                     | 1    |
+| adaptation.adaptation.goal_model.goal.Goal                                           | 0    |
+| adaptation.adaptation.goal_model.goaltree.GoalTree                                   | 1    |
+| adaptation.adaptation.goal_model.leaftask.LeafTask                                   | 1    |
+| adaptation.adaptation.goal_model.node.Node                                           | 1    |
+| adaptation.adaptation.goal_model.property.Property                                   | 1    |
+| adaptation.adaptation.goal_model.task.Task                                           | 1    |
+| adaptation.adaptation.model.formula.Formula                                          | 1    |
+| adaptation.adaptation.model.formula.FormulaError                                     | 0    |
+| central_hub.central_hub.central_hub.CentralHub                                       | 1    |
+| central_hub.central_hub.components.config_manager.ConfigManager                      | 1    |
+| central_hub.central_hub.components.data_fusion.DataFusionEngine                      | 1    |
+| central_hub.central_hub.components.publishers.PublisherManager                       | 1    |
+| central_hub.central_hub.components.sensor_data_handler.SensorDataHandler             | 1    |
+| central_hub.central_hub.utils.risk_analyzer.RiskAnalyzer                             | 1    |
+| central_hub.central_hub.utils.visualization.Visualizer                               | 1    |
+| patient.patient.patient.Patient                                                      | 1    |
+| sensor.sensor.components.config_manager.ConfigManager                                | 1    |
+| sensor.sensor.components.data_processor.DataProcessor                                | 1    |
+| sensor.sensor.components.publishers.PublisherManager                                 | 1    |
+| sensor.sensor.components.risk_manager.RiskManager                                    | 1    |
+| sensor.sensor.sensor.Sensor                                                          | 1    |
+| sensor.sensor.utils.risk_evaluator.RiskEvaluator                                     | 1    |
+| shared_components.shared_components.adaptation_handler.AdaptationHandler             | 1    |
+| shared_components.shared_components.battery.Battery                                  | 1    |
+| shared_components.shared_components.battery_manager.BatteryManager                   | 1    |
+| shared_components.shared_components.core.config_manager_base.ConfigManagerBase       | 1    |
+| shared_components.shared_components.core.publisher_manager_base.PublisherManagerBase | 1    |
+| shared_components.shared_components.core.ros_component.RosComponent                  | 1    |
+| shared_components.shared_components.enums.EventType                                  | 0    |
+| shared_components.shared_components.enums.StatusContent                              | 0    |
+| shared_components.shared_components.enums.Task                                       | 0    |
+| shared_components.shared_components.lifecycle_manager.LifecycleManager               | 1    |
+| system_monitor.system_monitor.logger.Logger                                          | 1    |
+| system_monitor.system_monitor.node_monitor.SystemMonitor                             | 1    |
+| system_monitor.system_monitor.param_adapter.ParamAdapter                             | 1    |
++--------------------------------------------------------------------------------------+------+
+| Average                                                                              | 0.81 |
++--------------------------------------------------------------------------------------+------+

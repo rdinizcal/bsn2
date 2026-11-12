@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "root": "/ros_ws/src",
+  "scope": [
+    "production"
+  ],
+  "definition": "Distinct declared package dependencies; source -> dependency. External means outside scanned root.",
+  "summary": {
+    "packages": 7,
+    "internal_edges": 7,
+    "cyclic_components": 0,
+    "packages_in_cycles": 0
+  },
+  "cycles": [],
+  "metrics": [
+    {
+      "package": "adaptation",
+      "Ca": 0,
+      "Ce": 0,
+      "instability": null,
+      "in_cycle": false,
+      "transitive_dependents": 0,
+      "internal_dependencies": [],
+      "external_dependencies": []
+    },
+    {
+      "package": "bsn_interfaces",
+      "Ca": 4,
+      "Ce": 0,
+      "instability": 0.0,
+      "in_cycle": false,
+      "transitive_dependents": 4,
+      "internal_dependencies": [],
+      "external_dependencies": [
+        "rosidl_default_runtime",
+        "std_msgs"
+      ]
+    },
+    {
+      "package": "central_hub",
+      "Ca": 0,
+      "Ce": 3,
+      "instability": 1.0,
+      "in_cycle": false,
+      "transitive_dependents": 0,
+      "internal_dependencies": [
+        "bsn_interfaces",
+        "shared_components",
+        "system_monitor"
+      ],
+      "external_dependencies": [
+        "launch",
+        "launch_ros"
+      ]
+    },
+    {
+      "package": "patient",
+      "Ca": 0,
+      "Ce": 1,
+      "instability": 1.0,
+      "in_cycle": false,
+      "transitive_dependents": 0,
+      "internal_dependencies": [
+        "bsn_interfaces"
+      ],
+      "external_dependencies": []
+    },
+    {
+      "package": "sensor",
+      "Ca": 0,
+      "Ce": 2,
+      "instability": 1.0,
+      "in_cycle": false,
+      "transitive_dependents": 0,
+      "internal_dependencies": [
+        "bsn_interfaces",
+        "system_monitor"
+      ],
+      "external_dependencies": []
+    },
+    {
+      "package": "shared_components",
+      "Ca": 1,
+      "Ce": 1,
+      "instability": 0.5,
+      "in_cycle": false,
+      "transitive_dependents": 1,
+      "internal_dependencies": [
+        "bsn_interfaces"
+      ],
+      "external_dependencies": [
+        "lifecycle_msgs",
+        "rclpy"
+      ]
+    },
+    {
+      "package": "system_monitor",
+      "Ca": 2,
+      "Ce": 0,
+      "instability": 0.0,
+      "in_cycle": false,
+      "transitive_dependents": 2,
+      "internal_dependencies": [],
+      "external_dependencies": [
+        "rclpy"
+      ]
+    }
+  ],
+  "manifests": {
+    "adaptation": {
+      "manifest": "adaptation/package.xml",
+      "dependencies": [
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    },
+    "bsn_interfaces": {
+      "manifest": "bsn_interfaces/package.xml",
+      "dependencies": [
+        {
+          "name": "std_msgs",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "ament_cmake",
+          "tag": "buildtool_depend",
+          "condition": null
+        },
+        {
+          "name": "rosidl_default_generators",
+          "tag": "buildtool_depend",
+          "condition": null
+        },
+        {
+          "name": "rosidl_default_runtime",
+          "tag": "exec_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_lint_auto",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_lint_common",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    },
+    "central_hub": {
+      "manifest": "central_hub/package.xml",
+      "dependencies": [
+        {
+          "name": "bsn_interfaces",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "system_monitor",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "shared_components",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest-cov",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-coverage",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "launch",
+          "tag": "exec_depend",
+          "condition": null
+        },
+        {
+          "name": "launch_ros",
+          "tag": "exec_depend",
+          "condition": null
+        }
+      ]
+    },
+    "patient": {
+      "manifest": "patient/package.xml",
+      "dependencies": [
+        {
+          "name": "bsn_interfaces",
+          "tag": "exec_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest-cov",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-coverage",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    },
+    "sensor": {
+      "manifest": "sensor/package.xml",
+      "dependencies": [
+        {
+          "name": "bsn_interfaces",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "system_monitor",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest-cov",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-coverage",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    },
+    "shared_components": {
+      "manifest": "shared_components/package.xml",
+      "dependencies": [
+        {
+          "name": "rclpy",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "bsn_interfaces",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "lifecycle_msgs",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest-cov",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-coverage",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    },
+    "system_monitor": {
+      "manifest": "system_monitor/package.xml",
+      "dependencies": [
+        {
+          "name": "rclpy",
+          "tag": "depend",
+          "condition": null
+        },
+        {
+          "name": "ament_copyright",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_flake8",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "ament_pep257",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-pytest-cov",
+          "tag": "test_depend",
+          "condition": null
+        },
+        {
+          "name": "python3-coverage",
+          "tag": "test_depend",
+          "condition": null
+        }
+      ]
+    }
+  },
+  "warnings": [
+    "bsn_interfaces: member_of_group not expanded into dependency edges"
+  ]
+}

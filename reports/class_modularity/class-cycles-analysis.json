@@ -1,0 +1,16 @@
+{
+  "engine": "networkx 3.7",
+  "algorithm": "strongly_connected_components",
+  "input_native_pyreverse": "classes_BSN.dot",
+  "scope": "inferred inheritance and member associations only; UML diamonds reversed to owner -> member",
+  "classes": 47,
+  "distinct_edges": 37,
+  "cyclic_components": [],
+  "classes_in_cycles": [],
+  "validation_known_cycle_detected": [
+    [
+      "cases.loop_a.A",
+      "cases.loop_b.B"
+    ]
+  ]
+}

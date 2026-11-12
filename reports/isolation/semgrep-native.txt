@@ -1,0 +1,1272 @@
+                     
+                     
+┌───────────────────┐
+│ 251 Code Findings │
+└───────────────────┘
+                                                    
+    adaptation/adaptation/data_access/data_access.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+          104┆ class DataAccess(Node):
+          105┆     """
+          106┆     DataAccess component - Knowledge repository for BSN system
+          107┆
+          108┆     Responsibilities:
+          109┆     - Store system messages (Status, Events, Energy, etc.)
+          110┆     - Calculate component reliability and cost metrics
+          111┆     - Provide data access services to adaptation engines
+          112┆     - Manage system goal model and formulas
+          113┆     """
+             [hid 650 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+          132┆ self.declare_parameter("frequency", 1.0)
+            ⋮┆----------------------------------------
+          133┆ self.declare_parameter("buffer_size", 1000)
+            ⋮┆----------------------------------------
+          134┆ self.declare_parameter("time_window", 10.1)
+            ⋮┆----------------------------------------
+          135┆ self.declare_parameter("flush_interval", 30)
+            ⋮┆----------------------------------------
+          138┆ self.frequency = self.get_parameter("frequency").value
+            ⋮┆----------------------------------------
+          139┆ self.buffer_size = self.get_parameter("buffer_size").value
+            ⋮┆----------------------------------------
+          140┆ self.time_window = self.get_parameter("time_window").value
+            ⋮┆----------------------------------------
+          143┆ self.flush_interval = self.get_parameter("flush_interval").value
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          200┆ self.create_timer(1.0 / self.frequency, self.timer_callback)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          200┆ self.create_timer(1.0 / self.frequency, self.timer_callback)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          232┆ self.persist_sub = self.create_subscription(
+          233┆     Persist, "persist", self.receive_persist_message, qos_profile
+          234┆ )
+            ⋮┆----------------------------------------
+          236┆ self.target_system_sub = self.create_subscription(
+          237┆     TargetSystemData,
+          238┆     "TargetSystemData",
+          239┆     self.process_target_system_data,
+          240┆     qos_profile,
+          241┆ )
+            ⋮┆----------------------------------------
+          244┆ self.data_service = self.create_service(
+          245┆     DataAccessRequest, "DataAccessRequest", self.process_query
+          246┆ )
+   
+     ❱ tools.semgrep.isolation.python.directory-io
+          ❰❰ Blocking ❱❱
+          Criação de diretório; efeito sobre o ambiente de teste.
+                                                                 
+          251┆ Path(self.log_path).mkdir(parents=True, exist_ok=True)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          254┆ timestamp = str(int(time.time() * 1000000))
+   
+     ❱ tools.semgrep.isolation.python.file-io
+          ❰❰ Blocking ❱❱
+          Acesso a arquivo; revisar uso de sistema de arquivos temporário ou dependência substituta.
+                                                                                                    
+          267┆ with open(log_file, "w") as f:
+            ⋮┆----------------------------------------
+          276┆ with open(reliability_path, "r") as f:
+            ⋮┆----------------------------------------
+          295┆ with open(cost_path, "r") as f:
+            ⋮┆----------------------------------------
+          314┆ with open(file_path, "r") as f:
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          357┆ return time.time()
+   
+     ❱ tools.semgrep.isolation.python.file-io
+          ❰❰ Blocking ❱❱
+          Acesso a arquivo; revisar uso de sistema de arquivos temporário ou dependência substituta.
+                                                                                                    
+          674┆ with open(self.log_files["status"], "a") as f:
+            ⋮┆----------------------------------------
+          691┆ with open(self.log_files["event"], "a") as f:
+            ⋮┆----------------------------------------
+          708┆ with open(self.log_files["energy"], "a") as f:
+            ⋮┆----------------------------------------
+          725┆ with open(self.log_files["uncertainty"], "a") as f:
+            ⋮┆----------------------------------------
+          742┆ with open(self.log_files["adaptation"], "a") as f:
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          767┆ rclpy.init(args=args)
+                                               
+    adaptation/adaptation/enactor/controller.py
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           20┆ self.declare_parameter('kp', 0.5)  # Proportional gain for control
+            ⋮┆----------------------------------------
+           21┆ self.kp = self.get_parameter('kp').value
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           34┆ self.event_sub = self.create_subscription(
+           35┆     Event, 'event', self.receive_event, qos_profile)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           34┆ self.event_sub = self.create_subscription(
+           35┆     Event, 'event', self.receive_event, qos_profile)
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          202┆ rclpy.init(args=args)
+                                            
+    adaptation/adaptation/enactor/enactor.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           17┆ class Enactor(Node):
+           18┆     """
+           19┆     Enactor component for BSN system
+           20┆
+           21┆
+           22┆     Receives adaptation strategies from engines
+           23┆     Translates strategies into component-specific commands
+           24┆     Sends adaptation commands to components via ParamAdapter
+           25┆     """
+           26┆
+             [hid 251 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           32┆ self.declare_parameter('frequency', 1.0)
+            ⋮┆----------------------------------------
+           33┆ self.declare_parameter('stability_margin', 0.02)
+            ⋮┆----------------------------------------
+           36┆ self.frequency = self.get_parameter('frequency').value
+            ⋮┆----------------------------------------
+           37┆ self.stability_margin = self.get_parameter('stability_margin').value
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           58┆ self.create_timer(1.0/self.frequency, self.body)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+           58┆ self.create_timer(1.0/self.frequency, self.body)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           73┆ self.adapt = self.create_publisher(
+           74┆     AdaptationCommand, 'reconfigure', qos_profile)
+            ⋮┆----------------------------------------
+           76┆ self.except_pub = self.create_publisher(
+           77┆     ExceptionMsg, 'exception', qos_profile)
+            ⋮┆----------------------------------------
+           80┆ self.strategy_sub = self.create_subscription(
+           81┆     Strategy, 'strategy', self.receive_strategy, qos_profile)
+            ⋮┆----------------------------------------
+           84┆ self.engine_client = self.create_client(EngineRequest, 'EngineRequest')
+            ⋮┆----------------------------------------
+           85┆ self.data_access_client = self.create_client(DataAccessRequest, 'DataAccessRequest')
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+           92┆ while not self.engine_client.wait_for_service(timeout_sec=1.0):
+            ⋮┆----------------------------------------
+           95┆ while not self.data_access_client.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          135┆ future = self.data_access_client.call_async(request)
+            ⋮┆----------------------------------------
+          219┆ future = self.engine_client.call_async(request)
+                                                
+    adaptation/adaptation/engines/base_engine.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           17┆ class Engine(Node, ABC):
+           18┆     """
+           19┆     Abstract Engine class - ROS2 implementation matching BSN1 Engine
+           20┆     Base class for all adaptation engines (ReliabilityEngine, CostEngine)
+           21┆     """
+           22┆
+           23┆     def __init__(self, node_name: str):
+           24┆         super().__init__(node_name)
+           25┆
+           26┆         # Core attributes matching Engine.hpp
+             [hid 229 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           43┆ self.declare_parameter("qos_attribute", "")
+            ⋮┆----------------------------------------
+           44┆ self.declare_parameter("info_quant", 0.0)
+            ⋮┆----------------------------------------
+           45┆ self.declare_parameter("monitor_freq", 1.0)
+            ⋮┆----------------------------------------
+           46┆ self.declare_parameter("actuation_freq", 1.0)
+            ⋮┆----------------------------------------
+           53┆ self.qos_attribute = self.get_parameter("qos_attribute").value
+            ⋮┆----------------------------------------
+           54┆ self.info_quant = self.get_parameter("info_quant").value
+            ⋮┆----------------------------------------
+           55┆ self.monitor_freq = self.get_parameter("monitor_freq").value
+            ⋮┆----------------------------------------
+           56┆ self.actuation_freq = self.get_parameter("actuation_freq").value
+   
+     ❱ tools.semgrep.isolation.python.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+                                                                                           
+           67┆ time.sleep(1.0)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           83┆ self.data_access_client = self.create_client(
+           84┆     DataAccessRequest, "DataAccessRequest"
+           85┆ )
+            ⋮┆----------------------------------------
+           86┆ self.exception_subscriber = self.create_subscription(
+           87┆     BSNException, "exception", self.receive_exception, qos_profile
+           88┆ )
+            ⋮┆----------------------------------------
+           90┆ self.enactor_server = self.create_service(
+           91┆     EngineRequest, "EngineRequest", self.send_adaptation_parameter
+           92┆ )
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          102┆ future = self.data_access_client.call_async(request)
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          103┆ rclpy.spin_until_future_complete(self, future)
+            ⋮┆----------------------------------------
+          211┆ rclpy.spin_once(self, timeout_sec=0.01)
+                                                
+    adaptation/adaptation/engines/reli_engine.py
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           33┆ self.declare_parameter("setpoint", 0.9)
+            ⋮┆----------------------------------------
+           34┆ self.declare_parameter("offset", 0.0)
+            ⋮┆----------------------------------------
+           35┆ self.declare_parameter("gain", 0.0)
+            ⋮┆----------------------------------------
+           36┆ self.declare_parameter("tolerance", 0.02)
+            ⋮┆----------------------------------------
+           46┆ self.setpoint = self.get_parameter("setpoint").value
+            ⋮┆----------------------------------------
+           47┆ self.offset = self.get_parameter("offset").value
+            ⋮┆----------------------------------------
+           48┆ self.gain = self.get_parameter("gain").value
+            ⋮┆----------------------------------------
+           49┆ self.tolerance = self.get_parameter("tolerance").value
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           52┆ self.strategy_publisher = self.create_publisher(Strategy, "strategy", 10)
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+          104┆ if not self.data_access_client.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          114┆ future = self.data_access_client.call_async(request)
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          115┆ rclpy.spin_until_future_complete(self, future, timeout_sec=2.0)
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+          170┆ if not self.data_access_client.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          180┆ future = self.data_access_client.call_async(request)
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          181┆ rclpy.spin_until_future_complete(self, future, timeout_sec=2.0)
+            ⋮┆----------------------------------------
+          390┆ rclpy.init(args=args)
+                                          
+    central_hub/central_hub/central_hub.py
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          110┆ self._heartbeat_timer = self.create_timer(
+          111┆     2.0, self.publisher_manager.publish_heartbeat
+          112┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          215┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          223┆ thread = threading.Thread(
+          224┆     target=rclpy.spin, args=(hub,), daemon=True
+          225┆ )
+                                                     
+    central_hub/central_hub/components/data_fusion.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           42┆ self.node = node
+                                                    
+    central_hub/central_hub/components/publishers.py
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           67┆ self.target_system_publisher = self.node.create_publisher(
+           68┆     TargetSystemData, "target_system_data", 10
+           69┆ )
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          100┆ msg.header.stamp = self.node.get_clock().now().to_msg()
+                                                             
+    central_hub/central_hub/components/sensor_data_handler.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           49┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           81┆ self.sub_abpd = self.node.create_subscription(
+           82┆     SensorData, "sensor_data/abpd", self.receive_datapoint, 10
+           83┆ )
+            ⋮┆----------------------------------------
+           84┆ self.sub_abps = self.node.create_subscription(
+           85┆     SensorData, "sensor_data/abps", self.receive_datapoint, 10
+           86┆ )
+            ⋮┆----------------------------------------
+           87┆ self.sub_ecg = self.node.create_subscription(
+           88┆     SensorData, "sensor_data/ecg", self.receive_datapoint, 10
+           89┆ )
+            ⋮┆----------------------------------------
+           90┆ self.sub_glucosemeter = self.node.create_subscription(
+           91┆     SensorData, "sensor_data/glucosemeter", self.receive_datapoint, 10
+           92┆ )
+            ⋮┆----------------------------------------
+           93┆ self.sub_oximeter = self.node.create_subscription(
+           94┆     SensorData, "sensor_data/oximeter", self.receive_datapoint, 10
+           95┆ )
+            ⋮┆----------------------------------------
+           96┆ self.sub_thermometer = self.node.create_subscription(
+           97┆     SensorData, "sensor_data/thermometer", self.receive_datapoint, 10
+           98┆ )
+                                                  
+    central_hub/central_hub/utils/risk_analyzer.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+            6┆ self.node = node
+                                                  
+    central_hub/central_hub/utils/visualization.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           41┆ self.node = node
+                              
+    patient/patient/patient.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           17┆ class Patient(Node):
+           18┆     """
+           19┆     Patient simulator node with Markov-based vital sign generation.
+           20┆
+           21┆     This class simulates a patient with multiple vital signs that change over time
+           22┆     according to configurable Markov chain transition matrices. Each vital sign
+           23┆     has its own state space representing different health conditions, from low-risk
+           24┆     normal values to high-risk critical values.
+           25┆
+           26┆     The simulator provides realistic transitions between health states with
+             [hid 360 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           80┆ self.declare_parameter("frequency", 1.0)
+            ⋮┆----------------------------------------
+           81┆ self.frequency = self.get_parameter("frequency").value
+            ⋮┆----------------------------------------
+           84┆ self.declare_parameter(
+           85┆     "vitalSigns",
+           86┆     ["temperature", "abps", "abpd", "heart_rate", "glucose", "oxigenation"],
+           87┆ )
+            ⋮┆----------------------------------------
+           88┆ self.vital_signs = self.get_parameter("vitalSigns").value
+            ⋮┆----------------------------------------
+          100┆ self.declare_parameter(f"{vital}_Change", 0.1)
+            ⋮┆----------------------------------------
+          101┆ self.declare_parameter(f"{vital}_Offset", 0.0)
+            ⋮┆----------------------------------------
+          104┆ self.change_rates[vital] = 1 / self.get_parameter(f"{vital}_Change").value
+            ⋮┆----------------------------------------
+          105┆ self.offsets[vital] = self.get_parameter(f"{vital}_Offset").value
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          113┆ self.srv = self.create_service(PatientData, "get_sensor_reading", self.get_data)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          113┆ self.srv = self.create_service(PatientData, "get_sensor_reading", self.get_data)
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+          140┆ self.declare_parameter(f"{vital}_State{i}", [0.0, 0.0, 0.0, 0.0, 0.0])
+            ⋮┆----------------------------------------
+          141┆ state_dict[i] = self.get_parameter(f"{vital}_State{i}").value
+            ⋮┆----------------------------------------
+          179┆ self.declare_parameter(param_name, [-1.0, -1.0])
+            ⋮┆----------------------------------------
+          180┆ risks[i] = self.get_parameter(param_name).value
+            ⋮┆----------------------------------------
+          240┆ if self.transition_matrix_states[vital_sign][curr_state] != 
+               self.get_parameter(f"{vital_sign}_State{curr_state}").value:
+            ⋮┆----------------------------------------
+          241┆ self.transition_matrix_states[vital_sign][curr_state] =    
+               self.get_parameter(f"{vital_sign}_State{curr_state}").value
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          410┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          415┆ thread = threading.Thread(target=rclpy.spin, args=(patient,), daemon=True)
+                                              
+    sensor/sensor/components/config_manager.py
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           69┆ node.declare_parameter("vital_sign", "")
+            ⋮┆----------------------------------------
+           71┆ self.vital_sign = node.get_parameter("vital_sign").get_parameter_value().string_value
+            ⋮┆----------------------------------------
+           93┆ self.node.declare_parameter("lowrisk_percent", "0,20")
+            ⋮┆----------------------------------------
+           94┆ self.node.declare_parameter("midrisk_percent", "21,65")
+            ⋮┆----------------------------------------
+           95┆ self.node.declare_parameter("highrisk_percent", "66,100")
+            ⋮┆----------------------------------------
+           98┆ self.lowrisk_percent = self.node.get_parameter("lowrisk_percent").value
+            ⋮┆----------------------------------------
+           99┆ self.midrisk_percent = self.node.get_parameter("midrisk_percent").value
+            ⋮┆----------------------------------------
+          100┆ self.highrisk_percent = self.node.get_parameter("highrisk_percent").value
+            ⋮┆----------------------------------------
+          103┆ self.node.declare_parameter("HighRisk0", "-1,-1")
+            ⋮┆----------------------------------------
+          104┆ self.node.declare_parameter("MidRisk0", "-1,-1")
+            ⋮┆----------------------------------------
+          105┆ self.node.declare_parameter("LowRisk", "-1,-1")
+            ⋮┆----------------------------------------
+          106┆ self.node.declare_parameter("MidRisk1", "-1,-1")
+            ⋮┆----------------------------------------
+          107┆ self.node.declare_parameter("HighRisk1", "-1,-1")
+            ⋮┆----------------------------------------
+          110┆ self.HighRisk0 = self.node.get_parameter("HighRisk0").value
+            ⋮┆----------------------------------------
+          111┆ self.MidRisk0 = self.node.get_parameter("MidRisk0").value
+            ⋮┆----------------------------------------
+          112┆ self.LowRisk = self.node.get_parameter("LowRisk").value
+            ⋮┆----------------------------------------
+          113┆ self.MidRisk1 = self.node.get_parameter("MidRisk1").value
+            ⋮┆----------------------------------------
+          114┆ self.HighRisk1 = self.node.get_parameter("HighRisk1").value
+                                              
+    sensor/sensor/components/data_processor.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           54┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           72┆ self.cli = self.node.create_client(PatientData, "/get_sensor_reading")
+   
+     ❱ tools.semgrep.isolation.python.constructor-helper-wait
+          ❰❰ Blocking ❱❱
+          __init__ chama helper da mesma classe que contém espera por serviço; revisar bloqueio na construção.
+                                                                                                              
+           73┆ while not self.cli.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+           73┆ while not self.cli.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          112┆ response = self.cli.call(self.req)
+                                          
+    sensor/sensor/components/publishers.py
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           65┆ self.data_pub = self.node.create_publisher(
+           66┆     SensorData, f'sensor_data/{self.node.config.component}', 10
+           67┆ )
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+           90┆ header.stamp = self.node.get_clock().now().to_msg()
+                                            
+    sensor/sensor/components/risk_manager.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           47┆ self.node = node
+                           
+    sensor/sensor/sensor.py
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          177┆ self._heartbeat_timer = self.create_timer(
+          178┆     2.0, self.publisher_manager.publish_heartbeat
+          179┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          317┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          322┆ thread = threading.Thread(target=rclpy.spin, args=(sensor_node,), daemon=True)
+                                                             
+    shared_components/shared_components/adaptation_handler.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           78┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           99┆ client = self.node.create_client(EffectorRegister, 'EffectorRegister')
+   
+     ❱ tools.semgrep.isolation.python.service-wait
+          ❰❰ Blocking ❱❱
+          Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+                                                                                                        
+          102┆ while not client.wait_for_service(timeout_sec=1.0):
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          111┆ future = client.call_async(request)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          135┆ self.adaptation_sub = self.node.create_subscription(
+          136┆     AdaptationCommand,
+          137┆     f'reconfigure_{self.node.get_name()}',
+          138┆     self.process_adaptation_command,
+          139┆     10
+          140┆ )
+                                                          
+    shared_components/shared_components/battery_manager.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           57┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           80┆ self.energy_status_pub = node.create_publisher(
+           81┆     EnergyStatus, f'collect_energy_status/{node.config.component}', 10
+           82┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           80┆ self.energy_status_pub = node.create_publisher(
+           81┆     EnergyStatus, f'collect_energy_status/{node.config.component}', 10
+           82┆ )
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           85┆ node.timer = node.create_timer(1.0, self.check_battery_status)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+           85┆ node.timer = node.create_timer(1.0, self.check_battery_status)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          192┆ msg.header.stamp = self.node.get_clock().now().to_msg()
+                                                                   
+    shared_components/shared_components/core/config_manager_base.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+            8┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           10┆ node.declare_parameter("component", "")
+            ⋮┆----------------------------------------
+           11┆ node.declare_parameter("frequency", "1.0")
+            ⋮┆----------------------------------------
+           12┆ node.declare_parameter("battery_capacity", 100.0)
+            ⋮┆----------------------------------------
+           13┆ node.declare_parameter("battery_level", 100.0)
+            ⋮┆----------------------------------------
+           14┆ node.declare_parameter("battery_unit", 0.0)
+            ⋮┆----------------------------------------
+           15┆ node.declare_parameter("instant_recharge", False)
+            ⋮┆----------------------------------------
+           16┆ node.declare_parameter("enable_adaptation", False)
+            ⋮┆----------------------------------------
+           18┆ self.component = node.get_parameter("component").value or ""
+            ⋮┆----------------------------------------
+           19┆ self.frequency = float(node.get_parameter("frequency").get_parameter_value().string_value)
+            ⋮┆----------------------------------------
+           21┆ node.declare_parameter("battery_id", f"{self.component}_battery")
+            ⋮┆----------------------------------------
+           22┆ self.battery_id = node.get_parameter("battery_id").value
+            ⋮┆----------------------------------------
+           23┆ self.battery_capacity = node.get_parameter("battery_capacity").value
+            ⋮┆----------------------------------------
+           24┆ self.battery_level = node.get_parameter("battery_level").value
+            ⋮┆----------------------------------------
+           25┆ self.battery_unit = node.get_parameter("battery_unit").value
+            ⋮┆----------------------------------------
+           26┆ self.instant_recharge = node.get_parameter("instant_recharge").value
+            ⋮┆----------------------------------------
+           28┆ self.activate_adaptation = self.node.get_parameter("enable_adaptation").value
+                                                                      
+    shared_components/shared_components/core/publisher_manager_base.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           20┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           43┆ self.status_pub = self.node.create_publisher(Status, 'component_status', 10)
+            ⋮┆----------------------------------------
+           44┆ self.event_pub = self.node.create_publisher(Event, 'collect_event', 10)
+                                                             
+    shared_components/shared_components/core/ros_component.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           13┆ class RosComponent(LifecycleNode):
+           14┆     """
+           15┆     Base LifecycleNode that centralizes common BSN component responsibilities.
+           16┆
+           17┆     Uses the Strategy Pattern via factory methods to allow subclasses to provide
+           18┆     their own ConfigManager and PublisherManager implementations.
+           19┆
+           20┆     Responsibilities included here (shared by sensors and the central hub):
+           21┆     - lifecycle manager
+           22┆     - battery manager
+             [hid 87 additional lines, adjust with --max-lines-per-finding] 
+                                                            
+    shared_components/shared_components/lifecycle_manager.py
+     ❱ tools.semgrep.isolation.python.supplied-collaborator
+          ❰❰ Blocking ❱❱
+          Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+                                                                                                      
+           99┆ self.node = node
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          110┆ self.last_state_check = time.time()
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          150┆ self.monitor_timer = self.node.create_timer(
+          151┆     self.state_check_interval,
+          152┆     self.monitor_lifecycle_state
+          153┆ )
+            ⋮┆----------------------------------------
+          157┆ self.node.create_timer(
+          158┆     self.auto_configure_delay,
+          159┆     self.initial_setup
+          160┆ )
+            ⋮┆----------------------------------------
+          219┆ activation_timer = self.node.create_timer(self.auto_activate_delay, activate_once)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          254┆ self.last_state_check = time.time()
+   
+     ❱ tools.semgrep.isolation.python.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+                                                                                           
+          497┆ time.sleep(0.5)
+            ⋮┆----------------------------------------
+          502┆ time.sleep(0.5)
+            ⋮┆----------------------------------------
+          507┆ time.sleep(0.5)
+                                           
+    system_monitor/system_monitor/logger.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           20┆ class Logger(LifecycleNode):
+           21┆     """
+           22┆     Lifecycle-managed message logger and persistence handler for the BSN system.
+           23┆
+           24┆     This class receives messages from various system components and converts
+           25┆     them to a standardized Persist message format for storage and analysis.
+           26┆     It handles multiple message types including status updates, events,
+           27┆     energy reports, adaptation commands, and uncertainty notifications.
+           28┆
+           29┆     The logger adds timestamps and formats messages consistently to enable
+             [hid 328 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           67┆ self.declare_parameter("frequency", 2.0)
+            ⋮┆----------------------------------------
+           68┆ self.frequency = self.get_parameter("frequency").value
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+           71┆ self.time_ref = self.get_clock().now().nanoseconds
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          199┆ self.adapt_sub = self.create_subscription(
+          200┆     AdaptationCommand, 'log_adapt', self.receive_adaptation_command, qos_profile)
+            ⋮┆----------------------------------------
+          201┆ self.status_sub = self.create_subscription(
+          202┆     Status, 'log_status', self.receive_status, qos_profile)
+            ⋮┆----------------------------------------
+          203┆ self.energy_sub = self.create_subscription(
+          204┆     EnergyStatus, 'log_energy_status', self.receive_energy_status, qos_profile)
+            ⋮┆----------------------------------------
+          205┆ self.event_sub = self.create_subscription(
+          206┆     Event, 'log_event', self.receive_event, qos_profile)
+            ⋮┆----------------------------------------
+          207┆ self.uncertainty_sub = self.create_subscription(
+          208┆     Uncertainty, 'log_uncertainty', self.receive_uncertainty, qos_profile)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          222┆ return self.get_clock().now().nanoseconds
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          371┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          376┆ thread = threading.Thread(
+          377┆     target=rclpy.spin, args=(logger,), daemon=True
+          378┆ )
+                                                 
+    system_monitor/system_monitor/node_monitor.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           21┆ class SystemMonitor(Node):
+           22┆     """
+           23┆     Combined system monitor and message collector for BSN system.
+           24┆
+           25┆     This class provides dual functionality as both a message collector that
+           26┆     forwards system messages to the Logger and a comprehensive system monitor
+           27┆     that tracks node activity, lifecycle events, and system health.
+           28┆
+           29┆     The monitor tracks individual node states including activation status,
+           30┆     current tasks, battery levels, and heartbeat timing to provide real-time
+             [hid 273 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+           70┆ self.declare_parameter('monitored_nodes', ['thermometer_node', 'oximeter_node',
+               'central_hub_node'])                                                           
+            ⋮┆----------------------------------------
+           71┆ self.declare_parameter('heartbeat_timeout', 3.0)
+            ⋮┆----------------------------------------
+           72┆ self.declare_parameter('check_interval', 2.0)
+            ⋮┆----------------------------------------
+           73┆ self.declare_parameter('debug_level', False)
+            ⋮┆----------------------------------------
+           74┆ self.declare_parameter('frequency', 1.0)
+            ⋮┆----------------------------------------
+           77┆ self.node_list = self.get_parameter('monitored_nodes').value
+            ⋮┆----------------------------------------
+           78┆ self.heartbeat_timeout = self.get_parameter('heartbeat_timeout').value
+            ⋮┆----------------------------------------
+           79┆ self.check_interval = self.get_parameter('check_interval').value
+            ⋮┆----------------------------------------
+           80┆ self.debug = self.get_parameter('debug_level').value
+            ⋮┆----------------------------------------
+           81┆ self.frequency = self.get_parameter('frequency').value
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+           90┆ 'last_heartbeat': time.time(),
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           99┆ self.state_clients[node_name] = self.create_client(
+          100┆     GetState, f'{node_name}/get_state'
+          101┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           99┆ self.state_clients[node_name] = self.create_client(
+          100┆     GetState, f'{node_name}/get_state'
+          101┆ )
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          106┆ self.log_status_pub = self.create_publisher(
+          107┆     Status, 'log_status', 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          106┆ self.log_status_pub = self.create_publisher(
+          107┆     Status, 'log_status', 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          109┆ self.log_event_pub = self.create_publisher(
+          110┆     Event, 'log_event', 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          109┆ self.log_event_pub = self.create_publisher(
+          110┆     Event, 'log_event', 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          112┆ self.log_energy_pub = self.create_publisher(
+          113┆     EnergyStatus, 'log_energy_status', 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          112┆ self.log_energy_pub = self.create_publisher(
+          113┆     EnergyStatus, 'log_energy_status', 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          118┆ self.status_sub = self.create_subscription(
+          119┆     Status, 'component_status', self.status_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          118┆ self.status_sub = self.create_subscription(
+          119┆     Status, 'component_status', self.status_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          121┆ self.event_sub = self.create_subscription(
+          122┆     Event, 'collect_event', self.event_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          121┆ self.event_sub = self.create_subscription(
+          122┆     Event, 'collect_event', self.event_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          131┆ energy_sub = self.create_subscription(
+          132┆     EnergyStatus, energy_topic, self.energy_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          131┆ energy_sub = self.create_subscription(
+          132┆     EnergyStatus, energy_topic, self.energy_callback, 10)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          140┆ self.create_timer(1.0, self.check_heartbeats)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          140┆ self.create_timer(1.0, self.check_heartbeats)
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          143┆ self.create_timer(2.0, self.publish_monitor_status)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          143┆ self.create_timer(2.0, self.publish_monitor_status)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          166┆ current_time = time.time()
+            ⋮┆----------------------------------------
+          225┆ self.monitored_nodes[monitored_node]['last_heartbeat'] = time.time()
+   
+     ❱ tools.semgrep.isolation.python.client-call
+          ❰❰ Blocking ❱❱
+          Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se
+          necessário.                                                                                
+                                                                                                     
+          263┆ return self.state_clients[node_name].call_async(GetState)
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          273┆ current_time = time.time()
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          317┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          323┆ executor_thread = threading.Thread(target=executor.spin, daemon=True)
+   
+     ❱ tools.semgrep.isolation.python.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+                                                                                           
+          329┆ time.sleep(0.1)
+                                                  
+    system_monitor/system_monitor/param_adapter.py
+     ❱ tools.semgrep.isolation.python.ros-node-base
+          ❰❰ Blocking ❱❱
+          Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+                                                                                                      
+           17┆ class ParamAdapter(Node):
+           18┆     """
+           19┆     Parameter adaptation routing component for BSN system.
+           20┆
+           21┆     This class manages component registration and routes adaptation commands
+           22┆     to appropriate system components. It provides a centralized adaptation
+           23┆     infrastructure that allows components to register themselves and receive
+           24┆     targeted configuration changes during runtime.
+           25┆
+           26┆     The adapter maintains a registry of active components and creates dedicated
+             [hid 217 additional lines, adjust with --max-lines-per-finding] 
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+           97┆ self._component_publishers[f'/{component}'] = self.create_publisher(
+           98┆     AdaptationCommand, topic_name, 10
+           99┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+           97┆ self._component_publishers[f'/{component}'] = self.create_publisher(
+           98┆     AdaptationCommand, topic_name, 10
+           99┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-parameters
+          ❰❰ Blocking ❱❱
+          Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+                                                                                                
+          102┆ self.declare_parameter('check_interval', 10.0)  # Interval to check for stale components
+            ⋮┆----------------------------------------
+          106┆ self.check_interval = self.get_parameter('check_interval').value
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          109┆ self.register_service = self.create_service(
+          110┆     EffectorRegister,
+          111┆     'EffectorRegister',
+          112┆     self.module_connect
+          113┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          109┆ self.register_service = self.create_service(
+          110┆     EffectorRegister,
+          111┆     'EffectorRegister',
+          112┆     self.module_connect
+          113┆ )
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          116┆ self.command_sub = self.create_subscription(
+          117┆     AdaptationCommand,
+          118┆     'reconfigure',
+          119┆     self.receive_adaptation_command,
+          120┆     10
+          121┆ )
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          116┆ self.command_sub = self.create_subscription(
+          117┆     AdaptationCommand,
+          118┆     'reconfigure',
+          119┆     self.receive_adaptation_command,
+          120┆     10
+          121┆ )
+   
+     ❱ tools.semgrep.isolation.python.constructor-effect
+          ❰❰ Blocking ❱❱
+          Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+                                                                                                 
+          124┆ self.create_timer(self.check_interval, self.check_components)
+   
+     ❱ tools.semgrep.isolation.python.ros-timer
+          ❰❰ Blocking ❱❱
+          Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+                                                                                  
+          124┆ self.create_timer(self.check_interval, self.check_components)
+   
+     ❱ tools.semgrep.isolation.python.ros-resource
+          ❰❰ Blocking ❱❱
+          Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+                                                                                                 
+          153┆ pub = self.create_publisher(
+          154┆     AdaptationCommand,
+          155┆     f'reconfigure_{component_name}',
+          156┆     10
+          157┆ )
+   
+     ❱ tools.semgrep.isolation.python.real-clock
+          ❰❰ Blocking ❱❱
+          Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+                                                                                       
+          162┆ 'registered_at': time.time(),
+            ⋮┆----------------------------------------
+          169┆ self.registered_components[component_name]['registered_at'] = time.time()
+            ⋮┆----------------------------------------
+          226┆ current_time = time.time()
+   
+     ❱ tools.semgrep.isolation.python.ros-runtime
+          ❰❰ Blocking ❱❱
+          Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+                                                                                                  
+          257┆ rclpy.init(args=args)
+   
+     ❱ tools.semgrep.isolation.python.thread-creation
+          ❰❰ Blocking ❱❱
+          Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+                                                                                     
+          263┆ executor_thread = threading.Thread(target=executor.spin, daemon=True)
+   
+     ❱ tools.semgrep.isolation.python.real-sleep
+          ❰❰ Blocking ❱❱
+          Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+                                                                                           
+          269┆ time.sleep(0.1)

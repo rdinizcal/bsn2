@@ -1,0 +1,208 @@
+rules:
+  - id: isolation.python.ros-node-base
+    languages: [python]
+    severity: INFO
+    message: Herança direta de Node ROS; revisar necessidade do runtime na construção e métodos herdados.
+    metadata: {category: ros_node_base, kind: runtime_contract, comparison: ros-runtime-contract}
+    pattern-either:
+      - pattern: |
+          class $CLASS(rclpy.node.Node):
+            ...
+      - pattern: |
+          class $CLASS(rclpy.lifecycle.LifecycleNode):
+            ...
+
+  - id: isolation.python.ros-parameters
+    languages: [python]
+    severity: INFO
+    message: Uso de parâmetros pelo objeto node; o substituto de teste deve fornecer esse contrato.
+    metadata: {category: ros_parameters, kind: infrastructure, comparison: ros-parameters, heuristic: API-name}
+    patterns:
+      - pattern: $NODE.$API(...)
+      - metavariable-regex:
+          metavariable: $API
+          regex: ^(declare_parameter|get_parameter|get_parameters|set_parameters)$
+
+  - id: isolation.python.ros-resource
+    languages: [python]
+    severity: INFO
+    message: Criação direta de recurso ROS; revisar substituição do node ou isolamento do adaptador.
+    metadata: {category: ros_resource, kind: infrastructure, comparison: ros-resource}
+    patterns:
+      - pattern: $NODE.$API(...)
+      - metavariable-regex:
+          metavariable: $API
+          regex: ^(create_client|create_service|create_publisher|create_subscription)$
+
+  - id: isolation.python.ros-timer
+    languages: [python]
+    severity: INFO
+    message: Timer ROS; o teste pode precisar de executor ou temporizador substituto.
+    metadata: {category: ros_timer, kind: infrastructure, comparison: ros-timer}
+    pattern: $NODE.create_timer(...)
+
+  - id: isolation.python.ros-runtime
+    languages: [python]
+    severity: INFO
+    message: Inicialização ou execução do runtime ROS; revisar necessidade de contexto real no teste.
+    metadata: {category: ros_runtime, kind: infrastructure, comparison: ros-runtime}
+    pattern-either:
+      - pattern: rclpy.init(...)
+      - pattern: rclpy.spin(...)
+      - pattern: rclpy.spin_once(...)
+      - pattern: rclpy.spin_until_future_complete(...)
+
+  - id: isolation.python.service-wait
+    languages: [python]
+    severity: INFO
+    message: Espera por serviço ou action; timeout da chamada não garante limite de espera do loop externo.
+    metadata: {category: service_wait, kind: infrastructure, comparison: service-wait}
+    pattern-either:
+      - pattern: $CLIENT.wait_for_service(...)
+      - pattern: $CLIENT.wait_for_server(...)
+
+  - id: isolation.python.client-call
+    languages: [python]
+    severity: INFO
+    message: Chamada de possível cliente ROS, identificado pelo nome; confirmar e substituir no teste se necessário.
+    metadata: {category: client_call, kind: infrastructure, comparison: client-call, heuristic: receiver-name}
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.call(...)
+          - pattern: $CLIENT.call_async(...)
+      - metavariable-regex:
+          metavariable: $CLIENT
+          regex: (?i).*(cli|client).*
+
+  - id: isolation.python.file-io
+    languages: [python]
+    severity: INFO
+    message: Acesso a arquivo; revisar uso de sistema de arquivos temporário ou dependência substituta.
+    metadata: {category: file_io, kind: infrastructure, comparison: file-io}
+    pattern-either:
+      - pattern: open(...)
+      - pattern: io.open(...)
+      - pattern: $PATH.read_text(...)
+      - pattern: $PATH.write_text(...)
+      - pattern: $PATH.read_bytes(...)
+      - pattern: $PATH.write_bytes(...)
+
+  - id: isolation.python.directory-io
+    languages: [python]
+    severity: INFO
+    message: Criação de diretório; efeito sobre o ambiente de teste.
+    metadata: {category: directory_io, kind: infrastructure, comparison: directory-io}
+    pattern-either:
+      - pattern: os.makedirs(...)
+      - pattern: os.mkdir(...)
+      - pattern: $PATH.mkdir(...)
+
+  - id: isolation.python.real-clock
+    languages: [python]
+    severity: INFO
+    message: Leitura de relógio real; revisar possibilidade de controlar o tempo no teste.
+    metadata: {category: real_clock, kind: infrastructure, comparison: real-clock}
+    pattern-either:
+      - pattern: time.time(...)
+      - pattern: time.monotonic(...)
+      - pattern: time.perf_counter(...)
+      - pattern: datetime.datetime.now(...)
+      - pattern: $NODE.get_clock().now(...)
+
+  - id: isolation.python.real-sleep
+    languages: [python]
+    severity: INFO
+    message: Espera temporal real; pode retardar ou tornar o teste dependente de temporização.
+    metadata: {category: real_sleep, kind: infrastructure, comparison: real-sleep}
+    pattern-either:
+      - pattern: time.sleep(...)
+      - pattern: asyncio.sleep(...)
+
+  - id: isolation.python.thread-creation
+    languages: [python]
+    severity: INFO
+    message: Criação de thread; verificar separadamente onde ela é iniciada e encerrada.
+    metadata: {category: thread_creation, kind: infrastructure, comparison: thread-creation}
+    pattern-either:
+      - pattern: threading.Thread(...)
+      - pattern: concurrent.futures.ThreadPoolExecutor(...)
+
+  - id: isolation.python.process-execution
+    languages: [python]
+    severity: INFO
+    message: Execução de processo externo; requer substituto ou ambiente preparado.
+    metadata: {category: process_execution, kind: infrastructure, comparison: process-execution}
+    pattern-either:
+      - pattern: subprocess.Popen(...)
+      - pattern: subprocess.run(...)
+      - pattern: subprocess.call(...)
+      - pattern: subprocess.check_call(...)
+      - pattern: subprocess.check_output(...)
+      - pattern: os.system(...)
+
+  - id: isolation.python.environment-read
+    languages: [python]
+    severity: INFO
+    message: Entrada dependente do ambiente do processo; controlar no teste.
+    metadata: {category: environment_read, kind: infrastructure, comparison: environment-read}
+    pattern-either:
+      - pattern: os.getenv(...)
+      - pattern: os.environ[$KEY]
+      - pattern: os.environ.get(...)
+
+  - id: isolation.python.constructor-effect
+    languages: [python]
+    severity: INFO
+    message: Efeito direto em __init__; construir o objeto pode exigir infraestrutura ou tempo real.
+    metadata: {category: constructor_effect, kind: constructor_context, comparison: constructor-effect}
+    patterns:
+      - pattern-inside: |
+          def __init__(...):
+            ...
+      - pattern-either:
+          - pattern: $NODE.create_client(...)
+          - pattern: $NODE.create_service(...)
+          - pattern: $NODE.create_publisher(...)
+          - pattern: $NODE.create_subscription(...)
+          - pattern: $NODE.create_timer(...)
+          - pattern: $CLIENT.wait_for_service(...)
+          - pattern: rclpy.init(...)
+          - pattern: open(...)
+          - pattern: time.sleep(...)
+          - pattern: threading.Thread(...)
+
+  - id: isolation.python.constructor-helper-wait
+    languages: [python]
+    severity: INFO
+    message: __init__ chama helper da mesma classe que contém espera por serviço; revisar bloqueio na construção.
+    metadata: {category: constructor_helper_wait, kind: constructor_context, comparison: constructor-helper-wait}
+    patterns:
+      - pattern-inside: |
+          class $CLASS(...):
+            ...
+            def __init__(self, ...):
+              ...
+              self.$HELPER(...)
+              ...
+            ...
+            def $HELPER(self, ...):
+              ...
+            ...
+      - pattern: $CLIENT.wait_for_service(...)
+      - pattern-inside: |
+          def $HELPER(self, ...):
+            ...
+
+  - id: isolation.python.supplied-collaborator
+    languages: [python]
+    severity: INFO
+    message: Colaborador recebido e armazenado; ponto candidato de substituição, não prova de isolamento.
+    metadata: {category: supplied_collaborator, kind: substitution_candidate, comparison: supplied-collaborator}
+    patterns:
+      - pattern-inside: |
+          def __init__(self, ..., $PARAM, ...):
+            ...
+      - pattern: self.$ATTRIBUTE = $PARAM
+      - metavariable-regex:
+          metavariable: $PARAM
+          regex: ^(node|client|clock|publisher|service|transport|repository|storage|executor|[a-z_]+_manager)$

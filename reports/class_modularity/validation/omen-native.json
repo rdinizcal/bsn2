@@ -1,0 +1,294 @@
+{
+  "classes": [
+    {
+      "cbo": 4,
+      "class_name": "ComplexityExample",
+      "coupled_classes": [
+        "straight",
+        "branch",
+        "value",
+        "ComplexityExample"
+      ],
+      "dit": 0,
+      "end_line": 8,
+      "fields": [],
+      "language": "Python",
+      "lcom": 2,
+      "loc": 8,
+      "methods": [
+        "straight",
+        "branch"
+      ],
+      "noc": 0,
+      "nof": 0,
+      "nom": 2,
+      "path": "cases/complexity_example.py",
+      "rfc": 2,
+      "start_line": 1,
+      "violations": [
+        "LCOM 2 exceeds threshold 1"
+      ],
+      "wmc": 4
+    },
+    {
+      "cbo": 5,
+      "class_name": "ConstructedConsumer",
+      "coupled_classes": [
+        "__init__",
+        "ConstructedConsumer",
+        "self.dependency",
+        "dependency",
+        "Dependency"
+      ],
+      "dit": 0,
+      "end_line": 6,
+      "fields": [
+        "dependency"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/consumer.py",
+      "rfc": 1,
+      "start_line": 4,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 5,
+      "class_name": "TypedConsumer",
+      "coupled_classes": [
+        "__init__",
+        "dependency",
+        "Dependency",
+        "TypedConsumer",
+        "self.dependency"
+      ],
+      "dit": 0,
+      "end_line": 11,
+      "fields": [
+        "dependency"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/consumer.py",
+      "rfc": 1,
+      "start_line": 9,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 4,
+      "class_name": "UntypedConsumer",
+      "coupled_classes": [
+        "UntypedConsumer",
+        "__init__",
+        "dependency",
+        "self.dependency"
+      ],
+      "dit": 0,
+      "end_line": 16,
+      "fields": [
+        "dependency"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/consumer.py",
+      "rfc": 1,
+      "start_line": 14,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 5,
+      "class_name": "LocalConsumer",
+      "coupled_classes": [
+        "__init__",
+        "LocalConsumer",
+        "self.dependency",
+        "dependency",
+        "LocalDependency"
+      ],
+      "dit": 0,
+      "end_line": 25,
+      "fields": [
+        "dependency"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/consumer.py",
+      "rfc": 1,
+      "start_line": 23,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 2,
+      "class_name": "Dependency",
+      "coupled_classes": [
+        "act",
+        "Dependency"
+      ],
+      "dit": 0,
+      "end_line": 3,
+      "fields": [],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "act"
+      ],
+      "noc": 0,
+      "nof": 0,
+      "nom": 1,
+      "path": "cases/dependency.py",
+      "rfc": 1,
+      "start_line": 1,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 3,
+      "class_name": "A",
+      "coupled_classes": [
+        "__init__",
+        "peer",
+        "self.peer"
+      ],
+      "dit": 0,
+      "end_line": 7,
+      "fields": [
+        "peer"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/loop_a.py",
+      "rfc": 1,
+      "start_line": 5,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 3,
+      "class_name": "B",
+      "coupled_classes": [
+        "__init__",
+        "peer",
+        "self.peer"
+      ],
+      "dit": 0,
+      "end_line": 7,
+      "fields": [
+        "peer"
+      ],
+      "language": "Python",
+      "lcom": 1,
+      "loc": 3,
+      "methods": [
+        "__init__"
+      ],
+      "noc": 0,
+      "nof": 1,
+      "nom": 1,
+      "path": "cases/loop_b.py",
+      "rfc": 1,
+      "start_line": 5,
+      "violations": [],
+      "wmc": 1
+    },
+    {
+      "cbo": 1,
+      "class_name": "LocalDependency",
+      "coupled_classes": [
+        "LocalDependency"
+      ],
+      "dit": 0,
+      "end_line": 20,
+      "fields": [],
+      "language": "Python",
+      "lcom": 0,
+      "loc": 2,
+      "methods": [],
+      "noc": 0,
+      "nof": 0,
+      "nom": 0,
+      "path": "cases/consumer.py",
+      "rfc": 0,
+      "start_line": 19,
+      "violations": [],
+      "wmc": 0
+    },
+    {
+      "cbo": 1,
+      "class_name": "ComplexityExample",
+      "coupled_classes": [
+        "ComplexityExample"
+      ],
+      "dit": 0,
+      "end_line": 8,
+      "fields": [],
+      "language": "C++",
+      "lcom": 0,
+      "loc": 8,
+      "methods": [],
+      "noc": 0,
+      "nof": 0,
+      "nom": 0,
+      "path": "complexity_example.cpp",
+      "rfc": 0,
+      "start_line": 1,
+      "violations": [],
+      "wmc": 0
+    }
+  ],
+  "generated_at": "2026-11-12T18:17:06.542499456+00:00",
+  "summary": {
+    "avg_cbo": 3.3,
+    "avg_lcom": 0.9,
+    "avg_rfc": 0.9,
+    "avg_wmc": 1.1,
+    "low_cohesion_count": 1,
+    "max_cbo": 5,
+    "max_dit": 0,
+    "max_lcom": 2,
+    "max_rfc": 2,
+    "max_wmc": 4,
+    "total_classes": 10,
+    "total_files": 6,
+    "violation_count": 1
+  }
+}

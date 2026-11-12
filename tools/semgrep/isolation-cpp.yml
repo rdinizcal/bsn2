@@ -1,0 +1,111 @@
+rules:
+  - id: isolation.cpp.ros-resource
+    languages: [cpp]
+    severity: INFO
+    message: Recurso ROS 1 criado diretamente; revisar isolamento do adaptador.
+    metadata: {category: ros_resource, kind: infrastructure, comparison: ros-resource}
+    pattern-either:
+      - pattern: $NODE.advertise<$T>(...)
+      - pattern: $NODE.subscribe<$T>(...)
+      - pattern: $NODE.serviceClient<$T>(...)
+      - pattern: $NODE.advertise(...)
+      - pattern: $NODE.subscribe(...)
+      - pattern: $NODE.serviceClient(...)
+      - pattern: $NODE.advertiseService(...)
+
+  - id: isolation.cpp.ros-timer
+    languages: [cpp]
+    severity: INFO
+    message: Timer ROS 1; revisar controle de executor e tempo no teste.
+    metadata: {category: ros_timer, kind: infrastructure, comparison: ros-timer}
+    pattern-either:
+      - pattern: $NODE.createTimer(...)
+      - pattern: $NODE.createWallTimer(...)
+
+  - id: isolation.cpp.ros-runtime
+    languages: [cpp]
+    severity: INFO
+    message: Inicialização ou execução de runtime ROS 1.
+    metadata: {category: ros_runtime, kind: infrastructure, comparison: ros-runtime}
+    pattern-either:
+      - pattern: ros::init(...)
+      - pattern: ros::spin(...)
+      - pattern: ros::spinOnce(...)
+
+  - id: isolation.cpp.service-wait
+    languages: [cpp]
+    severity: INFO
+    message: Espera pela disponibilidade de serviço ROS 1.
+    metadata: {category: service_wait, kind: infrastructure, comparison: service-wait}
+    pattern-either:
+      - pattern: ros::service::waitForService(...)
+      - pattern: $CLIENT.waitForExistence(...)
+
+  - id: isolation.cpp.client-call
+    languages: [cpp]
+    severity: INFO
+    message: Possível chamada de cliente ROS 1, identificada pelo nome; confirmar contexto.
+    metadata: {category: client_call, kind: infrastructure, comparison: client-call, heuristic: receiver-name}
+    patterns:
+      - pattern: $CLIENT.call(...)
+      - metavariable-regex:
+          metavariable: $CLIENT
+          regex: (?i).*(cli|client).*
+
+  - id: isolation.cpp.file-io
+    languages: [cpp]
+    severity: INFO
+    message: Acesso a arquivo; revisar substituição ou arquivos temporários.
+    metadata: {category: file_io, kind: infrastructure, comparison: file-io}
+    pattern-either:
+      - pattern: std::ifstream $STREAM(...);
+      - pattern: std::ofstream $STREAM(...);
+      - pattern: std::ifstream(...)
+      - pattern: std::ofstream(...)
+      - pattern: fopen(...)
+
+  - id: isolation.cpp.real-clock
+    languages: [cpp]
+    severity: INFO
+    message: Leitura de relógio real; revisar controle do tempo.
+    metadata: {category: real_clock, kind: infrastructure, comparison: real-clock}
+    pattern-either:
+      - pattern: ros::Time::now(...)
+      - pattern: std::chrono::steady_clock::now(...)
+      - pattern: std::chrono::system_clock::now(...)
+
+  - id: isolation.cpp.real-sleep
+    languages: [cpp]
+    severity: INFO
+    message: Espera temporal real.
+    metadata: {category: real_sleep, kind: infrastructure, comparison: real-sleep}
+    pattern-either:
+      - pattern: std::this_thread::sleep_for(...)
+      - pattern: ros::Duration(...).sleep(...)
+
+  - id: isolation.cpp.thread-creation
+    languages: [cpp]
+    severity: INFO
+    message: Construção de std::thread inicia concorrência; revisar controle no teste.
+    metadata: {category: thread_creation, kind: infrastructure, comparison: thread-creation}
+    pattern-either:
+      - pattern: std::thread $THREAD(...);
+      - pattern: std::thread(...)
+
+  - id: isolation.cpp.process-execution
+    languages: [cpp]
+    severity: INFO
+    message: Execução de processo externo.
+    metadata: {category: process_execution, kind: infrastructure, comparison: process-execution}
+    pattern-either:
+      - pattern: system(...)
+      - pattern: popen(...)
+
+  - id: isolation.cpp.environment-read
+    languages: [cpp]
+    severity: INFO
+    message: Entrada dependente do ambiente do processo.
+    metadata: {category: environment_read, kind: infrastructure, comparison: environment-read}
+    pattern-either:
+      - pattern: getenv(...)
+      - pattern: std::getenv(...)

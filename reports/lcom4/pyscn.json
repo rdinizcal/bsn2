@@ -1,0 +1,1286 @@
+{
+  "lcom": {
+    "classes": [
+      {
+        "name": "DataAccess",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 104,
+        "end_line": 763,
+        "metrics": {
+          "lcom4": 2,
+          "total_methods": 22,
+          "excluded_methods": 1,
+          "instance_variables": 34,
+          "method_groups": [
+            [
+              "_apply_time_window",
+              "_calculate_component_cost",
+              "_calculate_component_reliability",
+              "_flush_logs",
+              "_get_component_name",
+              "_initialize_component_data",
+              "_load_goal_model",
+              "_load_models",
+              "_persist_adaptation",
+              "_persist_energy_status",
+              "_persist_event",
+              "_persist_status",
+              "_persist_uncertainty",
+              "_process_engine_energy_status",
+              "_setup_logging",
+              "now_seconds",
+              "process_query",
+              "process_target_system_data",
+              "receive_persist_message",
+              "timer_callback"
+            ],
+            [
+              "_setup_ros_interfaces"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "SystemMonitor",
+        "file_path": "system_monitor/system_monitor/node_monitor.py",
+        "start_line": 21,
+        "end_line": 303,
+        "metrics": {
+          "lcom4": 2,
+          "total_methods": 7,
+          "excluded_methods": 1,
+          "instance_variables": 13,
+          "method_groups": [
+            [
+              "check_heartbeats",
+              "check_state_helper",
+              "event_callback",
+              "publish_monitor_status",
+              "status_callback"
+            ],
+            [
+              "energy_callback"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "DataMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 33,
+        "end_line": 50,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 6,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "StatusMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 53,
+        "end_line": 59,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "EventMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 62,
+        "end_line": 68,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "EnergyStatusMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 71,
+        "end_line": 79,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "UncertaintyMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 82,
+        "end_line": 90,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "AdaptationMessage",
+        "file_path": "adaptation/adaptation/data_access/data_access.py",
+        "start_line": 93,
+        "end_line": 101,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 1,
+          "excluded_methods": 1,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Controller",
+        "file_path": "adaptation/adaptation/enactor/controller.py",
+        "start_line": 10,
+        "end_line": 198,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 7,
+          "excluded_methods": 2,
+          "instance_variables": 15,
+          "method_groups": [
+            [
+              "_publish_exception",
+              "_send_adaptation_command",
+              "apply_cost_strategy",
+              "apply_reli_strategy",
+              "receive_event"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Enactor",
+        "file_path": "adaptation/adaptation/enactor/enactor.py",
+        "start_line": 17,
+        "end_line": 277,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 15,
+          "excluded_methods": 4,
+          "instance_variables": 17,
+          "method_groups": [
+            [
+              "_adaptation_parameter_response",
+              "_process_status_response",
+              "_status_response_callback",
+              "_wait_for_services",
+              "body",
+              "print_status",
+              "receive_adaptation_parameter",
+              "receive_status",
+              "receive_strategy",
+              "setup",
+              "tear_down"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Engine",
+        "file_path": "adaptation/adaptation/engines/base_engine.py",
+        "start_line": 17,
+        "end_line": 255,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 16,
+          "excluded_methods": 8,
+          "instance_variables": 11,
+          "method_groups": [
+            [
+              "_setup_ros_interfaces",
+              "body",
+              "calculate_qos",
+              "fetch_formula",
+              "receive_exception",
+              "send_adaptation_parameter",
+              "setup",
+              "setup_formula"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ReliabilityEngine",
+        "file_path": "adaptation/adaptation/engines/reli_engine.py",
+        "start_line": 13,
+        "end_line": 385,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 13,
+          "excluded_methods": 4,
+          "instance_variables": 15,
+          "method_groups": [
+            [
+              "_process_context_response",
+              "_process_reliability_response",
+              "_request_context_data",
+              "_request_reliability_data",
+              "analyze",
+              "execute",
+              "monitor",
+              "plan",
+              "setup"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Context",
+        "file_path": "adaptation/adaptation/goal_model/context.py",
+        "start_line": 5,
+        "end_line": 64,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 11,
+          "excluded_methods": 2,
+          "instance_variables": 3,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "__eq__",
+              "get_description",
+              "get_id",
+              "get_value",
+              "set_description",
+              "set_id",
+              "set_value"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Goal",
+        "file_path": "adaptation/adaptation/goal_model/goal.py",
+        "start_line": 3,
+        "end_line": 21,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 2,
+          "excluded_methods": 2,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "GoalTree",
+        "file_path": "adaptation/adaptation/goal_model/goaltree.py",
+        "start_line": 7,
+        "end_line": 96,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 14,
+          "excluded_methods": 2,
+          "instance_variables": 2,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "__eq__",
+              "_add_children",
+              "_add_node",
+              "_get_nodes",
+              "add_root_goal",
+              "get_actor",
+              "get_leaf_tasks",
+              "get_node",
+              "get_size",
+              "set_actor"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "LeafTask",
+        "file_path": "adaptation/adaptation/goal_model/leaftask.py",
+        "start_line": 6,
+        "end_line": 91,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 13,
+          "excluded_methods": 3,
+          "instance_variables": 6,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "get_context",
+              "get_cost",
+              "get_frequency",
+              "get_reliability",
+              "set_context",
+              "set_cost",
+              "set_frequency",
+              "set_reliability"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Node",
+        "file_path": "adaptation/adaptation/goal_model/node.py",
+        "start_line": 10,
+        "end_line": 109,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 17,
+          "excluded_methods": 2,
+          "instance_variables": 3,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "__eq__",
+              "__repr__",
+              "__str__",
+              "_find_child",
+              "add_child",
+              "get_child",
+              "get_children",
+              "get_description",
+              "get_id",
+              "has_children",
+              "remove_child",
+              "set_description",
+              "set_id"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Property",
+        "file_path": "adaptation/adaptation/goal_model/property.py",
+        "start_line": 5,
+        "end_line": 54,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 9,
+          "excluded_methods": 2,
+          "instance_variables": 2,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "__eq__",
+              "get_id",
+              "get_value",
+              "set_id",
+              "set_value"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Task",
+        "file_path": "adaptation/adaptation/goal_model/task.py",
+        "start_line": 4,
+        "end_line": 30,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 4,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "FormulaError",
+        "file_path": "adaptation/adaptation/model/formula.py",
+        "start_line": 8,
+        "end_line": 11,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 0,
+          "excluded_methods": 0,
+          "instance_variables": 0,
+          "method_groups": []
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Formula",
+        "file_path": "adaptation/adaptation/model/formula.py",
+        "start_line": 14,
+        "end_line": 252,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 16,
+          "excluded_methods": 2,
+          "instance_variables": 7,
+          "method_groups": [
+            [
+              "__copy__",
+              "__deepcopy__",
+              "_clean_expression",
+              "_evaluate_node",
+              "_extract_variables",
+              "_parse_expression",
+              "evaluate",
+              "get_expression_text",
+              "get_formula",
+              "get_term_value_map",
+              "get_terms",
+              "set_expression",
+              "set_term_value_map",
+              "set_term_value_map_dict"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "CentralHub",
+        "file_path": "central_hub/central_hub/central_hub.py",
+        "start_line": 15,
+        "end_line": 211,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 12,
+          "excluded_methods": 3,
+          "instance_variables": 11,
+          "method_groups": [
+            [
+              "_create_additional_managers",
+              "detect",
+              "is_active",
+              "on_activate",
+              "on_cleanup",
+              "on_configure",
+              "on_deactivate",
+              "on_shutdown",
+              "run"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ConfigManager",
+        "file_path": "central_hub/central_hub/components/config_manager.py",
+        "start_line": 12,
+        "end_line": 42,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 2,
+          "excluded_methods": 1,
+          "instance_variables": 2,
+          "method_groups": [
+            [
+              "load"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "DataFusionEngine",
+        "file_path": "central_hub/central_hub/components/data_fusion.py",
+        "start_line": 10,
+        "end_line": 174,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 3,
+          "excluded_methods": 1,
+          "instance_variables": 1,
+          "method_groups": [
+            [
+              "_calculate_weighted_risk",
+              "fuse_data"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "PublisherManager",
+        "file_path": "central_hub/central_hub/components/publishers.py",
+        "start_line": 15,
+        "end_line": 128,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 3,
+          "excluded_methods": 1,
+          "instance_variables": 2,
+          "method_groups": [
+            [
+              "publish_system_data",
+              "setup_exclusive_publishers"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "SensorDataHandler",
+        "file_path": "central_hub/central_hub/components/sensor_data_handler.py",
+        "start_line": 12,
+        "end_line": 156,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 1,
+          "instance_variables": 12,
+          "method_groups": [
+            [
+              "cleanup_subscriptions",
+              "receive_datapoint",
+              "setup_subscriptions"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "RiskAnalyzer",
+        "file_path": "central_hub/central_hub/utils/risk_analyzer.py",
+        "start_line": 2,
+        "end_line": 49,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 2,
+          "excluded_methods": 1,
+          "instance_variables": 1,
+          "method_groups": [
+            [
+              "emit_alert"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Visualizer",
+        "file_path": "central_hub/central_hub/utils/visualization.py",
+        "start_line": 10,
+        "end_line": 140,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 1,
+          "instance_variables": 1,
+          "method_groups": [
+            [
+              "format_battery_status",
+              "format_log_message",
+              "format_summary_message"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Patient",
+        "file_path": "patient/patient/patient.py",
+        "start_line": 17,
+        "end_line": 386,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 9,
+          "excluded_methods": 3,
+          "instance_variables": 11,
+          "method_groups": [
+            [
+              "_calculate_datapoint",
+              "_determine_possible_next_state",
+              "_should_change_state",
+              "gen_data",
+              "get_data",
+              "spin_patient"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ConfigManager",
+        "file_path": "sensor/sensor/components/config_manager.py",
+        "start_line": 13,
+        "end_line": 116,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 3,
+          "excluded_methods": 1,
+          "instance_variables": 13,
+          "method_groups": [
+            [
+              "_declare_risk_parameters",
+              "load"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "DataProcessor",
+        "file_path": "sensor/sensor/components/data_processor.py",
+        "start_line": 14,
+        "end_line": 228,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 6,
+          "excluded_methods": 1,
+          "instance_variables": 4,
+          "method_groups": [
+            [
+              "collect",
+              "process",
+              "reset",
+              "setup_client",
+              "transfer"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "PublisherManager",
+        "file_path": "sensor/sensor/components/publishers.py",
+        "start_line": 13,
+        "end_line": 104,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 3,
+          "excluded_methods": 1,
+          "instance_variables": 2,
+          "method_groups": [
+            [
+              "publish_sensor_data",
+              "setup_exclusive_publishers"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "RiskManager",
+        "file_path": "sensor/sensor/components/risk_manager.py",
+        "start_line": 12,
+        "end_line": 197,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 8,
+          "excluded_methods": 1,
+          "instance_variables": 4,
+          "method_groups": [
+            [
+              "_parse_range",
+              "configure_risk_ranges",
+              "evaluate_risk",
+              "get_risk_label",
+              "is_high_risk",
+              "is_low_risk",
+              "is_medium_risk"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Sensor",
+        "file_path": "sensor/sensor/sensor.py",
+        "start_line": 21,
+        "end_line": 304,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 12,
+          "excluded_methods": 3,
+          "instance_variables": 9,
+          "method_groups": [
+            [
+              "_create_additional_managers",
+              "_publish_deferred_activation_events",
+              "is_active",
+              "on_activate",
+              "on_cleanup",
+              "on_configure",
+              "on_deactivate",
+              "on_shutdown",
+              "run"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "RiskEvaluator",
+        "file_path": "sensor/sensor/utils/risk_evaluator.py",
+        "start_line": 10,
+        "end_line": 270,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 10,
+          "excluded_methods": 1,
+          "instance_variables": 4,
+          "method_groups": [
+            [
+              "configure",
+              "convert_percentage",
+              "evaluate_risk",
+              "get_displacement",
+              "in_range",
+              "is_high_risk",
+              "is_low_risk",
+              "is_medium_risk",
+              "risk_label"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "AdaptationHandler",
+        "file_path": "shared_components/shared_components/adaptation_handler.py",
+        "start_line": 16,
+        "end_line": 190,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 1,
+          "instance_variables": 3,
+          "method_groups": [
+            [
+              "process_adaptation_command",
+              "register_with_effector",
+              "registration_callback"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Battery",
+        "file_path": "shared_components/shared_components/battery.py",
+        "start_line": 10,
+        "end_line": 189,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 1,
+          "instance_variables": 4,
+          "method_groups": [
+            [
+              "__str__",
+              "consume",
+              "generate"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "BatteryManager",
+        "file_path": "shared_components/shared_components/battery_manager.py",
+        "start_line": 14,
+        "end_line": 202,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 7,
+          "excluded_methods": 1,
+          "instance_variables": 10,
+          "method_groups": [
+            [
+              "check_battery_status",
+              "consume",
+              "enter_recharge_mode",
+              "exit_recharge_mode",
+              "recharge",
+              "send_energy_status"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ConfigManagerBase",
+        "file_path": "shared_components/shared_components/core/config_manager_base.py",
+        "start_line": 6,
+        "end_line": 42,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 3,
+          "excluded_methods": 2,
+          "instance_variables": 10,
+          "method_groups": [
+            [
+              "validate"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "PublisherManagerBase",
+        "file_path": "shared_components/shared_components/core/publisher_manager_base.py",
+        "start_line": 12,
+        "end_line": 139,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 8,
+          "excluded_methods": 2,
+          "instance_variables": 4,
+          "method_groups": [
+            [
+              "_to_str",
+              "publish_event",
+              "publish_event_once",
+              "publish_heartbeat",
+              "publish_status",
+              "setup_publishers"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "RosComponent",
+        "file_path": "shared_components/shared_components/core/ros_component.py",
+        "start_line": 13,
+        "end_line": 109,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 6,
+          "excluded_methods": 5,
+          "instance_variables": 8,
+          "method_groups": [
+            [
+              "_register_adaptation"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "LifecycleManager",
+        "file_path": "shared_components/shared_components/lifecycle_manager.py",
+        "start_line": 16,
+        "end_line": 631,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 15,
+          "excluded_methods": 1,
+          "instance_variables": 14,
+          "method_groups": [
+            [
+              "activate_node",
+              "cleanup_node",
+              "configure_node",
+              "configure_thresholds",
+              "deactivate_node",
+              "get_battery_level",
+              "get_lifecycle_status",
+              "initial_setup",
+              "monitor_lifecycle_state",
+              "restart_node",
+              "set_auto_management_flags",
+              "shutdown_node",
+              "start_auto_management",
+              "stop_auto_management"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Logger",
+        "file_path": "system_monitor/system_monitor/logger.py",
+        "start_line": 20,
+        "end_line": 357,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 14,
+          "excluded_methods": 2,
+          "instance_variables": 11,
+          "method_groups": [
+            [
+              "_setup_publishers",
+              "_setup_subscribers",
+              "now",
+              "on_activate",
+              "on_cleanup",
+              "on_configure",
+              "on_deactivate",
+              "receive_adaptation_command",
+              "receive_energy_status",
+              "receive_event",
+              "receive_status",
+              "receive_uncertainty"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ParamAdapter",
+        "file_path": "system_monitor/system_monitor/param_adapter.py",
+        "start_line": 17,
+        "end_line": 243,
+        "metrics": {
+          "lcom4": 1,
+          "total_methods": 4,
+          "excluded_methods": 1,
+          "instance_variables": 7,
+          "method_groups": [
+            [
+              "check_components",
+              "module_connect",
+              "receive_adaptation_command"
+            ]
+          ]
+        },
+        "risk_level": "low"
+      }
+    ],
+    "summary": {
+      "total_classes": 44,
+      "average_lcom": 1.0454545454545454,
+      "max_lcom": 2,
+      "min_lcom": 1,
+      "classes_analyzed": 44,
+      "files_analyzed": 54,
+      "low_risk_classes": 44,
+      "medium_risk_classes": 0,
+      "high_risk_classes": 0,
+      "lcom_distribution": {
+        "1": 42,
+        "2": 2
+      },
+      "least_cohesive_classes": [
+        {
+          "name": "DataAccess",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 104,
+          "end_line": 763,
+          "metrics": {
+            "lcom4": 2,
+            "total_methods": 22,
+            "excluded_methods": 1,
+            "instance_variables": 34,
+            "method_groups": [
+              [
+                "_apply_time_window",
+                "_calculate_component_cost",
+                "_calculate_component_reliability",
+                "_flush_logs",
+                "_get_component_name",
+                "_initialize_component_data",
+                "_load_goal_model",
+                "_load_models",
+                "_persist_adaptation",
+                "_persist_energy_status",
+                "_persist_event",
+                "_persist_status",
+                "_persist_uncertainty",
+                "_process_engine_energy_status",
+                "_setup_logging",
+                "now_seconds",
+                "process_query",
+                "process_target_system_data",
+                "receive_persist_message",
+                "timer_callback"
+              ],
+              [
+                "_setup_ros_interfaces"
+              ]
+            ]
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "SystemMonitor",
+          "file_path": "system_monitor/system_monitor/node_monitor.py",
+          "start_line": 21,
+          "end_line": 303,
+          "metrics": {
+            "lcom4": 2,
+            "total_methods": 7,
+            "excluded_methods": 1,
+            "instance_variables": 13,
+            "method_groups": [
+              [
+                "check_heartbeats",
+                "check_state_helper",
+                "event_callback",
+                "publish_monitor_status",
+                "status_callback"
+              ],
+              [
+                "energy_callback"
+              ]
+            ]
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "DataMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 33,
+          "end_line": 50,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 6,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "StatusMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 53,
+          "end_line": 59,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 0,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "EventMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 62,
+          "end_line": 68,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 0,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "EnergyStatusMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 71,
+          "end_line": 79,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 0,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "UncertaintyMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 82,
+          "end_line": 90,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 0,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "AdaptationMessage",
+          "file_path": "adaptation/adaptation/data_access/data_access.py",
+          "start_line": 93,
+          "end_line": 101,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 1,
+            "excluded_methods": 1,
+            "instance_variables": 0,
+            "method_groups": []
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "Controller",
+          "file_path": "adaptation/adaptation/enactor/controller.py",
+          "start_line": 10,
+          "end_line": 198,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 7,
+            "excluded_methods": 2,
+            "instance_variables": 15,
+            "method_groups": [
+              [
+                "_publish_exception",
+                "_send_adaptation_command",
+                "apply_cost_strategy",
+                "apply_reli_strategy",
+                "receive_event"
+              ]
+            ]
+          },
+          "risk_level": "low"
+        },
+        {
+          "name": "Enactor",
+          "file_path": "adaptation/adaptation/enactor/enactor.py",
+          "start_line": 17,
+          "end_line": 277,
+          "metrics": {
+            "lcom4": 1,
+            "total_methods": 15,
+            "excluded_methods": 4,
+            "instance_variables": 17,
+            "method_groups": [
+              [
+                "_adaptation_parameter_response",
+                "_process_status_response",
+                "_status_response_callback",
+                "_wait_for_services",
+                "body",
+                "print_status",
+                "receive_adaptation_parameter",
+                "receive_status",
+                "receive_strategy",
+                "setup",
+                "tear_down"
+              ]
+            ]
+          },
+          "risk_level": "low"
+        }
+      ]
+    },
+    "warnings": [
+      "[adaptation/adaptation/__init__.py] No classes found in file",
+      "[adaptation/adaptation/data_access/__init__.py] No classes found in file",
+      "[adaptation/adaptation/enactor/__init__.py] No classes found in file",
+      "[adaptation/adaptation/engines/__init__.py] No classes found in file",
+      "[adaptation/adaptation/goal_model/__init__.py] No classes found in file",
+      "[adaptation/adaptation/model/__init__.py] No classes found in file",
+      "[central_hub/central_hub/__init__.py] No classes found in file",
+      "[central_hub/central_hub/components/__init__.py] No classes found in file",
+      "[central_hub/central_hub/utils/__init__.py] No classes found in file",
+      "[patient/patient/__init__.py] No classes found in file",
+      "[sensor/sensor/__init__.py] No classes found in file",
+      "[sensor/sensor/components/__init__.py] No classes found in file",
+      "[sensor/sensor/utils/__init__.py] No classes found in file",
+      "[shared_components/shared_components/__init__.py] No classes found in file",
+      "[shared_components/shared_components/core/__init__.py] No classes found in file",
+      "[shared_components/shared_components/enums.py] No classes found in file",
+      "[system_monitor/system_monitor/__init__.py] No classes found in file"
+    ],
+    "errors": [],
+    "generated_at": "2026-11-12T18:16:39Z",
+    "version": "1.33.2",
+    "config": {
+      "low_threshold": 2,
+      "max_lcom": 0,
+      "medium_threshold": 5,
+      "min_lcom": 0,
+      "output_format": "json",
+      "sort_by": "cohesion"
+    }
+  },
+  "summary": {
+    "total_files": 54,
+    "analyzed_files": 54,
+    "skipped_files": 0,
+    "complexity_enabled": false,
+    "dead_code_enabled": false,
+    "clone_enabled": false,
+    "cbo_enabled": false,
+    "mock_data_enabled": false,
+    "deps_enabled": false,
+    "arch_enabled": false,
+    "communities_enabled": false,
+    "deps_total_modules": 0,
+    "deps_modules_in_cycles": 0,
+    "deps_max_depth": 0,
+    "deps_main_sequence_deviation": 0,
+    "arch_compliance": 0,
+    "community_count": 0,
+    "community_total_modules": 0,
+    "community_modularity": 0,
+    "community_bridge_modules": 0,
+    "community_internal_edges": 0,
+    "community_cross_edges": 0,
+    "total_functions": 0,
+    "total_class_scopes": 0,
+    "max_class_complexity": 0,
+    "max_class_cognitive_complexity": 0,
+    "max_class_nesting_depth": 0,
+    "high_complexity_class_scope_count": 0,
+    "functions_parsed": 0,
+    "average_complexity": 0,
+    "average_cognitive_complexity": 0,
+    "average_nesting_depth": 0,
+    "high_complexity_count": 0,
+    "dead_code_count": 0,
+    "critical_dead_code": 0,
+    "warning_dead_code": 0,
+    "info_dead_code": 0,
+    "total_clones": 0,
+    "clone_pairs": 0,
+    "clone_groups": 0,
+    "code_duplication_percentage": 0,
+    "cbo_classes": 0,
+    "high_coupling_classes": 0,
+    "medium_coupling_classes": 0,
+    "average_coupling": 0,
+    "lcom_enabled": true,
+    "lcom_classes": 44,
+    "high_lcom_classes": 0,
+    "medium_lcom_classes": 0,
+    "average_lcom": 1.0454545454545454,
+    "mock_data_count": 0,
+    "mock_data_error_count": 0,
+    "mock_data_warning_count": 0,
+    "mock_data_info_count": 0,
+    "health_score": 100,
+    "grade": "A",
+    "complexity_score": 100,
+    "dead_code_score": 100,
+    "duplication_score": 100,
+    "coupling_score": 100,
+    "cohesion_score": 100,
+    "dependency_score": 100,
+    "architecture_score": 0,
+    "community_score": 100,
+    "community_scored": false,
+    "community_risk_score": 0
+  },
+  "schema_version": 2,
+  "generated_at": "2026-11-12T18:16:39.274260648Z",
+  "duration_ms": 1128,
+  "version": "1.33.2"
+}

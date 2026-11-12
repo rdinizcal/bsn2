@@ -1,0 +1,1630 @@
+{
+  "complexity": {
+    "functions": [
+      {
+        "name": "ComplexityExample.branch",
+        "scope_kind": "function",
+        "file_path": "cases/complexity_example.py",
+        "start_line": 5,
+        "start_column": 4,
+        "end_line": 8,
+        "metrics": {
+          "complexity": 2,
+          "cognitive_complexity": 1,
+          "nodes": 3,
+          "edges": 5,
+          "nesting_depth": 1,
+          "deepest_nesting_line": 6,
+          "if_statements": 1,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 4
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/__init__.py",
+        "start_line": 2,
+        "start_column": 0,
+        "end_line": 2,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 0
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/complexity_example.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 9,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 7
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ComplexityExample.straight",
+        "scope_kind": "function",
+        "file_path": "cases/complexity_example.py",
+        "start_line": 2,
+        "start_column": 4,
+        "end_line": 3,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/consumer.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 26,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 15
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ConstructedConsumer.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/consumer.py",
+        "start_line": 5,
+        "start_column": 4,
+        "end_line": 6,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "TypedConsumer.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/consumer.py",
+        "start_line": 10,
+        "start_column": 4,
+        "end_line": 11,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "UntypedConsumer.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/consumer.py",
+        "start_line": 15,
+        "start_column": 4,
+        "end_line": 16,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "LocalConsumer.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/consumer.py",
+        "start_line": 24,
+        "start_column": 4,
+        "end_line": 25,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/dependency.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 4,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Dependency.act",
+        "scope_kind": "function",
+        "file_path": "cases/dependency.py",
+        "start_line": 2,
+        "start_column": 4,
+        "end_line": 3,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/loop_a.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 8,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 5
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "A.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/loop_a.py",
+        "start_line": 6,
+        "start_column": 4,
+        "end_line": 7,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "\u003cmodule\u003e",
+        "scope_kind": "module",
+        "file_path": "cases/loop_b.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 8,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 0,
+          "edges": 1,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 5
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "B.__init__",
+        "scope_kind": "function",
+        "file_path": "cases/loop_b.py",
+        "start_line": 6,
+        "start_column": 4,
+        "end_line": 7,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      }
+    ],
+    "class_scopes": [
+      {
+        "name": "ComplexityExample",
+        "scope_kind": "class",
+        "file_path": "cases/complexity_example.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 8,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 7
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "ConstructedConsumer",
+        "scope_kind": "class",
+        "file_path": "cases/consumer.py",
+        "start_line": 4,
+        "start_column": 0,
+        "end_line": 6,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "TypedConsumer",
+        "scope_kind": "class",
+        "file_path": "cases/consumer.py",
+        "start_line": 9,
+        "start_column": 0,
+        "end_line": 11,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "UntypedConsumer",
+        "scope_kind": "class",
+        "file_path": "cases/consumer.py",
+        "start_line": 14,
+        "start_column": 0,
+        "end_line": 16,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "LocalDependency",
+        "scope_kind": "class",
+        "file_path": "cases/consumer.py",
+        "start_line": 19,
+        "start_column": 0,
+        "end_line": 20,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 2
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "LocalConsumer",
+        "scope_kind": "class",
+        "file_path": "cases/consumer.py",
+        "start_line": 23,
+        "start_column": 0,
+        "end_line": 25,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "Dependency",
+        "scope_kind": "class",
+        "file_path": "cases/dependency.py",
+        "start_line": 1,
+        "start_column": 0,
+        "end_line": 3,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "A",
+        "scope_kind": "class",
+        "file_path": "cases/loop_a.py",
+        "start_line": 5,
+        "start_column": 0,
+        "end_line": 7,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      },
+      {
+        "name": "B",
+        "scope_kind": "class",
+        "file_path": "cases/loop_b.py",
+        "start_line": 5,
+        "start_column": 0,
+        "end_line": 7,
+        "metrics": {
+          "complexity": 1,
+          "cognitive_complexity": 0,
+          "nodes": 1,
+          "edges": 2,
+          "nesting_depth": 0,
+          "deepest_nesting_line": 0,
+          "if_statements": 0,
+          "loop_statements": 0,
+          "exception_handlers": 0,
+          "switch_cases": 0,
+          "sloc": 3
+        },
+        "risk_level": "low"
+      }
+    ],
+    "by_directory": [
+      {
+        "directory_path": ".",
+        "function_count": 15,
+        "average_complexity": 1.0666666666666667,
+        "max_complexity": 2,
+        "high_risk_function_count": 0,
+        "average_nesting_depth": 0.06666666666666667,
+        "max_nesting_depth": 1
+      }
+    ],
+    "summary": {
+      "total_functions": 15,
+      "total_class_scopes": 9,
+      "max_class_complexity": 1,
+      "max_class_cognitive_complexity": 0,
+      "max_class_nesting_depth": 0,
+      "high_risk_class_scopes": 0,
+      "functions_parsed": 15,
+      "average_complexity": 1.0666666666666667,
+      "average_cognitive_complexity": 0.06666666666666667,
+      "average_nesting_depth": 0.06666666666666667,
+      "max_complexity": 2,
+      "min_complexity": 1,
+      "files_analyzed": 6,
+      "total_files": 6,
+      "skipped_files": 0,
+      "low_risk_functions": 15,
+      "medium_risk_functions": 0,
+      "high_risk_functions": 0,
+      "complexity_distribution": {
+        "1": 14,
+        "2-5": 1
+      }
+    },
+    "raw_metrics": [
+      {
+        "file_path": "cases/__init__.py",
+        "sloc": 0,
+        "lloc": 0,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 1,
+        "total_lines": 1,
+        "comment_ratio": 0
+      },
+      {
+        "file_path": "cases/complexity_example.py",
+        "sloc": 7,
+        "lloc": 7,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 1,
+        "total_lines": 8,
+        "comment_ratio": 0
+      },
+      {
+        "file_path": "cases/consumer.py",
+        "sloc": 15,
+        "lloc": 15,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 10,
+        "total_lines": 25,
+        "comment_ratio": 0
+      },
+      {
+        "file_path": "cases/dependency.py",
+        "sloc": 3,
+        "lloc": 3,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 0,
+        "total_lines": 3,
+        "comment_ratio": 0
+      },
+      {
+        "file_path": "cases/loop_a.py",
+        "sloc": 5,
+        "lloc": 5,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 2,
+        "total_lines": 7,
+        "comment_ratio": 0
+      },
+      {
+        "file_path": "cases/loop_b.py",
+        "sloc": 5,
+        "lloc": 5,
+        "comment_lines": 0,
+        "docstring_lines": 0,
+        "blank_lines": 2,
+        "total_lines": 7,
+        "comment_ratio": 0
+      }
+    ],
+    "raw_metrics_summary": {
+      "files_analyzed": 6,
+      "sloc": 35,
+      "lloc": 35,
+      "comment_lines": 0,
+      "docstring_lines": 0,
+      "blank_lines": 16,
+      "total_lines": 51,
+      "comment_ratio": 0
+    },
+    "warnings": null,
+    "errors": [],
+    "generated_at": "2026-11-12T18:17:03Z",
+    "version": "1.33.2",
+    "config": {
+      "cognitive_complexity_threshold": 25,
+      "enabled": true,
+      "exclude_patterns": [],
+      "function_sloc_critical_threshold": 100,
+      "function_sloc_warn_threshold": 50,
+      "include_patterns": [],
+      "low_threshold": 9,
+      "max_complexity": 0,
+      "medium_threshold": 19,
+      "min_complexity": 1,
+      "nesting_depth_threshold": 7,
+      "output_format": "json",
+      "recursive": true,
+      "report_unchanged": true,
+      "show_details": false,
+      "sort_by": "complexity"
+    },
+    "request": {
+      "paths": [
+        "cases/__init__.py",
+        "cases/complexity_example.py",
+        "cases/consumer.py",
+        "cases/dependency.py",
+        "cases/loop_a.py",
+        "cases/loop_b.py"
+      ],
+      "output_format": "json",
+      "output_path": "",
+      "no_open": false,
+      "show_details": false,
+      "min_complexity": 1,
+      "max_complexity": 0,
+      "sort_by": "complexity",
+      "low_threshold": 9,
+      "medium_threshold": 19,
+      "cognitive_complexity_threshold": 25,
+      "nesting_depth_threshold": 7,
+      "function_sloc_warn_threshold": 50,
+      "function_sloc_critical_threshold": 100,
+      "enabled": true,
+      "report_unchanged": true,
+      "config_path": "/ros_ws/src/reports/class_modularity/validation/pyscn.toml",
+      "recursive": true,
+      "include_patterns": [],
+      "exclude_patterns": []
+    }
+  },
+  "cbo": {
+    "classes": [
+      {
+        "name": "ConstructedConsumer",
+        "file_path": "cases/consumer.py",
+        "start_line": 4,
+        "end_line": 6,
+        "metrics": {
+          "coupling_count": 1,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 1,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 1,
+          "dependent_classes": [
+            "Dependency"
+          ]
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "ComplexityExample",
+        "file_path": "cases/complexity_example.py",
+        "start_line": 1,
+        "end_line": 8,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "TypedConsumer",
+        "file_path": "cases/consumer.py",
+        "start_line": 9,
+        "end_line": 11,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 1,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "UntypedConsumer",
+        "file_path": "cases/consumer.py",
+        "start_line": 14,
+        "end_line": 16,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "LocalDependency",
+        "file_path": "cases/consumer.py",
+        "start_line": 19,
+        "end_line": 20,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "LocalConsumer",
+        "file_path": "cases/consumer.py",
+        "start_line": 23,
+        "end_line": 25,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "Dependency",
+        "file_path": "cases/dependency.py",
+        "start_line": 1,
+        "end_line": 3,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 0,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "A",
+        "file_path": "cases/loop_a.py",
+        "start_line": 5,
+        "end_line": 7,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 1,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      },
+      {
+        "name": "B",
+        "file_path": "cases/loop_b.py",
+        "start_line": 5,
+        "end_line": 7,
+        "metrics": {
+          "coupling_count": 0,
+          "inheritance_dependencies": 0,
+          "type_hint_dependencies": 1,
+          "instantiation_dependencies": 0,
+          "attribute_access_dependencies": 0,
+          "import_dependencies": 0,
+          "dependent_classes": []
+        },
+        "risk_level": "low",
+        "is_abstract": false,
+        "base_classes": []
+      }
+    ],
+    "summary": {
+      "total_classes": 9,
+      "average_cbo": 0.1111111111111111,
+      "max_cbo": 1,
+      "min_cbo": 0,
+      "classes_analyzed": 9,
+      "files_analyzed": 6,
+      "low_risk_classes": 9,
+      "medium_risk_classes": 0,
+      "high_risk_classes": 0,
+      "cbo_distribution": {
+        "0": 8,
+        "1-5": 1
+      },
+      "most_coupled_classes": [
+        {
+          "name": "ConstructedConsumer",
+          "file_path": "cases/consumer.py",
+          "start_line": 4,
+          "end_line": 6,
+          "metrics": {
+            "coupling_count": 1,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 1,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 1,
+            "dependent_classes": [
+              "Dependency"
+            ]
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "ComplexityExample",
+          "file_path": "cases/complexity_example.py",
+          "start_line": 1,
+          "end_line": 8,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "TypedConsumer",
+          "file_path": "cases/consumer.py",
+          "start_line": 9,
+          "end_line": 11,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 1,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "UntypedConsumer",
+          "file_path": "cases/consumer.py",
+          "start_line": 14,
+          "end_line": 16,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "LocalDependency",
+          "file_path": "cases/consumer.py",
+          "start_line": 19,
+          "end_line": 20,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "LocalConsumer",
+          "file_path": "cases/consumer.py",
+          "start_line": 23,
+          "end_line": 25,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "Dependency",
+          "file_path": "cases/dependency.py",
+          "start_line": 1,
+          "end_line": 3,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 0,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "A",
+          "file_path": "cases/loop_a.py",
+          "start_line": 5,
+          "end_line": 7,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 1,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        },
+        {
+          "name": "B",
+          "file_path": "cases/loop_b.py",
+          "start_line": 5,
+          "end_line": 7,
+          "metrics": {
+            "coupling_count": 0,
+            "inheritance_dependencies": 0,
+            "type_hint_dependencies": 1,
+            "instantiation_dependencies": 0,
+            "attribute_access_dependencies": 0,
+            "import_dependencies": 0,
+            "dependent_classes": []
+          },
+          "risk_level": "low",
+          "is_abstract": false,
+          "base_classes": []
+        }
+      ],
+      "most_depended_upon_classes": null
+    },
+    "warnings": [
+      "[cases/__init__.py] No classes found in file"
+    ],
+    "errors": [],
+    "generated_at": "2026-11-12T18:17:03Z",
+    "version": "1.33.2",
+    "config": {
+      "group_namespace_imports": true,
+      "include_builtins": false,
+      "include_imports": true,
+      "low_threshold": 3,
+      "max_cbo": 0,
+      "medium_threshold": 7,
+      "min_cbo": 0,
+      "output_format": "json",
+      "show_zeros": true,
+      "sort_by": "coupling"
+    }
+  },
+  "system": {
+    "dependency_analysis": {
+      "total_modules": 6,
+      "total_dependencies": 3,
+      "resolved_imports": 3,
+      "unresolved_imports": 0,
+      "root_modules": [
+        "cases",
+        "cases.complexity_example",
+        "cases.dependency"
+      ],
+      "leaf_modules": [
+        "cases",
+        "cases.complexity_example",
+        "cases.consumer"
+      ],
+      "module_metrics": {
+        "cases": {
+          "module_name": "cases",
+          "package": "",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/__init__.py",
+          "is_package": true,
+          "lines_of_code": 1,
+          "function_count": 0,
+          "class_count": 0,
+          "abstract_class_count": 0,
+          "public_interface": [],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "cases.complexity_example": {
+          "module_name": "cases.complexity_example",
+          "package": "cases",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/complexity_example.py",
+          "is_package": false,
+          "lines_of_code": 8,
+          "function_count": 2,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ComplexityExample",
+            "straight",
+            "branch"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": null
+        },
+        "cases.consumer": {
+          "module_name": "cases.consumer",
+          "package": "cases",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/consumer.py",
+          "is_package": false,
+          "lines_of_code": 25,
+          "function_count": 4,
+          "class_count": 5,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "ConstructedConsumer",
+            "TypedConsumer",
+            "UntypedConsumer",
+            "LocalDependency",
+            "LocalConsumer"
+          ],
+          "afferent_coupling": 0,
+          "efferent_coupling": 1,
+          "instability": 1,
+          "abstractness": 0,
+          "distance": 0,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "low",
+          "direct_dependencies": [
+            "cases.dependency"
+          ],
+          "transitive_dependencies": [
+            "cases.dependency"
+          ],
+          "dependents": null
+        },
+        "cases.dependency": {
+          "module_name": "cases.dependency",
+          "package": "cases",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/dependency.py",
+          "is_package": false,
+          "lines_of_code": 3,
+          "function_count": 1,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "Dependency",
+            "act"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 0,
+          "instability": 0,
+          "abstractness": 0,
+          "distance": 1,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "high",
+          "direct_dependencies": null,
+          "transitive_dependencies": null,
+          "dependents": [
+            "cases.consumer"
+          ]
+        },
+        "cases.loop_a": {
+          "module_name": "cases.loop_a",
+          "package": "cases",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/loop_a.py",
+          "is_package": false,
+          "lines_of_code": 7,
+          "function_count": 1,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "A"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "cases.loop_b"
+          ],
+          "transitive_dependencies": [
+            "cases.loop_b"
+          ],
+          "dependents": [
+            "cases.loop_b"
+          ]
+        },
+        "cases.loop_b": {
+          "module_name": "cases.loop_b",
+          "package": "cases",
+          "file_path": "/ros_ws/src/reports/class_modularity/validation/cases/loop_b.py",
+          "is_package": false,
+          "lines_of_code": 7,
+          "function_count": 1,
+          "class_count": 1,
+          "abstract_class_count": 0,
+          "public_interface": [
+            "B"
+          ],
+          "afferent_coupling": 1,
+          "efferent_coupling": 1,
+          "instability": 0.5,
+          "abstractness": 0,
+          "distance": 0.5,
+          "maintainability": 0,
+          "technical_debt": 0,
+          "risk_level": "medium",
+          "direct_dependencies": [
+            "cases.loop_a"
+          ],
+          "transitive_dependencies": [
+            "cases.loop_a"
+          ],
+          "dependents": [
+            "cases.loop_a"
+          ]
+        }
+      },
+      "dependency_matrix": {
+        "cases": {},
+        "cases.complexity_example": {},
+        "cases.consumer": {
+          "cases.dependency": true
+        },
+        "cases.dependency": {},
+        "cases.loop_a": {
+          "cases.loop_b": true
+        },
+        "cases.loop_b": {
+          "cases.loop_a": true
+        }
+      },
+      "circular_dependencies": {
+        "has_circular_dependencies": true,
+        "total_cycles": 1,
+        "total_modules_in_cycles": 2,
+        "circular_dependencies": [
+          {
+            "modules": [
+              "cases.loop_a",
+              "cases.loop_b"
+            ],
+            "dependencies": [
+              {
+                "from": "cases.loop_a",
+                "to": "cases.loop_b",
+                "path": [
+                  "cases.loop_a",
+                  "cases.loop_b"
+                ],
+                "length": 1
+              },
+              {
+                "from": "cases.loop_b",
+                "to": "cases.loop_a",
+                "path": [
+                  "cases.loop_b",
+                  "cases.loop_a"
+                ],
+                "length": 1
+              }
+            ],
+            "severity": "low",
+            "size": 2,
+            "description": "Direct circular dependency between cases.loop_a and cases.loop_b"
+          }
+        ],
+        "cycle_breaking_suggestions": [
+          "Consider introducing interfaces or abstract base classes to invert dependencies",
+          "Break cycle between cases.loop_a and cases.loop_b by introducing a third module or using dependency injection",
+          "Review your architecture to ensure proper layer separation (e.g., presentation → application → domain → infrastructure)",
+          "Consider using event-driven patterns to decouple tightly coupled modules"
+        ],
+        "core_infrastructure": null
+      },
+      "coupling_analysis": {
+        "average_coupling": 1,
+        "coupling_distribution": null,
+        "highly_coupled_modules": [
+          "cases.dependency",
+          "cases.loop_a",
+          "cases.loop_b"
+        ],
+        "loosely_coupled_modules": null,
+        "average_instability": 0.5,
+        "stable_modules": [
+          "cases",
+          "cases.complexity_example",
+          "cases.dependency"
+        ],
+        "instable_modules": [
+          "cases.consumer"
+        ],
+        "main_sequence_deviation": 0.5,
+        "zone_of_pain": [],
+        "zone_of_uselessness": [],
+        "main_sequence": [
+          "cases.consumer"
+        ]
+      },
+      "longest_chains": [
+        {
+          "from": "cases.consumer",
+          "to": "cases.dependency",
+          "path": [
+            "cases.consumer",
+            "cases.dependency"
+          ],
+          "length": 2
+        },
+        {
+          "from": "cases.loop_a",
+          "to": "cases.loop_b",
+          "path": [
+            "cases.loop_a",
+            "cases.loop_b"
+          ],
+          "length": 2
+        }
+      ],
+      "max_depth": 1
+    },
+    "architecture_analysis": {
+      "compliance_score": 1,
+      "total_violations": 0,
+      "weighted_violations": 0,
+      "total_rules": 7,
+      "layer_analysis": {
+        "layers_analyzed": 0,
+        "layer_violations": [],
+        "layer_coupling": {},
+        "layer_cohesion": {},
+        "problematic_layers": null
+      },
+      "cohesion_analysis": {
+        "package_cohesion": {
+          "cases": 1
+        },
+        "low_cohesion_packages": [],
+        "cohesion_suggestions": {}
+      },
+      "responsibility_analysis": {
+        "srp_violations": [],
+        "module_responsibilities": {
+          "cases": [],
+          "cases.complexity_example": [],
+          "cases.consumer": [
+            "cases"
+          ],
+          "cases.dependency": [],
+          "cases.loop_a": [
+            "cases"
+          ],
+          "cases.loop_b": [
+            "cases"
+          ]
+        },
+        "overloaded_modules": []
+      },
+      "violations": [],
+      "severity_breakdown": {},
+      "recommendations": [
+        {
+          "type": "interface",
+          "priority": "low",
+          "title": "Introduce Dependency Injection",
+          "description": "Use dependency injection to reduce coupling between layers",
+          "benefits": [
+            "Better testability with mock dependencies",
+            "Reduced coupling between components",
+            "More flexible and maintainable code"
+          ],
+          "effort": "medium",
+          "modules": null,
+          "steps": [
+            "Identify tightly coupled components",
+            "Create interfaces for dependencies",
+            "Inject dependencies rather than creating them directly"
+          ]
+        }
+      ],
+      "refactoring_targets": null
+    },
+    "summary": {
+      "total_modules": 6,
+      "total_packages": 1,
+      "total_dependencies": 3,
+      "project_root": "/ros_ws/src/reports/class_modularity/validation",
+      "resolved_imports": 3,
+      "unresolved_imports": 0,
+      "overall_quality_score": 77.47,
+      "maintainability_score": 81.17,
+      "architecture_score": 100,
+      "modularity_score": 50,
+      "technical_debt_hours": 14,
+      "average_coupling": 1,
+      "average_instability": 0.5,
+      "cyclic_dependencies": 2,
+      "architecture_violations": 0,
+      "high_risk_modules": 1,
+      "critical_issues": 0,
+      "refactoring_candidates": 3,
+      "architecture_improvements": 1
+    },
+    "issues": null,
+    "recommendations": null,
+    "warnings": null,
+    "errors": [],
+    "generated_at": "2026-11-12T18:17:03.465679903Z",
+    "duration": 3,
+    "version": "1.33.2",
+    "config": null
+  },
+  "module_quality": [
+    {
+      "module_name": "cases.complexity_example",
+      "file_path": "cases/complexity_example.py",
+      "lines_of_code": 8,
+      "function_count": 2,
+      "analyzed_function_count": 2,
+      "average_complexity": 1.5,
+      "average_cognitive_complexity": 0.5,
+      "max_complexity": 2,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "cases.consumer",
+      "file_path": "cases/consumer.py",
+      "lines_of_code": 25,
+      "function_count": 4,
+      "analyzed_function_count": 4,
+      "average_complexity": 1,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 1,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "cases.dependency",
+      "file_path": "cases/dependency.py",
+      "lines_of_code": 3,
+      "function_count": 1,
+      "analyzed_function_count": 1,
+      "average_complexity": 1,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 1,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "cases.loop_a",
+      "file_path": "cases/loop_a.py",
+      "lines_of_code": 7,
+      "function_count": 1,
+      "analyzed_function_count": 1,
+      "average_complexity": 1,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 1,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "cases.loop_b",
+      "file_path": "cases/loop_b.py",
+      "lines_of_code": 7,
+      "function_count": 1,
+      "analyzed_function_count": 1,
+      "average_complexity": 1,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 1,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    },
+    {
+      "module_name": "cases",
+      "file_path": "cases/__init__.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "analyzed_function_count": 0,
+      "average_complexity": 0,
+      "average_cognitive_complexity": 0,
+      "max_complexity": 0,
+      "high_risk_function_count": 0,
+      "exception_handler_count": 0,
+      "dead_code_finding_count": 0,
+      "dead_code_block_count": 0
+    }
+  ],
+  "suggestions": [
+    {
+      "category": "dependency",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Break circular dependency",
+      "description": "Consider introducing interfaces or abstract base classes to invert dependencies"
+    },
+    {
+      "category": "dependency",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Break circular dependency",
+      "description": "Break cycle between cases.loop_a and cases.loop_b by introducing a third module or using dependency injection"
+    },
+    {
+      "category": "dependency",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Break circular dependency",
+      "description": "Review your architecture to ensure proper layer separation (e.g., presentation → application → domain → infrastructure)"
+    },
+    {
+      "category": "dependency",
+      "severity": "critical",
+      "effort": "hard",
+      "title": "Break circular dependency",
+      "description": "Consider using event-driven patterns to decouple tightly coupled modules"
+    }
+  ],
+  "summary": {
+    "total_files": 6,
+    "analyzed_files": 6,
+    "skipped_files": 0,
+    "complexity_enabled": true,
+    "dead_code_enabled": false,
+    "clone_enabled": false,
+    "cbo_enabled": true,
+    "mock_data_enabled": false,
+    "deps_enabled": true,
+    "arch_enabled": true,
+    "communities_enabled": false,
+    "deps_total_modules": 6,
+    "deps_modules_in_cycles": 2,
+    "deps_max_depth": 1,
+    "deps_main_sequence_deviation": 0.5,
+    "arch_compliance": 1,
+    "community_count": 0,
+    "community_total_modules": 0,
+    "community_modularity": 0,
+    "community_bridge_modules": 0,
+    "community_internal_edges": 0,
+    "community_cross_edges": 0,
+    "total_functions": 15,
+    "total_class_scopes": 9,
+    "max_class_complexity": 1,
+    "max_class_cognitive_complexity": 0,
+    "max_class_nesting_depth": 0,
+    "high_complexity_class_scope_count": 0,
+    "functions_parsed": 15,
+    "average_complexity": 1.0666666666666667,
+    "average_cognitive_complexity": 0.06666666666666667,
+    "average_nesting_depth": 0.06666666666666667,
+    "high_complexity_count": 0,
+    "dead_code_count": 0,
+    "critical_dead_code": 0,
+    "warning_dead_code": 0,
+    "info_dead_code": 0,
+    "total_clones": 0,
+    "clone_pairs": 0,
+    "clone_groups": 0,
+    "code_duplication_percentage": 0,
+    "cbo_classes": 9,
+    "high_coupling_classes": 0,
+    "medium_coupling_classes": 0,
+    "average_coupling": 0.1111111111111111,
+    "lcom_enabled": false,
+    "lcom_classes": 0,
+    "high_lcom_classes": 0,
+    "medium_lcom_classes": 0,
+    "average_lcom": 0,
+    "mock_data_count": 0,
+    "mock_data_error_count": 0,
+    "mock_data_warning_count": 0,
+    "mock_data_info_count": 0,
+    "health_score": 95,
+    "grade": "A",
+    "complexity_score": 100,
+    "dead_code_score": 100,
+    "duplication_score": 100,
+    "coupling_score": 100,
+    "cohesion_score": 100,
+    "dependency_score": 70,
+    "architecture_score": 100,
+    "community_score": 100,
+    "community_scored": false,
+    "community_risk_score": 0
+  },
+  "schema_version": 2,
+  "generated_at": "2026-11-12T18:17:03.477437602Z",
+  "duration_ms": 185,
+  "version": "1.33.2"
+}

@@ -1,0 +1,4 @@
+pyscn==1.33.2
+lcom @ git+https://github.com/potfur/lcom.git@b8b7d75c149864ab8c2cab7296a06da01a4a3359
+click==8.5.1
+terminaltables==3.1.10

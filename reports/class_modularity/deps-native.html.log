@@ -1,0 +1,17 @@
+📊 Unified HTML report generated: /ros_ws/src/reports/class_modularity/deps-native.html
+
+📊 Analysis Summary:
+Health Score: 96/100 (Grade: A)
+Total time: 213ms
+
+📈 Detailed Scores:
+  Dependencies:    85/100 👍  (no cycles, depth: 5)
+  Architecture:    85/100 👍  (85% compliant)
+
+
+--------------------------------------------------
+[Badge] Add this to your README to show off your score:
+[![pyscn quality](https://img.shields.io/badge/pyscn-A-brightgreen)](https://github.com/ludo-technologies/pyscn)
+
+[Star] Finding pyscn useful? https://github.com/ludo-technologies/pyscn
+--------------------------------------------------
